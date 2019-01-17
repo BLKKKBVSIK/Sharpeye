@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:showIn="navigation_view">
+
+    <group>
+        <item
+                android:id="@+id/nav_danger"
+                android:icon="?android:attr/alertDialogIcon"
+                android:title="Détection de danger"/>
+        <item
+                android:id="@+id/nav_signs"
+                android:icon="@drawable/ic_menu_sign"
+                android:title="Détection de panneaux"/>
+        <item
+                android:id="@+id/nav_assist"
+                android:icon="@drawable/ic_menu_voice_assist"
+                android:title="Assistance vocale"/>
+        <item
+                android:id="@+id/nav_dashcam"
+                android:icon="@drawable/ic_menu_camera"
+                android:title="Camera embarquée"/>
+    </group>
+
+    <item android:title="">
+        <menu>
+            <item
+                    android:id="@+id/nav_about"
+                    android:icon="@drawable/ic_menu_about"
+                    android:title="A propos"/>
+        </menu>
+    </item>
+
+</menu>
