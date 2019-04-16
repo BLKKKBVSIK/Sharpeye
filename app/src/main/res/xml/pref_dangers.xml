@@ -1,0 +1,9 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference
+            android:key="danger_on"
+            android:title="Activer la detection de dangers"
+            android:summary="Avertira les passagers quand un danger sera détecté"
+            android:defaultValue="true"/>
+
+</PreferenceScreen>

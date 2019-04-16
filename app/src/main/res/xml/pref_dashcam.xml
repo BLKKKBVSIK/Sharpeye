@@ -1,0 +1,13 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference
+            android:key="dashcam_on"
+            android:title="Activer la dashcam"
+            android:summary="Un enregistrement instantané de votre conduite sera crée quand vous roulerez"
+            android:defaultValue="true"/>
+    <SwitchPreference
+            android:key="record_on_impact"
+            android:title="Enregistrement automatic des chocs"
+            android:summary="si l'application détecte un mouvement brusque, la vidéo sera archivée pour pouvoir être consultable bien plus tard"
+            android:defaultValue="true"/>
+</PreferenceScreen>
