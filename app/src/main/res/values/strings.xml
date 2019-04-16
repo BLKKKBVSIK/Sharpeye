@@ -1,4 +1,11 @@
 <resources>
+
+    <string name="nav_danger">Détection de danger</string>
+    <string name="nav_signs">Détection de panneaux</string>
+    <string name="nav_assist">Assistance vocale</string>
+    <string name="nav_dashcam">Camera embarquée</string>
+    <string name="nav_about">A propos</string>
+
     <string name="app_name">Sharpeye</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -80,4 +87,8 @@
     <string name="pref_ringtone_silent">Silent</string>
 
     <string name="pref_title_vibrate">Vibrate</string>
+
+    <string name="description_info">Info</string>
+    <string name="request_permission">This sample needs camera permission.</string>
+    <string name="camera_error">This device doesn\'t support Camera2 API.</string>
 </resources>
