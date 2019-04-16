@@ -1,1 +1,7 @@
 /build
+/local.properties
+/sharpeye-android.iml
+/app/build
+/app/app.iml
+/.idea
+/.gradle
