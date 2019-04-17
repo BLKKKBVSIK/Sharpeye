@@ -508,8 +508,6 @@ public abstract class CameraActivity extends AppCompatActivity
       intent.putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT,
               SettingsActivity.DangersPreferenceFragment.class.getName());
       intent.putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true);
-      intent.putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT_TITLE, "Test");
-      intent.putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT_SHORT_TITLE, "Test");
       startActivity(intent);
     } else if (id == R.id.nav_signs) {
       Intent intent = new Intent(this, SettingsActivity.class);
