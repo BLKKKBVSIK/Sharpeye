@@ -43,6 +43,8 @@ import android.util.Log;
 import android.util.Size;
 import android.view.*;
 import android.widget.Toast;
+import com.crashlytics.android.Crashlytics;
+import io.fabric.sdk.android.Fabric;
 import sharpeye.sharpeye.env.ImageUtils;
 import sharpeye.sharpeye.env.Logger;
 
@@ -77,6 +79,7 @@ public abstract class CameraActivity extends AppCompatActivity
   protected void onCreate(final Bundle savedInstanceState) {
     LOGGER.d("onCreate " + this);
     super.onCreate(null);
+    Fabric.with(this, new Crashlytics());
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
     /* Set the status bar transparent */
