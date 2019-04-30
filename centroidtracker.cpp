@@ -93,7 +93,9 @@ void CentroidTracker::correlatePositions(
 	const std::vector<cv::Point> &objectCentroids,
 	const std::vector<cv::Point> &inputCentroids,
 	std::vector<int> &unusedRows,
-	std::vector<int> &unusedCols) {
+	std::vector<int> &unusedCols,
+	std::map<int, cv::Rect> &result,
+	const std::vector<cv::Rect> &boxes) {
 
 	std::vector<int> rows = this->sortRows();
 	std::vector<int> cols = this->sortCols(rows);
@@ -106,6 +108,7 @@ void CentroidTracker::correlatePositions(
 			continue;
 		}
 		objectID = objectIDs[rows[i]];
+		result.insert(std::make_pair(objectID, boxes[cols[i]]));
 		this->objects[objectID] = inputCentroids[cols[i]];
 		this->disappeared[objectID] = 0;
 		usedRows.push_back(rows[i]);
@@ -120,16 +123,23 @@ void CentroidTracker::correlatePositions(
 /*
 ** Updates the centroids of the tracked objects and adds/removes objects to the list of tracked objects
 */
-std::map<int, cv::Point> CentroidTracker::update(const std::vector<cv::Rect> &boxes) {
-	if (boxes.size() == 0) return this->allObjectsDisappeared(boxes);
+std::map<int, cv::Rect> CentroidTracker::update(const std::vector<cv::Rect> &boxes) {
+	std::map<int, cv::Rect> result;
+	if (boxes.size() == 0) {
+		this->allObjectsDisappeared(boxes);
+		return result;
+	}
 
 	std::vector<cv::Point> inputCentroids;
 	for (auto &box: boxes)
 		inputCentroids.push_back(cv::Point(box.x + (box.width / 2.0), box.y + (box.height / 2.0)));
 
 	if (this->objects.size() == 0) {
-		for (auto &centroid: inputCentroids)
+		int i = 0;
+		for (auto &centroid: inputCentroids) {
+			result.insert(std::make_pair(this->nextObjectID, boxes[i]));
 			this->register_object(centroid);
+		}
 	} else {
 		std::vector<int> objectIDs;
 		std::vector<cv::Point> objectCentroids;
@@ -142,7 +152,7 @@ std::map<int, cv::Point> CentroidTracker::update(const std::vector<cv::Rect> &bo
 		this->compute_distances(objectCentroids, inputCentroids);
 		std::vector<int> unusedRows;
 		std::vector<int> unusedCols;
-		this->correlatePositions(objectIDs, objectCentroids, inputCentroids, unusedRows, unusedCols);
+		this->correlatePositions(objectIDs, objectCentroids, inputCentroids, unusedRows, unusedCols, result, boxes);
 
 		int objectID;
 		if (this->dists.size() >= this->dists[0].size()) {
@@ -152,9 +162,11 @@ std::map<int, cv::Point> CentroidTracker::update(const std::vector<cv::Rect> &bo
 				if (this->disappeared[objectID] > this->maxDisappeared) this->deregister_object(objectID);
 			}
 		} else {
-			for (auto &col: unusedCols)
+			for (auto &col: unusedCols) {
+				result.insert(std::make_pair(this->nextObjectID, boxes[col]));
 				this->register_object(inputCentroids[col]);
+			}
 		}
 	}
-	return this->objects;
+	return result;
 }

@@ -64,6 +64,7 @@ std::vector<cv::Rect> getBoxesFromTracker(cv::Ptr<cv::MultiTracker> trackers, cv
 
 int main(int argc, char **argv) {
 	std::string videoPath = "dashcam_boston.mp4";
+	srand(1);
 
 	CentroidTracker ct;
 	cv::dnn::Net tensorflowNet = cv::dnn::readNetFromCaffe("MobileNetSSD_deploy.prototxt", "MobileNetSSD_deploy.caffemodel");
@@ -74,7 +75,7 @@ int main(int argc, char **argv) {
 	cv::Ptr<cv::MultiTracker> trackers = nullptr;
 	std::time_t start = std::time(nullptr);
 	cv::Mat frame;
-	std::map<int, cv::Point> objects;
+	std::map<int, cv::Rect> objects;
 	std::string text;
 
 	int xmin, ymin, boxwidth, boxheight;
@@ -85,7 +86,7 @@ int main(int argc, char **argv) {
 
 		cv::resize(frame, frame, cv::Size(300, 300));
 
-		if ((frame_counter % 25) == 0) {
+		if ((frame_counter % 30) == 0) {
 			boxes = getBoxesFromTensorflow(tensorflowNet, frame);
 
 			trackers = cv::MultiTracker::create();
@@ -102,15 +103,17 @@ int main(int argc, char **argv) {
 			boxes = getBoxesFromTracker(trackers, frame);
 		}
 
-		for (cv::Rect &box: boxes) {
-			cv::rectangle(frame, cv::Rect(box.x, box.y, box.width, box.height), cv::Scalar(0, 0, 255), 2);
-		}
+		// for (cv::Rect &box: boxes) {
+		// 	cv::rectangle(frame, cv::Rect(box.x, box.y, box.width, box.height), cv::Scalar(0, 0, 255), 2);
+		// }
 
 		objects = ct.update(boxes);
-		for (auto &[objectID, centroid]: objects) {
+		for (auto &[objectID, box]: objects) {
 			text = "ID " + std::to_string(objectID);
-			cv::putText(frame, text, cv::Point(centroid.x - 10, centroid.y - 10), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 255, 0), 2);
-			cv::circle(frame, centroid, 4, cv::Scalar(0, 255, 0), -1);
+			cv::Scalar color = cv::Scalar(50 * (objectID - 1) % 255, 50 * (objectID - 1) % 255, 50 * (objectID - 1) % 255);
+			cv::putText(frame, text, cv::Point(box.x + (box.width / 2.0) - 10, box.y + (box.height / 2.0) - 10), cv::FONT_HERSHEY_SIMPLEX, 0.5, color, 2);
+			cv::rectangle(frame, cv::Rect(box.x, box.y, box.width, box.height), color, 2);
+			// cv::circle(frame, centroid, 4, cv::Scalar(0, 255, 0), -1);
 		}
 
 		// Show frame
