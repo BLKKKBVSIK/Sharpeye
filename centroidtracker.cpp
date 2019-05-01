@@ -76,11 +76,16 @@ std::vector<int> CentroidTracker::sortCols(const std::vector<int> rows) const {
 ** Increments the disappeared counter of each object of the list of tracked objects
 */
 std::map<int, cv::Point> CentroidTracker::allObjectsDisappeared(const std::vector<cv::Rect> &boxes) {
+	std::vector<int> toDelete;
 	for (auto &object: this->disappeared) {
 		++(this->disappeared[object.first]);
 		if (this->disappeared[object.first] > this->maxDisappeared) {
-			this->deregister_object(object.first);
+			toDelete.push_back(object.first);
+			// this->deregister_object(object.first);
 		}
+	}
+	for (auto &objectID: toDelete) {
+		this->deregister_object(objectID);
 	}
 	return this->objects;
 }
