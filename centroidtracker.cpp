@@ -75,7 +75,7 @@ std::vector<int> CentroidTracker::sortCols(const std::vector<int> rows) const {
 /*
 ** Increments the disappeared counter of each object of the list of tracked objects
 */
-std::map<int, cv::Point> CentroidTracker::allObjectsDisappeared(const std::vector<cv::Rect> &boxes) {
+std::map<int, cv::Point> CentroidTracker::allObjectsDisappeared(const std::vector<cv::Rect2f> &boxes) {
 	std::vector<int> toDelete;
 	for (auto &object: this->disappeared) {
 		++(this->disappeared[object.first]);
@@ -99,8 +99,8 @@ void CentroidTracker::correlatePositions(
 	const std::vector<cv::Point> &inputCentroids,
 	std::vector<int> &unusedRows,
 	std::vector<int> &unusedCols,
-	std::map<int, cv::Rect> &result,
-	const std::vector<cv::Rect> &boxes) {
+	std::map<int, cv::Rect2f> &result,
+	const std::vector<cv::Rect2f> &boxes) {
 
 	std::vector<int> rows = this->sortRows();
 	std::vector<int> cols = this->sortCols(rows);
@@ -128,8 +128,8 @@ void CentroidTracker::correlatePositions(
 /*
 ** Updates the centroids of the tracked objects and adds/removes objects to the list of tracked objects
 */
-std::map<int, cv::Rect> CentroidTracker::update(const std::vector<cv::Rect> &boxes) {
-	std::map<int, cv::Rect> result;
+std::map<int, cv::Rect2f> CentroidTracker::update(const std::vector<cv::Rect2f> &boxes) {
+	std::map<int, cv::Rect2f> result;
 	if (boxes.size() == 0) {
 		this->allObjectsDisappeared(boxes);
 		return result;

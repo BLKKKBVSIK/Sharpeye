@@ -16,7 +16,7 @@ std::string CLASSES[] = {"background", "aeroplane", "bicycle", "bird", "boat",
 /*
 ** get boxes of the objects detected by the tensorflow neural network
 */
-std::vector<cv::Rect> getBoxesFromTensorflow(cv::dnn::Net tensorflowNet, cv::Mat frame) {
+std::vector<cv::Rect2f> getBoxesFromTensorflow(cv::dnn::Net tensorflowNet, cv::Mat frame) {
 	int rows = frame.rows;
 	int cols = frame.cols;
 
@@ -27,7 +27,7 @@ std::vector<cv::Rect> getBoxesFromTensorflow(cv::dnn::Net tensorflowNet, cv::Mat
 	cv::Mat detectionMat(detection.size[2], detection.size[3], CV_32F, detection.ptr<float>());
 
     std::ostringstream ss;
-	std::vector<cv::Rect> boxes;
+	std::vector<cv::Rect2f> boxes;
     float score;
     int object_class, left, top, right, bottom;
     for (int i = 0; i < detectionMat.rows; i++)
@@ -41,7 +41,7 @@ std::vector<cv::Rect> getBoxesFromTensorflow(cv::dnn::Net tensorflowNet, cv::Mat
         	top = static_cast<int>(detectionMat.at<float>(i, 4) * rows);
         	right = static_cast<int>(detectionMat.at<float>(i, 5) * cols);
         	bottom = static_cast<int>(detectionMat.at<float>(i, 6) * rows);
-        	boxes.push_back(cv::Rect(left, top, right - left, bottom - top));
+        	boxes.push_back(cv::Rect2f(left, top, right - left, bottom - top));
         }
     }
 
@@ -51,13 +51,13 @@ std::vector<cv::Rect> getBoxesFromTensorflow(cv::dnn::Net tensorflowNet, cv::Mat
 /*
 ** get new boxes of the objects from the trackers
 */
-std::vector<cv::Rect> getBoxesFromTracker(cv::Ptr<cv::MultiTracker> trackers, cv::Mat frame) {
+std::vector<cv::Rect2f> getBoxesFromTracker(cv::Ptr<cv::MultiTracker> trackers, cv::Mat frame) {
 	trackers->update(frame);
 
-	std::vector<cv::Rect> boxes;
+	std::vector<cv::Rect2f> boxes;
 	for (unsigned i = 0; i < trackers->getObjects().size(); i++) {
 		cv::Rect2d object = trackers->getObjects()[i];
-		boxes.push_back(cv::Rect(object.x, object.y, object.width, object.height));
+		boxes.push_back(cv::Rect2f(object.x, object.y, object.width, object.height));
 	}
 	return boxes;
 }
@@ -71,11 +71,11 @@ int main(int argc, char **argv) {
 	cv::VideoCapture cap(videoPath);
 
 	int frame_counter = 0;
-	std::vector<cv::Rect> boxes;
+	std::vector<cv::Rect2f> boxes;
 	cv::Ptr<cv::MultiTracker> trackers = nullptr;
 	std::time_t start = std::time(nullptr);
 	cv::Mat frame;
-	std::map<int, cv::Rect> objects;
+	std::map<int, cv::Rect2f> objects;
 	std::string text;
 
 	int xmin, ymin, boxwidth, boxheight;
@@ -84,14 +84,14 @@ int main(int argc, char **argv) {
 		cap >> frame;
 		if (frame.empty()) break;
 
-		cv::resize(frame, frame, cv::Size(300, 300));
+		// cv::resize(frame, frame, cv::Size(300, 300));
 
 		if ((frame_counter % 30) == 0) {
 			boxes = getBoxesFromTensorflow(tensorflowNet, frame);
 
 			trackers = cv::MultiTracker::create();
 
-			for (cv::Rect &box: boxes) {
+			for (cv::Rect2f &box: boxes) {
 				xmin = box.x;
 				ymin = box.y;
 				boxwidth = box.width;
