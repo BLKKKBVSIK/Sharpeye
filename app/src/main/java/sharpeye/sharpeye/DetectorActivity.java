@@ -20,6 +20,7 @@ import android.graphics.*;
 import android.graphics.Bitmap.Config;
 import android.graphics.Paint.Style;
 import android.media.ImageReader.OnImageAvailableListener;
+import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Size;
 import android.util.TypedValue;
@@ -29,11 +30,14 @@ import sharpeye.sharpeye.env.BorderedText;
 import sharpeye.sharpeye.env.ImageUtils;
 import sharpeye.sharpeye.env.Logger;
 import sharpeye.sharpeye.tracking.MultiBoxTracker;
+import sharpeye.sharpeye.tracking.Tracker;
 
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * An activity that uses a TensorFlowMultiBoxDetector and ObjectTracker to detect and then track
@@ -63,8 +67,10 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   // Graphs and models downloaded from http://pjreddie.com/darknet/yolo/ may be converted e.g. via
   // DarkFlow (https://github.com/thtrieu/darkflow). Sample command:
   // ./flow --model cfg/tiny-yolo-voc.cfg --load bin/tiny-yolo-voc.weights --savepb --verbalise
-  private static final String YOLO_MODEL_FILE = "file:///android_asset/trafficSigns.pb";
-  private static final String YOLO_LABEL_FILE = "file:///android_asset/trafficLabels.txt";
+  //private static final String YOLO_MODEL_FILE = "file:///android_asset/trafficSigns.pb";
+  //private static final String YOLO_LABEL_FILE = "file:///android_asset/trafficLabels.txt";
+  private static final String YOLO_MODEL_FILE = "file:///android_asset/generalTraffic.pb";
+  private static final String YOLO_LABEL_FILE = "file:///android_asset/generalTrafficLabel.txt";
   private static final int YOLO_INPUT_SIZE = 416;
   private static final String YOLO_INPUT_NAME = "input";
   private static final String YOLO_OUTPUT_NAMES = "output";
@@ -83,9 +89,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   private static final float MINIMUM_CONFIDENCE_MULTIBOX = 0.1f;
   private static final float MINIMUM_CONFIDENCE_YOLO = 0.25f;
 
-  private static final boolean MAINTAIN_ASPECT = MODE == DetectorMode.YOLO;
-
-  private static final Size DESIRED_PREVIEW_SIZE = new Size(640, 480);
+  private static final boolean MAINTAIN_ASPECT = (MODE == DetectorMode.YOLO);
 
   private static final boolean SAVE_PREVIEW_BITMAP = false;
   private static final float TEXT_SIZE_DIP = 10;
@@ -99,18 +103,53 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   private Bitmap croppedBitmap = null;
   private Bitmap cropCopyBitmap = null;
 
-  private boolean computingDetection = false;
+
 
   private long timestamp = 0;
 
   private Matrix frameToCropTransform;
   private Matrix cropToFrameTransform;
 
-  private MultiBoxTracker tracker;
+  private MultiBoxTracker multiBoxTracker;
 
   private byte[] luminanceCopy;
 
-  private BorderedText borderedText;
+  private Tracker tracker;
+
+  protected boolean initializedTracking = false;
+
+  protected boolean computingDetection = false;
+
+  private long lastRecognition = 0;
+
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+      super.onCreate(savedInstanceState);
+      if (savedInstanceState != null && savedInstanceState.containsKey("TRACKER")) {
+          tracker = savedInstanceState.getParcelable("TRACKER");
+          if (tracker == null) {
+              tracker = new Tracker();
+          }
+      } else {
+          tracker = new Tracker();
+      }
+      if (tracker.needInit())
+        tracker.init();
+  }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelable("TRACKER", tracker);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public synchronized void onDestroy() {
+        super.onDestroy();
+        tracker.free();
+    }
+
+    private BorderedText borderedText;
   @Override
   public void onPreviewSizeChosen(final Size size, final int rotation) {
     final float textSizePx =
@@ -119,7 +158,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     borderedText = new BorderedText(textSizePx);
     borderedText.setTypeface(Typeface.MONOSPACE);
 
-    tracker = new MultiBoxTracker(this);
+    multiBoxTracker = new MultiBoxTracker(this);
 
     int cropSize = TF_OD_API_INPUT_SIZE;
     if (MODE == DetectorMode.YOLO) {
@@ -179,11 +218,14 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     rgbFrameBitmap = Bitmap.createBitmap(previewWidth, previewHeight, Config.ARGB_8888);
     croppedBitmap = Bitmap.createBitmap(cropSize, cropSize, Config.ARGB_8888);
 
+
+    final boolean maintainAspectRatio = MAINTAIN_ASPECT;
+    final boolean maintainAspectRatioForReal = maintainAspectRatio;
     frameToCropTransform =
         ImageUtils.getTransformationMatrix(
             previewWidth, previewHeight,
             cropSize, cropSize,
-            sensorOrientation, MAINTAIN_ASPECT);
+            sensorOrientation, maintainAspectRatio, maintainAspectRatioForReal);
 
     cropToFrameTransform = new Matrix();
     frameToCropTransform.invert(cropToFrameTransform);
@@ -193,9 +235,9 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         new DrawCallback() {
           @Override
           public void drawCallback(final Canvas canvas) {
-            tracker.draw(canvas);
+            multiBoxTracker.draw(canvas);
             if (isDebug()) {
-              tracker.drawDebug(canvas);
+              multiBoxTracker.drawDebug(canvas);
             }
           }
         });
@@ -251,7 +293,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     ++timestamp;
     final long currTimestamp = timestamp;
     byte[] originalLuminance = getLuminance();
-    tracker.onFrame(
+    multiBoxTracker.onFrame(
         previewWidth,
         previewHeight,
         getLuminanceStride(),
@@ -269,71 +311,71 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     LOGGER.i("Preparing image " + currTimestamp + " for detection in bg thread.");
 
     rgbFrameBitmap.setPixels(getRgbBytes(), 0, previewWidth, 0, 0, previewWidth, previewHeight);
-
     if (luminanceCopy == null) {
       luminanceCopy = new byte[originalLuminance.length];
     }
     System.arraycopy(originalLuminance, 0, luminanceCopy, 0, originalLuminance.length);
     readyForNextImage();
 
-    final Canvas canvas = new Canvas(croppedBitmap);
-    canvas.drawBitmap(rgbFrameBitmap, frameToCropTransform, null);
+    final Canvas canvas1 = new Canvas(croppedBitmap);
+    canvas1.drawBitmap(rgbFrameBitmap, frameToCropTransform, null);
     // For examining the actual TF input.
     if (SAVE_PREVIEW_BITMAP) {
       ImageUtils.saveBitmap(croppedBitmap);
     }
+    LOGGER.i("Running detection on image " + currTimestamp);
+    final long startTime = SystemClock.uptimeMillis();
 
-    runInBackground(
-        new Runnable() {
-          @Override
-          public void run() {
-            LOGGER.i("Running detection on image " + currTimestamp);
-            final long startTime = SystemClock.uptimeMillis();
-            // TODO list of recognized item
-            final List<Classifier.Recognition> results = detector.recognizeImage(croppedBitmap);
-            lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime;
+    final List<Classifier.Recognition> results;
+    if (!initializedTracking || (startTime - lastRecognition) >= 300) {
+        results = detector.recognizeImage(croppedBitmap);
+        tracker.track(croppedBitmap, results);
+        initializedTracking = true;
+      lastRecognition = SystemClock.uptimeMillis();
+    } else {
+        results = tracker.update(croppedBitmap);
+    }
+    lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime;
 
-            cropCopyBitmap = Bitmap.createBitmap(croppedBitmap);
-            final Canvas canvas = new Canvas(cropCopyBitmap);
-            final Paint paint = new Paint();
-            paint.setColor(Color.RED);
-            paint.setStyle(Style.STROKE);
-            paint.setStrokeWidth(2.0f);
+    cropCopyBitmap = Bitmap.createBitmap(croppedBitmap);
+    final Canvas canvas = new Canvas(cropCopyBitmap);
+    final Paint paint = new Paint();
+    paint.setColor(Color.RED);
+    paint.setStyle(Style.STROKE);
+    paint.setStrokeWidth(2.0f);
 
-            float minimumConfidence = MINIMUM_CONFIDENCE_TF_OD_API;
-            switch (MODE) {
-              case TF_OD_API:
-                minimumConfidence = MINIMUM_CONFIDENCE_TF_OD_API;
-                break;
-              case MULTIBOX:
-                minimumConfidence = MINIMUM_CONFIDENCE_MULTIBOX;
-                break;
-              case YOLO:
-                minimumConfidence = MINIMUM_CONFIDENCE_YOLO;
-                break;
-            }
+    float minimumConfidence = MINIMUM_CONFIDENCE_TF_OD_API;
+    switch (MODE) {
+      case TF_OD_API:
+        minimumConfidence = MINIMUM_CONFIDENCE_TF_OD_API;
+        break;
+      case MULTIBOX:
+        minimumConfidence = MINIMUM_CONFIDENCE_MULTIBOX;
+        break;
+      case YOLO:
+        minimumConfidence = MINIMUM_CONFIDENCE_YOLO;
+        break;
+    }
 
-            final List<Classifier.Recognition> mappedRecognitions =
-                new LinkedList<Classifier.Recognition>();
+    final List<Classifier.Recognition> mappedRecognitions =
+        new LinkedList<Classifier.Recognition>();
 
-            for (final Classifier.Recognition result : results) {
-              final RectF location = result.getLocation();
-              if (location != null && result.getConfidence() >= minimumConfidence) {
-                canvas.drawRect(location, paint);
+    for (final Classifier.Recognition result : results) {
+      final RectF location = result.getLocation();
+      if (location != null && result.getConfidence() >= minimumConfidence) {
+        canvas.drawRect(location, paint);
 
-                cropToFrameTransform.mapRect(location);
-                result.setLocation(location);
-                mappedRecognitions.add(result);
-              }
-            }
+        cropToFrameTransform.mapRect(location);
+        result.setLocation(location);
+        mappedRecognitions.add(result);
+      }
+    }
 
-            tracker.trackResults(mappedRecognitions, luminanceCopy, currTimestamp);
-            trackingOverlay.postInvalidate();
+    multiBoxTracker.trackResults(mappedRecognitions, luminanceCopy, currTimestamp);
+    trackingOverlay.postInvalidate();
 
-            requestRender();
-            computingDetection = false;
-          }
-        });
+    requestRender();
+    computingDetection = false;
   }
 
   @Override
