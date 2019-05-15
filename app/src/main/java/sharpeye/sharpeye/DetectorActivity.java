@@ -22,6 +22,7 @@ import android.graphics.Paint.Style;
 import android.media.ImageReader.OnImageAvailableListener;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.util.Log;
 import android.util.Size;
 import android.util.TypedValue;
 import android.widget.Toast;
@@ -31,6 +32,7 @@ import sharpeye.sharpeye.env.ImageUtils;
 import sharpeye.sharpeye.env.Logger;
 import sharpeye.sharpeye.tracking.MultiBoxTracker;
 import sharpeye.sharpeye.tracking.Tracker;
+import sharpeye.sharpeye.warning.WarningEvent;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -122,6 +124,8 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
   private long lastRecognition = 0;
 
+  private WarningEvent warningEvent;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
@@ -143,10 +147,26 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         super.onSaveInstanceState(outState);
     }
 
-    @Override
+  @Override
+  public synchronized void onResume() {
+    super.onResume();
+    warningEvent = new WarningEvent(this);
+  }
+
+  @Override
+  public synchronized void onPause() {
+    super.onPause();
+    if (warningEvent != null) {
+      warningEvent.clean();
+      warningEvent = null;
+    }
+  }
+
+  @Override
     public synchronized void onDestroy() {
         super.onDestroy();
         tracker.free();
+
     }
 
     private BorderedText borderedText;
@@ -368,6 +388,12 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         cropToFrameTransform.mapRect(location);
         result.setLocation(location);
         mappedRecognitions.add(result);
+        try {
+          if (warningEvent != null)
+            warningEvent.triggerWarning(result.getTitle());
+        } catch (NullPointerException ex) {
+          Log.e("Detector", "WarningEvent already cleaned");
+        }
       }
     }
 
