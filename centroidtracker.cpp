@@ -10,8 +10,9 @@ CentroidTracker::~CentroidTracker() {}
 /*
 ** Adds a new object to the list of tracked objects
 */
-void CentroidTracker::register_object(const cv::Point &centroid) {
+void CentroidTracker::register_object(const cv::Point &centroid, const cv::Rect2f &box) {
 	this->objects.insert(std::make_pair(this->nextObjectID, centroid));
+	this->lastBoxes.insert(std::make_pair(this->nextObjectID, box));
 	this->disappeared.insert(std::make_pair(this->nextObjectID, 0));
 	++this->nextObjectID;
 }
@@ -21,6 +22,7 @@ void CentroidTracker::register_object(const cv::Point &centroid) {
 */
 void CentroidTracker::deregister_object(const int objectID) {
 	this->objects.erase(objectID);
+	this->lastBoxes.erase(objectID);
 	this->disappeared.erase(objectID);
 }
 
@@ -81,7 +83,6 @@ std::map<int, cv::Point> CentroidTracker::allObjectsDisappeared(const std::vecto
 		++(this->disappeared[object.first]);
 		if (this->disappeared[object.first] > this->maxDisappeared) {
 			toDelete.push_back(object.first);
-			// this->deregister_object(object.first);
 		}
 	}
 	for (auto &objectID: toDelete) {
@@ -99,7 +100,6 @@ void CentroidTracker::correlatePositions(
 	const std::vector<cv::Point> &inputCentroids,
 	std::vector<int> &unusedRows,
 	std::vector<int> &unusedCols,
-	std::map<int, cv::Rect2f> &result,
 	const std::vector<cv::Rect2f> &boxes) {
 
 	std::vector<int> rows = this->sortRows();
@@ -113,8 +113,8 @@ void CentroidTracker::correlatePositions(
 			continue;
 		}
 		objectID = objectIDs[rows[i]];
-		result.insert(std::make_pair(objectID, boxes[cols[i]]));
 		this->objects[objectID] = inputCentroids[cols[i]];
+		this->lastBoxes[objectID] = boxes[cols[i]];
 		this->disappeared[objectID] = 0;
 		usedRows.push_back(rows[i]);
 		usedCols.push_back(cols[i]);
@@ -129,10 +129,9 @@ void CentroidTracker::correlatePositions(
 ** Updates the centroids of the tracked objects and adds/removes objects to the list of tracked objects
 */
 std::map<int, cv::Rect2f> CentroidTracker::update(const std::vector<cv::Rect2f> &boxes) {
-	std::map<int, cv::Rect2f> result;
 	if (boxes.size() == 0) {
 		this->allObjectsDisappeared(boxes);
-		return result;
+		return this->lastBoxes;
 	}
 
 	std::vector<cv::Point> inputCentroids;
@@ -142,8 +141,7 @@ std::map<int, cv::Rect2f> CentroidTracker::update(const std::vector<cv::Rect2f> 
 	if (this->objects.size() == 0) {
 		int i = 0;
 		for (auto &centroid: inputCentroids) {
-			result.insert(std::make_pair(this->nextObjectID, boxes[i]));
-			this->register_object(centroid);
+			this->register_object(centroid, boxes[i]);
 		}
 	} else {
 		std::vector<int> objectIDs;
@@ -157,7 +155,7 @@ std::map<int, cv::Rect2f> CentroidTracker::update(const std::vector<cv::Rect2f> 
 		this->compute_distances(objectCentroids, inputCentroids);
 		std::vector<int> unusedRows;
 		std::vector<int> unusedCols;
-		this->correlatePositions(objectIDs, objectCentroids, inputCentroids, unusedRows, unusedCols, result, boxes);
+		this->correlatePositions(objectIDs, objectCentroids, inputCentroids, unusedRows, unusedCols, boxes);
 
 		int objectID;
 		if (this->dists.size() >= this->dists[0].size()) {
@@ -168,10 +166,9 @@ std::map<int, cv::Rect2f> CentroidTracker::update(const std::vector<cv::Rect2f> 
 			}
 		} else {
 			for (auto &col: unusedCols) {
-				result.insert(std::make_pair(this->nextObjectID, boxes[col]));
-				this->register_object(inputCentroids[col]);
+				this->register_object(inputCentroids[col], boxes[col]);
 			}
 		}
 	}
-	return result;
+	return this->lastBoxes;
 }
