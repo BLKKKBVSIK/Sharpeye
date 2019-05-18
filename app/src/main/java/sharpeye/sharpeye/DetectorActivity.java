@@ -21,7 +21,9 @@ import android.graphics.*;
 import android.graphics.Bitmap.Config;
 import android.graphics.Paint.Style;
 import android.media.ImageReader.OnImageAvailableListener;
+import android.os.Bundle;
 import android.os.SystemClock;
+import android.util.Log;
 import android.util.Size;
 import android.util.TypedValue;
 import android.widget.Toast;
@@ -30,12 +32,16 @@ import sharpeye.sharpeye.env.BorderedText;
 import sharpeye.sharpeye.env.ImageUtils;
 import sharpeye.sharpeye.env.Logger;
 import sharpeye.sharpeye.tracking.MultiBoxTracker;
+import sharpeye.sharpeye.tracking.Tracker;
+import sharpeye.sharpeye.warning.WarningEvent;
 
 import java.io.IOException;
 import java.sql.Time;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * An activity that uses a TensorFlowMultiBoxDetector and ObjectTracker to detect and then track
@@ -85,9 +91,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   private static final float MINIMUM_CONFIDENCE_MULTIBOX = 0.1f;
   private static final float MINIMUM_CONFIDENCE_YOLO = 0.5f;
 
-  private static final boolean MAINTAIN_ASPECT = MODE == DetectorMode.YOLO;
-
-  private static final Size DESIRED_PREVIEW_SIZE = new Size(640, 480);
+  private static final boolean MAINTAIN_ASPECT = (MODE == DetectorMode.YOLO);
 
   private static final boolean SAVE_PREVIEW_BITMAP = false;
   private static final float TEXT_SIZE_DIP = 10;
@@ -101,14 +105,14 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   private Bitmap croppedBitmap = null;
   private Bitmap cropCopyBitmap = null;
 
-  private boolean computingDetection = false;
+
 
   private long timestamp = 0;
 
   private Matrix frameToCropTransform;
   private Matrix cropToFrameTransform;
 
-  private MultiBoxTracker tracker;
+  private MultiBoxTracker multiBoxTracker;
 
   private byte[] luminanceCopy;
 
@@ -117,6 +121,58 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   long lastDetection = 0;
 
   SignClassifier signClassifier;
+  private Tracker tracker;
+
+  protected boolean initializedTracking = false;
+
+  protected boolean computingDetection = false;
+
+  private long lastRecognition = 0;
+
+  private WarningEvent warningEvent;
+
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+      super.onCreate(savedInstanceState);
+      if (savedInstanceState != null && savedInstanceState.containsKey("TRACKER")) {
+          tracker = savedInstanceState.getParcelable("TRACKER");
+          if (tracker == null) {
+              tracker = new Tracker();
+          }
+      } else {
+          tracker = new Tracker();
+      }
+      if (tracker.needInit())
+        tracker.init();
+  }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelable("TRACKER", tracker);
+        super.onSaveInstanceState(outState);
+    }
+
+  @Override
+  public synchronized void onResume() {
+    super.onResume();
+    warningEvent = new WarningEvent(this);
+  }
+
+  @Override
+  public synchronized void onPause() {
+    super.onPause();
+    if (warningEvent != null) {
+      warningEvent.clean();
+      warningEvent = null;
+    }
+  }
+
+  @Override
+    public synchronized void onDestroy() {
+        super.onDestroy();
+        tracker.free();
+
+    }
 
   @Override
   public void onPreviewSizeChosen(final Size size, final int rotation) {
@@ -126,7 +182,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     borderedText = new BorderedText(textSizePx);
     borderedText.setTypeface(Typeface.MONOSPACE);
 
-    tracker = new MultiBoxTracker(this);
+    multiBoxTracker = new MultiBoxTracker(this);
 
     signClassifier = new SignClassifier(getApplicationContext());
 
@@ -188,11 +244,14 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     rgbFrameBitmap = Bitmap.createBitmap(previewWidth, previewHeight, Config.ARGB_8888);
     croppedBitmap = Bitmap.createBitmap(cropSize, cropSize, Config.ARGB_8888);
 
+
+    final boolean maintainAspectRatio = MAINTAIN_ASPECT;
+    final boolean maintainAspectRatioForReal = maintainAspectRatio;
     frameToCropTransform =
         ImageUtils.getTransformationMatrix(
             previewWidth, previewHeight,
             cropSize, cropSize,
-            sensorOrientation, MAINTAIN_ASPECT);
+            sensorOrientation, maintainAspectRatio, maintainAspectRatioForReal);
 
     cropToFrameTransform = new Matrix();
     frameToCropTransform.invert(cropToFrameTransform);
@@ -202,9 +261,9 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         new DrawCallback() {
           @Override
           public void drawCallback(final Canvas canvas) {
-            tracker.draw(canvas);
+            multiBoxTracker.draw(canvas);
             if (isDebug()) {
-              tracker.drawDebug(canvas);
+              multiBoxTracker.drawDebug(canvas);
             }
           }
         });
@@ -260,7 +319,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     ++timestamp;
     final long currTimestamp = timestamp;
     byte[] originalLuminance = getLuminance();
-    tracker.onFrame(
+    multiBoxTracker.onFrame(
         previewWidth,
         previewHeight,
         getLuminanceStride(),
@@ -278,18 +337,50 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     LOGGER.i("Preparing image " + currTimestamp + " for detection in bg thread.");
 
     rgbFrameBitmap.setPixels(getRgbBytes(), 0, previewWidth, 0, 0, previewWidth, previewHeight);
-
     if (luminanceCopy == null) {
       luminanceCopy = new byte[originalLuminance.length];
     }
     System.arraycopy(originalLuminance, 0, luminanceCopy, 0, originalLuminance.length);
     readyForNextImage();
 
-    final Canvas canvas = new Canvas(croppedBitmap);
-    canvas.drawBitmap(rgbFrameBitmap, frameToCropTransform, null);
+    final Canvas canvas1 = new Canvas(croppedBitmap);
+    canvas1.drawBitmap(rgbFrameBitmap, frameToCropTransform, null);
     // For examining the actual TF input.
     if (SAVE_PREVIEW_BITMAP) {
       ImageUtils.saveBitmap(croppedBitmap);
+    }
+    LOGGER.i("Running detection on image " + currTimestamp);
+    final long startTime = SystemClock.uptimeMillis();
+
+    final List<Classifier.Recognition> results;
+    if (!initializedTracking || (startTime - lastRecognition) >= 300) {
+        results = detector.recognizeImage(croppedBitmap);
+        tracker.track(croppedBitmap, results);
+        initializedTracking = true;
+      lastRecognition = SystemClock.uptimeMillis();
+    } else {
+        results = tracker.update(croppedBitmap);
+    }
+    lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime;
+
+    cropCopyBitmap = Bitmap.createBitmap(croppedBitmap);
+    final Canvas canvas = new Canvas(cropCopyBitmap);
+    final Paint paint = new Paint();
+    paint.setColor(Color.RED);
+    paint.setStyle(Style.STROKE);
+    paint.setStrokeWidth(2.0f);
+
+    float minimumConfidence = MINIMUM_CONFIDENCE_TF_OD_API;
+    switch (MODE) {
+      case TF_OD_API:
+        minimumConfidence = MINIMUM_CONFIDENCE_TF_OD_API;
+        break;
+      case MULTIBOX:
+        minimumConfidence = MINIMUM_CONFIDENCE_MULTIBOX;
+        break;
+      case YOLO:
+        minimumConfidence = MINIMUM_CONFIDENCE_YOLO;
+        break;
     }
 
     runInBackground(
@@ -327,7 +418,9 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                 break;
             }
 
-            /*for (int i = 0; i < results.size(); ++i) {
+
+            //Classifier
+            for (int i = 0; i < results.size(); ++i) {
                 if (results.get(i).getConfidence() > minimumConfidence) {
                     String result = signClassifier.checkForTrafficSign(results.get(i), croppedBitmap);
                     if (signClassifier.getLastResults().size() >= 1) {
@@ -337,11 +430,11 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                         results.remove(i + 1);
                     }
                 }
-            }*/
+            }
 
 
             final List<Classifier.Recognition> mappedRecognitions =
-                new LinkedList<Classifier.Recognition>();
+                    new LinkedList<Classifier.Recognition>();
 
             for (final Classifier.Recognition result : results) {
               final RectF location = result.getLocation();
@@ -351,17 +444,21 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                 cropToFrameTransform.mapRect(location);
                 result.setLocation(location);
                 mappedRecognitions.add(result);
+                try {
+                  if (warningEvent != null)
+                    warningEvent.triggerWarning(result.getTitle());
+                } catch (NullPointerException ex) {
+                  Log.e("Detector", "WarningEvent already cleaned");
+                }
               }
             }
 
-            tracker.trackResults(mappedRecognitions, luminanceCopy, currTimestamp);
+            multiBoxTracker.trackResults(mappedRecognitions, luminanceCopy, currTimestamp);
             trackingOverlay.postInvalidate();
 
             requestRender();
             computingDetection = false;
-          }
-        });
-  }
+          }});}
 
   @Override
   protected int getLayoutId() {

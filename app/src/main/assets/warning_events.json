@@ -1,0 +1,214 @@
+{
+    "warning_events": [
+        {
+            "name": "speedLimit20",
+            "text": "Limite de vitesse maximale de 20 kilomètre par heure",
+            "delay": 10
+        },
+        {
+            "name": "speedLimit30",
+            "text": "Limite de vitesse maximale de 30 kilomètre par heure",
+            "delay": 10
+        },
+        {
+            "name": "speedLimit50",
+            "text": "Limite de vitesse maximale de 50 kilomètre par heure",
+            "delay": 10
+        },
+        {
+            "name": "speedLimit60",
+            "text": "Limite de vitesse maximale de 60 kilomètre par heure",
+            "delay": 10
+        },
+        {
+            "name": "speedLimit70",
+            "text": "Limite de vitesse maximale de 70 kilomètre par heure",
+            "delay": 10
+        },
+        {
+            "name": "speedLimit80",
+            "text": "Limite de vitesse maximale de 80 kilomètre par heure",
+            "delay": 10
+        },
+        {
+            "name": "restrictionEnds80",
+            "text": "Fin de toutes les interdictions précédemment signalées",
+            "delay": 10
+        },
+        {
+            "name": "speedLimit100",
+            "text": "Limite de vitesse maximale de 100 kilomètre par heure",
+            "delay": 10
+        },
+        {
+            "name": "speedLimit120",
+            "text": "Limite de vitesse maximale de 120 kilomètre par heure",
+            "delay": 10
+        },
+        {
+            "name": "noOvertaking",
+            "text": "Ne pas doubler",
+            "delay": 10
+        },
+        {
+            "name": "noOvertakingTrucks",
+            "text": "Ne pas doubler les camions",
+            "delay": 10
+        },
+        {
+            "name": "priorityNextIntersection",
+            "text": "Priorité a la prochaine intersection",
+            "delay": 10
+        },
+        {
+            "name": "priorityRoad",
+            "text": "Priorité par rapport à la circulation venant en sens inverse",
+            "delay": 10
+        },
+        {
+            "name": "giveWay",
+            "text": "Cédez le passage",
+            "delay": 10
+        },
+        {
+            "name": "stop",
+            "text": "Stop",
+            "delay": 10
+        },
+        {
+            "name": "noTraffic",
+            "text": "Zone interdite aux vehicules",
+            "delay": 10
+        },
+        {
+            "name": "noTrucks",
+            "text": "Zone interdite aux camions",
+            "delay": 10
+        },
+        {
+            "name": "noEntry",
+            "text": "Zone interdite",
+            "delay": 10
+        },
+        {
+            "name": "danger",
+            "text": "Attention, danger !",
+            "delay": 10
+        },
+        {
+            "name": "bendLeft",
+            "text": "Virage à gauche",
+            "delay": 10
+        },
+        {
+            "name": "bendRight",
+            "text": "Virage à droite",
+            "delay": 10
+        },
+        {
+            "name": "bend",
+            "text": "Virage",
+            "delay": 10
+        },
+        {
+            "name": "unevenRoad",
+            "text": "Cassis ou dos-d'âne",
+            "delay": 10
+        },
+        {
+            "name": "slipperyRoad",
+            "text": "route glissante",
+            "delay": 10
+        },
+        {
+            "name": "roadNarrows",
+            "text": "Chaussée rétrécie",
+            "delay": 10
+        },
+        {
+            "name": "construction",
+            "text": "Attention, construction",
+            "delay": 10
+        },
+        {
+            "name": "trafficSignal",
+            "text": "Feu de signalisation",
+            "delay": 10
+        },
+        {
+            "name": "pedestrianCrossing",
+            "text": "Attention, croisement piéton",
+            "delay": 10
+        },
+        {
+            "name": "schoolCrossing",
+            "text": "Attention, croisement écolier",
+            "delay": 10
+        },
+        {
+            "name": "cyclesCrossing",
+            "text": "Attention, croisement cycliste",
+            "delay": 10
+        },
+        {
+            "name": "snow",
+            "text": "Attention à la neige",
+            "delay": 10
+        },
+        {
+            "name": "animals",
+            "text": "Attention aux animaux.",
+            "delay": 10
+        },
+        {
+            "name": "goRight",
+            "text": "aller à droite",
+            "delay": 10
+        },
+        {
+            "name": "goLeft",
+            "text": "aller à gauche",
+            "delay": 10
+        },
+        {
+            "name": "goStraight",
+            "text": "Continuer tout droit",
+            "delay": 10
+        },
+        {
+            "name": "goRightOrStraight",
+            "text": "Aller à droite ou tout droit",
+            "delay": 10
+        },
+        {
+            "name": "goLeftOrStraight",
+            "text": "Aller à gauche ou tout droit",
+            "delay": 10
+        },
+        {
+            "name": "keepRight",
+            "text": "Rester à droite",
+            "delay": 10
+        },
+        {
+            "name": "keepLeft",
+            "text": "Rester à gauche",
+            "delay": 10
+        },
+        {
+            "name": "roundabout",
+            "text": "Rond-point",
+            "delay": 10
+        },
+        {
+            "name": "restrictionEnds",
+            "text": "Fin de restriction",
+            "delay": 10
+        },
+        {
+            "name": "restrictionEndsTrucks",
+            "text": "Fin de restriction pour les camions",
+            "delay": 10
+        }
+    ]
+}

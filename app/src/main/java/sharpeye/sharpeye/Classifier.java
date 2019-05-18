@@ -17,6 +17,8 @@ package sharpeye.sharpeye;
 
 import android.graphics.Bitmap;
 import android.graphics.RectF;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import java.util.List;
 
@@ -27,7 +29,7 @@ public interface Classifier {
   /**
    * An immutable result returned by a Classifier describing what was recognized.
    */
-  public class Recognition {
+  public class Recognition implements Parcelable {
     /**
      * A unique identifier for what has been recognized. Specific to the class, not the instance of
      * the object.
@@ -96,6 +98,37 @@ public interface Classifier {
 
       return resultString.trim();
     }
+
+    private Recognition(Parcel in) {
+      id = in.readString();
+      title = in.readString();
+      confidence = in.readFloat();
+      location = in.readParcelable(RectF.class.getClassLoader());
+    }
+
+    @Override
+    public int describeContents() {
+      return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+      dest.writeString(id);
+      dest.writeString(title);
+      dest.writeFloat(confidence);
+      dest.writeParcelable(location, flags);
+    }
+
+    public static final Parcelable.Creator<Recognition> CREATOR = new Parcelable.Creator<Recognition>() {
+      public Recognition createFromParcel(Parcel in) {
+        return new Recognition(in);
+      }
+
+      public Recognition[] newArray(int size) {
+        return new Recognition[size];
+      }
+    };
+
   }
 
   List<Recognition> recognizeImage(Bitmap bitmap);

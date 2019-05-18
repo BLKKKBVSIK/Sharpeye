@@ -15,8 +15,7 @@ limitations under the License.
 
 package sharpeye.sharpeye.env;
 
-import android.graphics.Bitmap;
-import android.graphics.Matrix;
+import android.graphics.*;
 import android.os.Environment;
 
 import java.io.File;
@@ -297,7 +296,7 @@ public class ImageUtils {
       final int dstWidth,
       final int dstHeight,
       final int applyRotation,
-      final boolean maintainAspectRatio) {
+      final boolean maintainAspectRatio, final boolean maintainAspectRatioForReal) {
     final Matrix matrix = new Matrix();
 
     if (applyRotation != 0) {
@@ -324,11 +323,16 @@ public class ImageUtils {
       final float scaleFactorX = dstWidth / (float) inWidth;
       final float scaleFactorY = dstHeight / (float) inHeight;
 
-      if (maintainAspectRatio) {
+      if (maintainAspectRatio && applyRotation == 90) {
         // Scale by minimum factor so that dst is filled completely while
         // maintaining the aspect ratio. Some image may fall off the edge.
-        final float scaleFactor = Math.max(scaleFactorX, scaleFactorY);
-        matrix.postScale(scaleFactor, scaleFactor);
+        if (maintainAspectRatioForReal) {
+          final float scaleFactor = Math.min(scaleFactorX, scaleFactorY);
+          matrix.postScale(scaleFactor, scaleFactor);
+        } else {
+          final float scaleFactor = Math.max(scaleFactorX, scaleFactorY);
+          matrix.postScale(scaleFactor, scaleFactor);
+        }
       } else {
         // Scale exactly to fill dst from src.
         matrix.postScale(scaleFactorX, scaleFactorY);
