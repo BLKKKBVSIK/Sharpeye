@@ -16,13 +16,13 @@
 
 package sharpeye.sharpeye;
 
-import android.app.Application;
 import android.graphics.*;
 import android.graphics.Bitmap.Config;
 import android.graphics.Paint.Style;
 import android.media.ImageReader.OnImageAvailableListener;
 import android.os.Bundle;
 import android.os.SystemClock;
+
 import android.util.Log;
 import android.util.Size;
 import android.util.TypedValue;
@@ -36,12 +36,11 @@ import sharpeye.sharpeye.tracking.Tracker;
 import sharpeye.sharpeye.warning.WarningEvent;
 
 import java.io.IOException;
-import java.sql.Time;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+
 
 /**
  * An activity that uses a TensorFlowMultiBoxDetector and ObjectTracker to detect and then track
@@ -383,82 +382,46 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         break;
     }
 
-    runInBackground(
-        new Runnable() {
-          @Override
-          public void run() {
-            LOGGER.i("Running detection on image " + currTimestamp);
-            final long startTime = SystemClock.uptimeMillis();
-            // TODO list of recognized item
 
-            long timeSpent = System.currentTimeMillis() - lastDetection;
-            System.out.println("Time: " + timeSpent / 1000.0f);
-            lastDetection = System.currentTimeMillis();
-
-            final List<Classifier.Recognition> results = detector.recognizeImage(croppedBitmap);
-            lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime;
-
-            cropCopyBitmap = Bitmap.createBitmap(croppedBitmap);
-            final Canvas canvas = new Canvas(cropCopyBitmap);
-            final Paint paint = new Paint();
-            paint.setColor(Color.RED);
-            paint.setStyle(Style.STROKE);
-            paint.setStrokeWidth(2.0f);
-
-            float minimumConfidence = MINIMUM_CONFIDENCE_TF_OD_API;
-            switch (MODE) {
-              case TF_OD_API:
-                minimumConfidence = MINIMUM_CONFIDENCE_TF_OD_API;
-                break;
-              case MULTIBOX:
-                minimumConfidence = MINIMUM_CONFIDENCE_MULTIBOX;
-                break;
-              case YOLO:
-                minimumConfidence = MINIMUM_CONFIDENCE_YOLO;
-                break;
+    //Classifier
+    for (int i = 0; i < results.size(); ++i) {
+        if (results.get(i).getConfidence() > minimumConfidence) {
+            String result = signClassifier.checkForTrafficSign(results.get(i), croppedBitmap);
+            if (signClassifier.getLastResults().size() >= 1) {
+                Classifier.Recognition elem;
+                elem = new Classifier.Recognition(results.get(i).getId(), result, signClassifier.getLastResults().get(0).getConfidence(), results.get(i).getLocation());
+                results.add(i, elem);
+                results.remove(i + 1);
             }
+        }
+    }
 
+    final List<Classifier.Recognition> mappedRecognitions =
+            new LinkedList<Classifier.Recognition>();
 
-            //Classifier
-            for (int i = 0; i < results.size(); ++i) {
-                if (results.get(i).getConfidence() > minimumConfidence) {
-                    String result = signClassifier.checkForTrafficSign(results.get(i), croppedBitmap);
-                    if (signClassifier.getLastResults().size() >= 1) {
-                        Classifier.Recognition elem;
-                        elem = new Classifier.Recognition(results.get(i).getId(), result, signClassifier.getLastResults().get(0).getConfidence(), results.get(i).getLocation());
-                        results.add(i, elem);
-                        results.remove(i + 1);
-                    }
-                }
-            }
+    for (final Classifier.Recognition result : results) {
+      final RectF location = result.getLocation();
+      if (location != null && result.getConfidence() >= minimumConfidence) {
+        canvas.drawRect(location, paint);
 
+        cropToFrameTransform.mapRect(location);
+        result.setLocation(location);
+        mappedRecognitions.add(result);
+        try {
+          if (warningEvent != null)
+            warningEvent.triggerWarning(result.getTitle());
+        } catch (NullPointerException ex) {
+          Log.e("Detector", "WarningEvent already cleaned");
+        }
+      }
+    }
 
-            final List<Classifier.Recognition> mappedRecognitions =
-                    new LinkedList<Classifier.Recognition>();
+    multiBoxTracker.trackResults(mappedRecognitions, luminanceCopy, currTimestamp);
+    trackingOverlay.postInvalidate();
 
-            for (final Classifier.Recognition result : results) {
-              final RectF location = result.getLocation();
-              if (location != null && result.getConfidence() >= minimumConfidence) {
-                canvas.drawRect(location, paint);
-
-                cropToFrameTransform.mapRect(location);
-                result.setLocation(location);
-                mappedRecognitions.add(result);
-                try {
-                  if (warningEvent != null)
-                    warningEvent.triggerWarning(result.getTitle());
-                } catch (NullPointerException ex) {
-                  Log.e("Detector", "WarningEvent already cleaned");
-                }
-              }
-            }
-
-            multiBoxTracker.trackResults(mappedRecognitions, luminanceCopy, currTimestamp);
-            trackingOverlay.postInvalidate();
-
-            requestRender();
-            computingDetection = false;
-          }});}
+    requestRender();
+    computingDetection = false;
+  }
 
   @Override
   protected int getLayoutId() {
