@@ -54,7 +54,10 @@ public class SignClassifier {
         Bitmap croppedBmp;
         Bitmap finalBmp;
 
-        croppedBmp = imageDetected;
+        startX = startX < 0 ? 0 : startX;
+        startY = startY < 0 ? 0 : startY;
+        width = (width + startX) > imageDetected.getWidth() ? (imageDetected.getWidth() - 1) - startX : width;
+        height = (height + startY) > imageDetected.getHeight() ? (imageDetected.getHeight() - 1) - startY : height;
         croppedBmp = Bitmap.createBitmap(imageDetected, startX, startY, width, height);
         finalBmp = Bitmap.createScaledBitmap(croppedBmp, INPUT_SIZE, INPUT_SIZE, true);
         results = classifier.recognizeImage(finalBmp);
