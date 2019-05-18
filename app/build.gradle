@@ -26,6 +26,10 @@ repositories {
 }
 
 android {
+    lintOptions {
+        disable 'LongLogTag'
+    }
+
     compileSdkVersion 28
     defaultConfig {
         applicationId "sharpeye.sharpeye"

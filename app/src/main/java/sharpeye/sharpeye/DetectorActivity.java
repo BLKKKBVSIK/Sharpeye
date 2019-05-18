@@ -16,6 +16,7 @@
 
 package sharpeye.sharpeye;
 
+import android.app.Application;
 import android.graphics.*;
 import android.graphics.Bitmap.Config;
 import android.graphics.Paint.Style;
@@ -31,6 +32,7 @@ import sharpeye.sharpeye.env.Logger;
 import sharpeye.sharpeye.tracking.MultiBoxTracker;
 
 import java.io.IOException;
+import java.sql.Time;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
@@ -56,15 +58,15 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   private static final int TF_OD_API_INPUT_SIZE = 300;
   private static final String TF_OD_API_MODEL_FILE =
           "file:///android_asset/frozen_inference_graph.pb";
-  private static final String TF_OD_API_LABELS_FILE = "file:///android_asset/coco_labels.txt";
+  private static final String TF_OD_API_LABELS_FILE = "file:///android_asset/labels_frozen.txt";
 
   // Configuration values for tiny-yolo-voc. Note that the graph is not included with TensorFlow and
   // must be manually placed in the assets/ directory by the user.
   // Graphs and models downloaded from http://pjreddie.com/darknet/yolo/ may be converted e.g. via
   // DarkFlow (https://github.com/thtrieu/darkflow). Sample command:
   // ./flow --model cfg/tiny-yolo-voc.cfg --load bin/tiny-yolo-voc.weights --savepb --verbalise
-  private static final String YOLO_MODEL_FILE = "file:///android_asset/trafficSigns.pb";
-  private static final String YOLO_LABEL_FILE = "file:///android_asset/trafficLabels.txt";
+  private static final String YOLO_MODEL_FILE = "file:///android_asset/generalTraffic.pb";
+  private static final String YOLO_LABEL_FILE = "file:///android_asset/generalTrafficLabels.txt";
   private static final int YOLO_INPUT_SIZE = 416;
   private static final String YOLO_INPUT_NAME = "input";
   private static final String YOLO_OUTPUT_NAMES = "output";
@@ -76,12 +78,12 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   private enum DetectorMode {
     TF_OD_API, MULTIBOX, YOLO;
   }
-  private static final DetectorMode MODE = DetectorMode.YOLO;//DetectorMode.TF_OD_API;
+  private static final DetectorMode MODE = DetectorMode.TF_OD_API;//DetectorMode.TF_OD_API;
 
   // Minimum detection confidence to track a detection.
-  private static final float MINIMUM_CONFIDENCE_TF_OD_API = 0.6f;
+  private static final float MINIMUM_CONFIDENCE_TF_OD_API = 0.2f;
   private static final float MINIMUM_CONFIDENCE_MULTIBOX = 0.1f;
-  private static final float MINIMUM_CONFIDENCE_YOLO = 0.25f;
+  private static final float MINIMUM_CONFIDENCE_YOLO = 0.5f;
 
   private static final boolean MAINTAIN_ASPECT = MODE == DetectorMode.YOLO;
 
@@ -111,6 +113,11 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   private byte[] luminanceCopy;
 
   private BorderedText borderedText;
+
+  long lastDetection = 0;
+
+  SignClassifier signClassifier;
+
   @Override
   public void onPreviewSizeChosen(final Size size, final int rotation) {
     final float textSizePx =
@@ -120,6 +127,8 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     borderedText.setTypeface(Typeface.MONOSPACE);
 
     tracker = new MultiBoxTracker(this);
+
+    signClassifier = new SignClassifier(getApplicationContext());
 
     int cropSize = TF_OD_API_INPUT_SIZE;
     if (MODE == DetectorMode.YOLO) {
@@ -290,6 +299,11 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             LOGGER.i("Running detection on image " + currTimestamp);
             final long startTime = SystemClock.uptimeMillis();
             // TODO list of recognized item
+
+            long timeSpent = System.currentTimeMillis() - lastDetection;
+            System.out.println("Time: " + timeSpent / 1000.0f);
+            lastDetection = System.currentTimeMillis();
+
             final List<Classifier.Recognition> results = detector.recognizeImage(croppedBitmap);
             lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime;
 
@@ -312,6 +326,19 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                 minimumConfidence = MINIMUM_CONFIDENCE_YOLO;
                 break;
             }
+
+            /*for (int i = 0; i < results.size(); ++i) {
+                if (results.get(i).getConfidence() > minimumConfidence) {
+                    String result = signClassifier.checkForTrafficSign(results.get(i), croppedBitmap);
+                    if (signClassifier.getLastResults().size() >= 1) {
+                        Classifier.Recognition elem;
+                        elem = new Classifier.Recognition(results.get(i).getId(), result, signClassifier.getLastResults().get(0).getConfidence(), results.get(i).getLocation());
+                        results.add(i, elem);
+                        results.remove(i + 1);
+                    }
+                }
+            }*/
+
 
             final List<Classifier.Recognition> mappedRecognitions =
                 new LinkedList<Classifier.Recognition>();
