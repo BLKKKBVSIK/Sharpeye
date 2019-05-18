@@ -71,11 +71,11 @@ public class SignClassifier {
     }
 
     private String interpretResults(List<Classifier.Recognition> results) {
-        if (results.size() > 1 && results.get(0).getConfidence() - results.get(1).getConfidence() < MINIMUM_CONFIDENCE_DIFFERENCE) {
+        if (results.size() == 0 || (results.size() > 1 && results.get(0).getConfidence() - results.get(1).getConfidence() < MINIMUM_CONFIDENCE_DIFFERENCE)) {
             results.add(0, new Classifier.Recognition("-1", "NONE", 0.0f, new RectF(0, 0, 0, 0)));
             return ("NONE");
         }
-
+        
         return (results.get(0).getTitle());
     }
 }
