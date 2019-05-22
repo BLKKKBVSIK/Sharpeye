@@ -187,8 +187,10 @@ public class TensorFlowObjectDetectionAPIModel implements Classifier {
               outputLocations[4 * i] * inputSize,
               outputLocations[4 * i + 3] * inputSize,
               outputLocations[4 * i + 2] * inputSize);
-      pq.add(
-          new Recognition("" + i, labels.get((int) outputClasses[i]), outputScores[i], detection));
+      if (detection.left + detection.bottom + detection.right + detection.top > 0) {
+        pq.add(
+                new Recognition("" + i, labels.get((int) outputClasses[i]), outputScores[i], detection));
+      }
     }
 
     final ArrayList<Recognition> recognitions = new ArrayList<Recognition>();

@@ -22,6 +22,10 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.Point;
 import android.hardware.Camera;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
@@ -39,10 +43,11 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.util.Size;
 import android.view.*;
 import android.widget.Toast;
+import com.crashlytics.android.Crashlytics;
+import io.fabric.sdk.android.Fabric;
 import sharpeye.sharpeye.env.ImageUtils;
 import sharpeye.sharpeye.env.Logger;
 
@@ -73,10 +78,15 @@ public abstract class CameraActivity extends AppCompatActivity
   private Runnable postInferenceCallback;
   private Runnable imageConverter;
 
+  protected static Size DESIRED_PREVIEW_SIZE = new Size(640, 480);
+
+
+
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
     LOGGER.d("onCreate " + this);
     super.onCreate(null);
+    Fabric.with(this, new Crashlytics());
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
     /* Set the status bar transparent */
@@ -94,6 +104,13 @@ public abstract class CameraActivity extends AppCompatActivity
 
     NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
     navigationView.setNavigationItemSelectedListener(this);
+
+
+    Point size = new Point();
+    getWindowManager().getDefaultDisplay().getSize(size);
+    int x = size.x;
+    int y = size.y;
+    DESIRED_PREVIEW_SIZE = new Size(((x > y) ? x : y), ((x > y) ? y : x));
 
     if (hasPermission()) {
       setFragment();
@@ -146,23 +163,80 @@ public abstract class CameraActivity extends AppCompatActivity
     yuvBytes[0] = bytes;
     yRowStride = previewWidth;
 
-    imageConverter =
-        new Runnable() {
-          @Override
-          public void run() {
-            ImageUtils.convertYUV420SPToARGB8888(bytes, previewWidth, previewHeight, rgbBytes);
-          }
-        };
+    runInBackground(new Runnable() {
+      @Override
+      public void run() {
+        imageConverter =
+                new Runnable() {
+                  @Override
+                  public void run() {
+                    ImageUtils.convertYUV420SPToARGB8888(bytes, previewWidth, previewHeight, rgbBytes);
+                  }
+                };
 
-    postInferenceCallback =
-        new Runnable() {
-          @Override
-          public void run() {
-            camera.addCallbackBuffer(bytes);
-            isProcessingFrame = false;
-          }
-        };
-    processImage();
+        postInferenceCallback =
+                new Runnable() {
+                  @Override
+                  public void run() {
+                    camera.addCallbackBuffer(bytes);
+                    isProcessingFrame = false;
+                  }
+                };
+        processImage();
+      }});
+  }
+
+  public boolean imageAvailableProcess(final Image image) {
+    if (image == null) {
+      return false;
+    }
+    if (isProcessingFrame) {
+      image.close();
+      return false;
+    }
+    isProcessingFrame = true;
+    Trace.beginSection("imageAvailable");
+    final Plane[] planes = image.getPlanes();
+    fillBytes(planes, yuvBytes);
+    yRowStride = planes[0].getRowStride();
+    final int uvRowStride = planes[1].getRowStride();
+    final int uvPixelStride = planes[1].getPixelStride();
+
+    image.close();
+    runInBackground(new Runnable() {
+      @Override
+      public void run() {
+        imageConverter =
+                new Runnable() {
+                  @Override
+                  public void run() {
+                    ImageUtils.convertYUV420ToARGB8888(
+                            yuvBytes[0],
+                            yuvBytes[1],
+                            yuvBytes[2],
+                            previewWidth,
+                            previewHeight,
+                            yRowStride,
+                            uvRowStride,
+                            uvPixelStride,
+                            rgbBytes);
+                  }
+                };
+
+        postInferenceCallback =
+                new Runnable() {
+                  @Override
+                  public void run() {
+                    //image.close();
+                    isProcessingFrame = false;
+                  }
+                };
+
+        processImage();
+      }
+    });
+
+    return true;
   }
 
   /**
@@ -179,50 +253,8 @@ public abstract class CameraActivity extends AppCompatActivity
     }
     try {
       final Image image = reader.acquireLatestImage();
+      imageAvailableProcess(image);
 
-      if (image == null) {
-        return;
-      }
-
-      if (isProcessingFrame) {
-        image.close();
-        return;
-      }
-      isProcessingFrame = true;
-      Trace.beginSection("imageAvailable");
-      final Plane[] planes = image.getPlanes();
-      fillBytes(planes, yuvBytes);
-      yRowStride = planes[0].getRowStride();
-      final int uvRowStride = planes[1].getRowStride();
-      final int uvPixelStride = planes[1].getPixelStride();
-
-      imageConverter =
-          new Runnable() {
-            @Override
-            public void run() {
-              ImageUtils.convertYUV420ToARGB8888(
-                  yuvBytes[0],
-                  yuvBytes[1],
-                  yuvBytes[2],
-                  previewWidth,
-                  previewHeight,
-                  yRowStride,
-                  uvRowStride,
-                  uvPixelStride,
-                  rgbBytes);
-            }
-          };
-
-      postInferenceCallback =
-          new Runnable() {
-            @Override
-            public void run() {
-              image.close();
-              isProcessingFrame = false;
-            }
-          };
-
-      processImage();
     } catch (final Exception e) {
       LOGGER.e(e, "Exception!");
       Trace.endSection();
@@ -265,7 +297,7 @@ public abstract class CameraActivity extends AppCompatActivity
     LOGGER.d("onDestroy " + this);
     if (!isFinishing()) {
       LOGGER.d("Requesting finish");
-      finish();
+      //finish();
     }
 
     handlerThread.quitSafely();
@@ -508,8 +540,6 @@ public abstract class CameraActivity extends AppCompatActivity
       intent.putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT,
               SettingsActivity.DangersPreferenceFragment.class.getName());
       intent.putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true);
-      intent.putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT_TITLE, "Test");
-      intent.putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT_SHORT_TITLE, "Test");
       startActivity(intent);
     } else if (id == R.id.nav_signs) {
       Intent intent = new Intent(this, SettingsActivity.class);

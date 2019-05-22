@@ -253,6 +253,7 @@ public class CameraConnectionFragment extends Fragment {
     // Collect the supported resolutions that are at least as big as the preview Surface
     boolean exactSizeFound = false;
     final List<Size> bigEnough = new ArrayList<Size>();
+    final List<Size> middleChoice = new ArrayList<Size>();
     final List<Size> tooSmall = new ArrayList<Size>();
     for (final Size option : choices) {
       if (option.equals(desiredSize)) {
@@ -260,8 +261,10 @@ public class CameraConnectionFragment extends Fragment {
         exactSizeFound = true;
       }
 
-      if (option.getHeight() >= minSize && option.getWidth() >= minSize) {
+      if (option.getHeight() >= height && option.getWidth() >= width) {
         bigEnough.add(option);
+      } else if (option.getHeight() >= minSize && option.getWidth() >= minSize) {
+        middleChoice.add(option);
       } else {
         tooSmall.add(option);
       }
@@ -269,6 +272,7 @@ public class CameraConnectionFragment extends Fragment {
 
     LOGGER.i("Desired size: " + desiredSize + ", min size: " + minSize + "x" + minSize);
     LOGGER.i("Valid preview sizes: [" + TextUtils.join(", ", bigEnough) + "]");
+    LOGGER.i("Valid fallback sizes: [" + TextUtils.join(", ", middleChoice) + "]");
     LOGGER.i("Rejected preview sizes: [" + TextUtils.join(", ", tooSmall) + "]");
 
     if (exactSizeFound) {
@@ -277,14 +281,17 @@ public class CameraConnectionFragment extends Fragment {
     }
 
     // Pick the smallest of those, assuming we found any
-    if (bigEnough.size() > 0) {
+    if (!bigEnough.isEmpty()) {
       final Size chosenSize = Collections.min(bigEnough, new CompareSizesByArea());
       LOGGER.i("Chosen size: " + chosenSize.getWidth() + "x" + chosenSize.getHeight());
       return chosenSize;
-    } else {
-      LOGGER.e("Couldn't find any suitable preview size");
-      return choices[0];
+    } else if (!middleChoice.isEmpty()) {
+      final Size chosenSize = Collections.min(bigEnough, new CompareSizesByArea());
+      LOGGER.i("Chosen size: " + chosenSize.getWidth() + "x" + chosenSize.getHeight());
+      return chosenSize;
     }
+    LOGGER.e("Couldn't find any suitable preview size");
+    return choices[0];
   }
 
   public static CameraConnectionFragment newInstance(
@@ -361,10 +368,11 @@ public class CameraConnectionFragment extends Fragment {
       // Danger, W.R.! Attempting to use too large a preview size could  exceed the camera
       // bus' bandwidth limitation, resulting in gorgeous previews but the storage of
       // garbage capture data.
+
       previewSize =
-          /*chooseOptimalSize(*/map.getOutputSizes(SurfaceTexture.class)[0]/*,
+          chooseOptimalSize(map.getOutputSizes(SurfaceTexture.class),
               inputSize.getWidth(),
-              inputSize.getHeight())*/;
+              inputSize.getHeight());
 
       // We fit the aspect ratio of TextureView to the size of preview we picked.
       final int orientation = getResources().getConfiguration().orientation;
@@ -494,7 +502,7 @@ public class CameraConnectionFragment extends Fragment {
       // Create the reader for the preview frames.
       previewReader =
           ImageReader.newInstance(
-              previewSize.getWidth(), previewSize.getHeight(), ImageFormat.YUV_420_888, 2);
+              previewSize.getWidth(), previewSize.getHeight(), ImageFormat.YUV_420_888, 30);
 
       previewReader.setOnImageAvailableListener(imageListener, backgroundHandler);
       previewRequestBuilder.addTarget(previewReader.getSurface());

@@ -121,7 +121,6 @@ public class TensorFlowYoloDetector implements Classifier {
       d.labels.add(line);
     }
     br.close();
-
     d.num_classes = d.labels.size();
     d.inferenceInterface = new TensorFlowInferenceInterface(assetManager, modelFilename);
 

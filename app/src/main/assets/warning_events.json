@@ -1,0 +1,219 @@
+{
+    "warning_events": [
+        {
+            "name": "Speed limit (20km/h)",
+            "text": "Limite de vitesse maximale de 20 kilomètre par heure",
+            "delay": 10
+        },
+        {
+            "name": "Speed limit (30km/h)",
+            "text": "Limite de vitesse maximale de 30 kilomètre par heure",
+            "delay": 10
+        },
+        {
+            "name": "Speed limit (50km/h)",
+            "text": "Limite de vitesse maximale de 50 kilomètre par heure",
+            "delay": 10
+        },
+        {
+            "name": "Speed limit (60km/h)",
+            "text": "Limite de vitesse maximale de 60 kilomètre par heure",
+            "delay": 10
+        },
+        {
+            "name": "Speed limit (70km/h)",
+            "text": "Limite de vitesse maximale de 70 kilomètre par heure",
+            "delay": 10
+        },
+        {
+            "name": "Speed limit (80km/h)",
+            "text": "Limite de vitesse maximale de 80 kilomètre par heure",
+            "delay": 10
+        },
+        {
+            "name": "End of speed limit (80km/h)",
+            "text": "Fin de toutes les interdictions précédemment signalées",
+            "delay": 10
+        },
+        {
+            "name": "Speed limit (100km/h)",
+            "text": "Limite de vitesse maximale de 100 kilomètre par heure",
+            "delay": 10
+        },
+        {
+            "name": "Speed limit (120km/h)",
+            "text": "Limite de vitesse maximale de 120 kilomètre par heure",
+            "delay": 10
+        },
+        {
+            "name": "No passing",
+            "text": "Ne pas doubler",
+            "delay": 10
+        },
+        {
+            "name": "No passing for vehicles over 3.5 metric tons",
+            "text": "Ne pas doubler les camions",
+            "delay": 10
+        },
+        {
+            "name": "Right-of-way at the next intersection",
+            "text": "Priorité a la prochaine intersection",
+            "delay": 10
+        },
+        {
+            "name": "Priority road",
+            "text": "Priorité par rapport à la circulation venant en sens inverse",
+            "delay": 10
+        },
+        {
+            "name": "Yield",
+            "text": "Cédez le passage",
+            "delay": 10
+        },
+        {
+            "name": "Stop",
+            "text": "Stop",
+            "delay": 10
+        },
+        {
+            "name": "No vehicles",
+            "text": "Zone interdite aux vehicules",
+            "delay": 10
+        },
+        {
+            "name": "Vehicles over 3.5 metric tons prohibited",
+            "text": "Zone interdite aux camions",
+            "delay": 10
+        },
+        {
+            "name": "No entry",
+            "text": "Zone interdite",
+            "delay": 10
+        },
+        {
+            "name": "General caution",
+            "text": "Attention, danger !",
+            "delay": 10
+        },
+        {
+            "name": "Dangerous curve to the left",
+            "text": "Virage à gauche",
+            "delay": 10
+        },
+        {
+            "name": "Dangerous curve to the right",
+            "text": "Virage à droite",
+            "delay": 10
+        },
+        {
+            "name": "Double curve",
+            "text": "Virage",
+            "delay": 10
+        },
+        {
+            "name": "Bumpy road",
+            "text": "Cassis ou dos-d'âne",
+            "delay": 10
+        },
+        {
+            "name": "Slippery road",
+            "text": "route glissante",
+            "delay": 10
+        },
+        {
+            "name": "Road narrows on the right",
+            "text": "Chaussée rétrécie",
+            "delay": 10
+        },
+        {
+            "name": "Road work",
+            "text": "Attention, travaux",
+            "delay": 10
+        },
+        {
+            "name": "Traffic signals",
+            "text": "Feu de signalisation",
+            "delay": 10
+        },
+        {
+            "name": "Pedestrians",
+            "text": "Attention, passage piéton",
+            "delay": 10
+        },
+        {
+            "name": "Children crossing",
+            "text": "Attention, passage d'écolier",
+            "delay": 10
+        },
+        {
+            "name": "Bicycles crossing",
+            "text": "Attention, croisement cycliste",
+            "delay": 10
+        },
+        {
+            "name": "Beware of ice/snow",
+            "text": "Attention à la neige",
+            "delay": 10
+        },
+        {
+            "name": "Wild animals crossing",
+            "text": "Attention aux animaux",
+            "delay": 10
+        },
+        {
+            "name": "End of all speed and passing limits",
+            "text": "Fin des limitations",
+            "delay": 10
+        },
+        {
+            "name": "Turn right ahead",
+            "text": "aller à droite",
+            "delay": 10
+        },
+        {
+            "name": "Turn left ahead",
+            "text": "aller à gauche",
+            "delay": 10
+        },
+        {
+            "name": "Ahead only",
+            "text": "Continuer tout droit",
+            "delay": 10
+        },
+        {
+            "name": "Go straight or right",
+            "text": "Aller à droite ou tout droit",
+            "delay": 10
+        },
+        {
+            "name": "Go straight or left",
+            "text": "Aller à gauche ou tout droit",
+            "delay": 10
+        },
+        {
+            "name": "Keep right",
+            "text": "Rester à droite",
+            "delay": 10
+        },
+        {
+            "name": "Keep left",
+            "text": "Rester à gauche",
+            "delay": 10
+        },
+        {
+            "name": "Roundabout mandatory",
+            "text": "Rond-point",
+            "delay": 10
+        },
+        {
+            "name": "End of no passing",
+            "text": "Fin de restriction",
+            "delay": 10
+        },
+        {
+            "name": "End of no passing by vehicles over 3.5 metric tons",
+            "text": "Fin de restriction pour les camions",
+            "delay": 10
+        }
+    ]
+}
