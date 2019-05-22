@@ -63,8 +63,8 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
   private static final int TF_OD_API_INPUT_SIZE = 300;
   private static final String TF_OD_API_MODEL_FILE =
-          "file:///android_asset/frozen_inference_graph.pb";
-  private static final String TF_OD_API_LABELS_FILE = "file:///android_asset/labels_frozen.txt";
+          "file:///android_asset/trafficSignGeneralMobilenet.pb";
+  private static final String TF_OD_API_LABELS_FILE = "file:///android_asset/generalTrafficLabels.txt";
 
   // Configuration values for tiny-yolo-voc. Note that the graph is not included with TensorFlow and
   // must be manually placed in the assets/ directory by the user.
@@ -104,11 +104,13 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   private Bitmap rgbFrameBitmap = null;
   private Bitmap croppedBitmap = null;
   private Bitmap cropCopyBitmap = null;
+  private Bitmap rgbOrientedBitmap = null;
 
 
 
   private long timestamp = 0;
 
+  private Matrix rotationTransform;
   private Matrix frameToCropTransform;
   private Matrix cropToFrameTransform;
 
@@ -184,7 +186,16 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     multiBoxTracker = new MultiBoxTracker(this);
 
-    signClassifier = new SignClassifier(getApplicationContext());
+      try {
+          signClassifier = new SignClassifier(getApplicationContext());
+      } catch (final IOException e) {
+          LOGGER.e("Exception initializing classifier!", e);
+          Toast toast =
+                  Toast.makeText(
+                          getApplicationContext(), "Classifier could not be initialized", Toast.LENGTH_SHORT);
+          toast.show();
+          finish();
+      }
 
     int cropSize = TF_OD_API_INPUT_SIZE;
     if (MODE == DetectorMode.YOLO) {
@@ -242,6 +253,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     LOGGER.i("Initializing at size %dx%d", previewWidth, previewHeight);
     rgbFrameBitmap = Bitmap.createBitmap(previewWidth, previewHeight, Config.ARGB_8888);
+    rgbOrientedBitmap = Bitmap.createBitmap(previewHeight, previewWidth, Config.ARGB_8888);
     croppedBitmap = Bitmap.createBitmap(cropSize, cropSize, Config.ARGB_8888);
 
 
@@ -252,6 +264,12 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             previewWidth, previewHeight,
             cropSize, cropSize,
             sensorOrientation, maintainAspectRatio, maintainAspectRatioForReal);
+
+    rotationTransform =
+            ImageUtils.getTransformationMatrix(
+                    previewWidth, previewHeight,
+                    previewHeight, previewWidth,
+                    sensorOrientation, maintainAspectRatio, maintainAspectRatioForReal);
 
     cropToFrameTransform = new Matrix();
     frameToCropTransform.invert(cropToFrameTransform);
@@ -345,42 +363,11 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     final Canvas canvas1 = new Canvas(croppedBitmap);
     canvas1.drawBitmap(rgbFrameBitmap, frameToCropTransform, null);
+    final Canvas canvas2 = new Canvas(rgbOrientedBitmap);
+    canvas2.drawBitmap(rgbFrameBitmap, rotationTransform, null);
     // For examining the actual TF input.
-    if (SAVE_PREVIEW_BITMAP) {
+    if (SAVE_PREVIEW_BITMAP && false) {
       ImageUtils.saveBitmap(croppedBitmap);
-    }
-    LOGGER.i("Running detection on image " + currTimestamp);
-    final long startTime = SystemClock.uptimeMillis();
-
-    final List<Classifier.Recognition> results;
-    if (!initializedTracking || (startTime - lastRecognition) >= 300) {
-        results = detector.recognizeImage(croppedBitmap);
-        tracker.track(croppedBitmap, results);
-        initializedTracking = true;
-      lastRecognition = SystemClock.uptimeMillis();
-    } else {
-        results = tracker.update(croppedBitmap);
-    }
-    lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime;
-
-    cropCopyBitmap = Bitmap.createBitmap(croppedBitmap);
-    final Canvas canvas = new Canvas(cropCopyBitmap);
-    final Paint paint = new Paint();
-    paint.setColor(Color.RED);
-    paint.setStyle(Style.STROKE);
-    paint.setStrokeWidth(2.0f);
-
-    float minimumConfidence = MINIMUM_CONFIDENCE_TF_OD_API;
-    switch (MODE) {
-      case TF_OD_API:
-        minimumConfidence = MINIMUM_CONFIDENCE_TF_OD_API;
-        break;
-      case MULTIBOX:
-        minimumConfidence = MINIMUM_CONFIDENCE_MULTIBOX;
-        break;
-      case YOLO:
-        minimumConfidence = MINIMUM_CONFIDENCE_YOLO;
-        break;
     }
 
     runInBackground(
@@ -390,10 +377,6 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             LOGGER.i("Running detection on image " + currTimestamp);
             final long startTime = SystemClock.uptimeMillis();
             // TODO list of recognized item
-
-            long timeSpent = System.currentTimeMillis() - lastDetection;
-            System.out.println("Time: " + timeSpent / 1000.0f);
-            lastDetection = System.currentTimeMillis();
 
             final List<Classifier.Recognition> results = detector.recognizeImage(croppedBitmap);
             lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime;
@@ -418,11 +401,11 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                 break;
             }
 
-
+            long timeSpent = System.currentTimeMillis();
             //Classifier
             for (int i = 0; i < results.size(); ++i) {
                 if (results.get(i).getConfidence() > minimumConfidence) {
-                    String result = signClassifier.checkForTrafficSign(results.get(i), croppedBitmap);
+                    String result = signClassifier.detectSign(results.get(i), croppedBitmap, rgbOrientedBitmap, 0.6f);
                     if (signClassifier.getLastResults().size() >= 1) {
                         Classifier.Recognition elem;
                         elem = new Classifier.Recognition(results.get(i).getId(), result, signClassifier.getLastResults().get(0).getConfidence(), results.get(i).getLocation());
@@ -431,6 +414,8 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                     }
                 }
             }
+            timeSpent = System.currentTimeMillis() - timeSpent;
+            System.out.println("Time: " + timeSpent / 1000.0f);
 
 
             final List<Classifier.Recognition> mappedRecognitions =
