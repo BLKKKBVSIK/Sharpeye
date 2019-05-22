@@ -5,3 +5,6 @@
 /app/app.iml
 /.idea
 /.gradle
+/app/.externalNativeBuild
+/openCVLibrary410/build
+/openCVLibrary410/openCVLibrary410.iml
