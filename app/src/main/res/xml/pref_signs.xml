@@ -2,14 +2,14 @@
 
     <SwitchPreference
             android:key="signs_on"
-            android:title="Activer la reconnaissance de panneaux"
-            android:summary="detectera les panneaux importants"
+            android:title="@string/active_sign_recognition"
+            android:summary="@string/sign_recognition_summary"
             android:defaultValue="true"/>
 
     <SwitchPreference
             android:key="speed_control"
-            android:title="Activer le rappel de vitesse"
-            android:summary="Alertera le conducteur en cas de franchissement de la limite de vitesse"
+            android:title="@string/active_speed_reminder"
+            android:summary="@string/speed_reminder_summary"
             android:defaultValue="true"/>
 
     <!--<RingtonePreference

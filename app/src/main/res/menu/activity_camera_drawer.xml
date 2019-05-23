@@ -7,19 +7,19 @@
         <item
                 android:id="@+id/nav_danger"
                 android:icon="?android:attr/alertDialogIcon"
-                android:title="@string/nav_danger"/>
+                android:title="@string/danger_detection"/>
         <item
                 android:id="@+id/nav_signs"
                 android:icon="@drawable/ic_menu_sign"
-                android:title="@string/nav_signs"/>
+                android:title="@string/sign_detection"/>
         <item
                 android:id="@+id/nav_assist"
                 android:icon="@drawable/ic_menu_voice_assist"
-                android:title="@string/nav_assist"/>
+                android:title="@string/vocal_assist"/>
         <item
                 android:id="@+id/nav_dashcam"
                 android:icon="@drawable/ic_menu_camera"
-                android:title="@string/nav_dashcam"/>
+                android:title="@string/dashcam"/>
     </group>
 
     <item android:title="">
@@ -27,7 +27,7 @@
             <item
                     android:id="@+id/nav_about"
                     android:icon="@drawable/ic_menu_about"
-                    android:title="@string/nav_about"/>
+                    android:title="@string/about"/>
         </menu>
     </item>
 

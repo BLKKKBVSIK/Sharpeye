@@ -91,7 +91,7 @@ class SettingsActivity : AppCompatPreferenceActivity() {
             super.onCreate(savedInstanceState)
             addPreferencesFromResource(R.xml.about)
             setHasOptionsMenu(true)
-            activity.title = resources.getString(R.string.nav_about)
+            activity.title = resources.getString(R.string.about)
         }
 
         override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -111,7 +111,7 @@ class SettingsActivity : AppCompatPreferenceActivity() {
             super.onCreate(savedInstanceState)
             addPreferencesFromResource(R.xml.pref_dangers)
             setHasOptionsMenu(true)
-            activity.title = resources.getString(R.string.nav_danger)
+            activity.title = resources.getString(R.string.danger_detection)
         }
 
         override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -130,7 +130,7 @@ class SettingsActivity : AppCompatPreferenceActivity() {
             super.onCreate(savedInstanceState)
             addPreferencesFromResource(R.xml.pref_dashcam)
             setHasOptionsMenu(true)
-            activity.title = resources.getString(R.string.nav_dashcam)
+            activity.title = resources.getString(R.string.dashcam)
         }
 
         override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -148,7 +148,7 @@ class SettingsActivity : AppCompatPreferenceActivity() {
             super.onCreate(savedInstanceState)
             addPreferencesFromResource(R.xml.pref_signs)
             setHasOptionsMenu(true)
-            activity.title = resources.getString(R.string.nav_signs)
+            activity.title = resources.getString(R.string.sign_detection)
         }
 
         override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -167,7 +167,7 @@ class SettingsActivity : AppCompatPreferenceActivity() {
             super.onCreate(savedInstanceState)
             addPreferencesFromResource(R.xml.pref_vocal)
             setHasOptionsMenu(true)
-            activity.title = resources.getString(R.string.nav_assist)
+            activity.title = resources.getString(R.string.vocal_assist)
         }
 
         override fun onOptionsItemSelected(item: MenuItem): Boolean {
