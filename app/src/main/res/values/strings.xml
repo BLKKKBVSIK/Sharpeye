@@ -6,65 +6,65 @@
 
     <string name="app_name">Sharpeye</string>
 
-    <string name="nav_header_title">Android Studio</string>
-    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_title" translatable="false">Android Studio</string>
+    <string name="nav_header_subtitle" translatable="false">android.studio@android.com</string>
 
-    <string name="link_twitter">https://twitter.com/sharpeye_app</string>
-    <string name="link_facebook">https://www.facebook.com/sharpeyeapp</string>
-    <string name="link_instagram">https://www.instagram.com/sharpeye.app</string>
-    <string name="link_satisfaction_form">https://docs.google.com/forms/d/10_PiKWYYQGnaVJz_YWOO6Ylth_3CA_zROJNyEG1jjAE/edit?usp=sharing</string>
-    <string name="mail_contact">mailto:contact@sharpeye.ga</string>
-    <string name="link_website">https://sharpeye.ga</string>
-    <string name="sharpeye_twitter">\@Sharpeye_app</string>
-    <string name="sharpeye_facebook">sharpeye.app</string>
-    <string name="sharpeye_instagram">sharpeye.app</string>
+    <string name="link_twitter" translatable="false">https://twitter.com/sharpeye_app</string>
+    <string name="link_facebook" translatable="false">https://www.facebook.com/sharpeyeapp</string>
+    <string name="link_instagram" translatable="false">https://www.instagram.com/sharpeye.app</string>
+    <string name="link_satisfaction_form" translatable="false">https://docs.google.com/forms/d/10_PiKWYYQGnaVJz_YWOO6Ylth_3CA_zROJNyEG1jjAE/edit?usp=sharing</string>
+    <string name="mail_contact" translatable="false">mailto:contact@sharpeye.ga</string>
+    <string name="link_website" translatable="false">https://sharpeye.ga</string>
+    <string name="sharpeye_twitter" translatable="false">\@Sharpeye_app</string>
+    <string name="sharpeye_facebook" translatable="false">sharpeye.app</string>
+    <string name="sharpeye_instagram" translatable="false">sharpeye.app</string>
 
-    <string name="version">0.1.0</string>
+    <string name="version" translatable="false">0.1.0</string>
 
     <!--                        -->
     <!--    Variable strings    -->
     <!--                        -->
 
     <!--    In about.xml    -->
-    <string name="about_social">Réseaux sociaux</string>
-    <string name="follow_twitter">Suivez nous sur Twitter</string>
-    <string name="follow_facebook">Suivez nous sur Facebook</string>
-    <string name="follow_instagram">Suivez nous sur Instagram</string>
-    <string name="contact_us">Contactez nous</string>
-    <string name="about">A propos</string>
-    <string name="app_version">Version de l\'application</string>
-    <string name="about_us">Qui sommes-nous?</string>
-    <string name="therms_of_services">Conditions générales d\'utilisation</string>
-    <string name="tos">CGU</string>
+    <string name="about_social" translatable="false">Réseaux sociaux</string>
+    <string name="follow_twitter" translatable="false">Suivez nous sur Twitter</string>
+    <string name="follow_facebook" translatable="false">Suivez nous sur Facebook</string>
+    <string name="follow_instagram" translatable="false">Suivez nous sur Instagram</string>
+    <string name="contact_us" translatable="false">Contactez nous</string>
+    <string name="about" translatable="false">A propos</string>
+    <string name="app_version" translatable="false">Version de l\'application</string>
+    <string name="about_us" translatable="false">Qui sommes-nous?</string>
+    <string name="therms_of_services" translatable="false">Conditions générales d\'utilisation</string>
+    <string name="tos" translatable="false">CGU</string>
 
     <!--    In pref_dangers.xml     -->
-    <string name="active_danger_detection">Activer la detection de dangers</string>
-    <string name="danger_detection_summary">Avertira les passagers quand un danger sera détecté</string>
+    <string name="active_danger_detection" translatable="false">Activer la detection de dangers</string>
+    <string name="danger_detection_summary" translatable="false">Avertira les passagers quand un danger sera détecté</string>
 
     <!--    In pref_dashcam.xml     -->
-    <string name="active_dashcam">Activer la dashcam</string>
-    <string name="dashcam_summary">Un enregistrement instantané de votre conduite sera crée quand vous roulerez</string>
-    <string name="record_on_impact">Enregistrement automatic des chocs</string>
-    <string name="record_impact_summary">si l\'application détecte un mouvement brusque, la vidéo sera archivée pour pouvoir être consultable bien plus tard</string>
+    <string name="active_dashcam" translatable="false">Activer la dashcam</string>
+    <string name="dashcam_summary" translatable="false">Un enregistrement instantané de votre conduite sera crée quand vous roulerez</string>
+    <string name="record_on_impact" translatable="false">Enregistrement automatic des chocs</string>
+    <string name="record_impact_summary" translatable="false">si l\'application détecte un mouvement brusque, la vidéo sera archivée pour pouvoir être consultable bien plus tard</string>
 
     <!--    In pref_headers.xml     -->
-    <string name="danger_detection">Détection de dangers</string>
-    <string name="sign_detection">Détection de panneaux</string>
-    <string name="vocal_assist">Assistance vocale</string>
-    <string name="dashcam">Caméra embarquée</string>
+    <string name="danger_detection" translatable="false">Détection de dangers</string>
+    <string name="sign_detection" translatable="false">Détection de panneaux</string>
+    <string name="vocal_assist" translatable="false">Assistance vocale</string>
+    <string name="dashcam" translatable="false">Caméra embarquée</string>
 
     <!--    In pref_signs.xml   -->
-    <string name="active_sign_recognition">Activer la reconnaissance de panneaux</string>
-    <string name="sign_recognition_summary">detectera les panneaux importants</string>
-    <string name="active_speed_reminder">Activer le rappel de vitesse</string>
-    <string name="speed_reminder_summary">Alertera le conducteur en cas de franchissement de la limite de vitesse</string>
+    <string name="active_sign_recognition" translatable="false">Activer la reconnaissance de panneaux</string>
+    <string name="sign_recognition_summary" translatable="false">detectera les panneaux importants</string>
+    <string name="active_speed_reminder" translatable="false">Activer le rappel de vitesse</string>
+    <string name="speed_reminder_summary" translatable="false">Alertera le conducteur en cas de franchissement de la limite de vitesse</string>
 
     <!--    In pref_vocal.xml   -->
-    <string name="active_vocal_recognition">Activer la reconnaissance vocale</string>
-    <string name="vocal_recognition_summary">activera l\'assistant vocal Sharp\'Eye</string>
+    <string name="active_vocal_recognition" translatable="false">Activer la reconnaissance vocale</string>
+    <string name="vocal_recognition_summary" translatable="false">activera l\'assistant vocal Sharp\'Eye</string>
 
     <!--    In tos.xml      -->
-    <string name="tos_body">En téléchargeant ou utilisant cette application, ces conditions s\'appliqueront automatiquement à vous - vous devriez donc être certain d\'avoir lu et compris ces termes avant d\'utiliser l\'application. Vous n\'êtes pas autorisé à copier ou modifier l\'application, toute partie de l\'application ou nos marques déposées d\'aucune manière. Vous n\'êtes pas autorisé à extraire le code source de l\'application, vous ne devriez pas essayer de traduire l\'application dans d\'autres langues, ou de faire des versions dérivées. L\'application en elle-même et tous les marques déposées, copyrights, droits de base de données et autres droits de propriétés intellectuelles liés appartiennent à SharpEye.
+    <string name="tos_body" translatable="false">En téléchargeant ou utilisant cette application, ces conditions s\'appliqueront automatiquement à vous - vous devriez donc être certain d\'avoir lu et compris ces termes avant d\'utiliser l\'application. Vous n\'êtes pas autorisé à copier ou modifier l\'application, toute partie de l\'application ou nos marques déposées d\'aucune manière. Vous n\'êtes pas autorisé à extraire le code source de l\'application, vous ne devriez pas essayer de traduire l\'application dans d\'autres langues, ou de faire des versions dérivées. L\'application en elle-même et tous les marques déposées, copyrights, droits de base de données et autres droits de propriétés intellectuelles liés appartiennent à SharpEye.
         SharpEye s\'engage à ce que l\'application soit aussi utile et efficace que possible. Pour cette raison, nous nous réservons le droit de faire des changements à l\'application ou de faire payer ses services, à n\'importe quel moment et pour n\'importe quelle raison. Nous ne vous ferons jamais payer pour l\'application ou ses services sans annoncer très clairement ce pourquoi vous allez payer.
         L\'application SharpEye stocke et utilise des données personelles que vous nous avez fournies afin de vous fournir notre Service. Il est de votre responsabilité de surveiller votre téléphone ainsi que l\'accès à l\'application et de les garder sécurisés. Nous recommandons donc que vous n\'effectuiez pas de manipulations de type "rooting" ou "jailbreak", qui sont les processus permettant de retirer les restrictions logicielles et les limitations imposées par le système d\'exploitation officiel de votre appareil. Cela pourrait rentre votre téléphone vulnérable aux virus/malwares/programmes malveillants, compromettre les fonctionnalités de sécurité de votre téléphone, menant à un dysfonctionnement de l\'application SharpEye.
         Vous devriez savoir qu\'il existe certaines choses qui ne tombent pas sous la responsabilité de SharpEye. Certaines fonctionnalités de l\'application auront besoin d\'une connexion internet active. La connexion peut-être Wi-Fi ou fourni par votre fournisseur de réseau, mais SharpEye ne peut prendre la responsabilité d\'un dysfonctionnement de l\'application si vous n\'avez pas accès à la Wi-Fi ou si vous n\'avez plus de forfait de données mobiles.
@@ -78,37 +78,37 @@
         Si vous avez des questions ou des suggestions à propos de nos Conditions d\'utilisation, n\'hésitez pas à nous contacter à sharpeye.common@gmail.com</string>
 
    <!--     In report.xml   -->
-    <string name="report_bug">Signaler un problème</string>
-    <string name="bug_description">Descriptif du problème:</string>
-    <string name="error_report">Rapport d\'erreur</string>
-    <string name="satisfaction_form">Formulaire de satisfaction</string>
+    <string name="report_bug" translatable="false">Signaler un problème</string>
+    <string name="bug_description" translatable="false">Descriptif du problème:</string>
+    <string name="error_report" translatable="false">Rapport d\'erreur</string>
+    <string name="satisfaction_form" translatable="false">Formulaire de satisfaction</string>
 
     <!--    Don\'t know where it\'s used  -->
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
+    <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
 
-    <string name="nav_header_desc">Navigation header</string>
-    <string name="action_settings">Settings</string>
-    <string name="camera_permission">This application need the camera to work.</string>
-    <string name="title_activity_settings">Settings</string>
+    <string name="nav_header_desc" translatable="false">Navigation header</string>
+    <string name="action_settings" translatable="false">Settings</string>
+    <string name="camera_permission" translatable="false">This application need the camera to work.</string>
+    <string name="title_activity_settings" translatable="false">Settings</string>
 
     <string-array name="multi_select_list_preference_default_value"/>
 
-    <string name="pref_title_system_sync_settings">System sync settings</string>
+    <string name="pref_title_system_sync_settings" translatable="false">System sync settings</string>
 
     <!--&lt;!&ndash; Example settings for Notifications &ndash;&gt;-->
-    <string name="pref_header_notifications">Notifications</string>
+    <string name="pref_header_notifications" translatable="false">Notifications</string>
 
-    <string name="pref_title_new_message_notifications">New message notifications</string>
+    <string name="pref_title_new_message_notifications" translatable="false">New message notifications</string>
 
-    <string name="pref_title_ringtone">Ringtone</string>
-    <string name="pref_ringtone_silent">Silent</string>
+    <string name="pref_title_ringtone" translatable="false">Ringtone</string>
+    <string name="pref_ringtone_silent" translatable="false">Silent</string>
 
-    <string name="pref_title_vibrate">Vibrate</string>
+    <string name="pref_title_vibrate" translatable="false">Vibrate</string>
 
-    <string name="description_info">Info</string>
-    <string name="request_permission">This sample needs camera permission.</string>
-    <string name="camera_error">This device doesn\'t support Camera2 API.</string>
+    <string name="description_info" translatable="false">Info</string>
+    <string name="request_permission" translatable="false">This sample needs camera permission.</string>
+    <string name="camera_error" translatable="false">This device doesn\'t support Camera2 API.</string>
 
     <string name="nav_danger">Détection de danger</string>
     <string name="nav_signs">Détection de panneaux</string>
@@ -117,98 +117,4 @@
     <string name="nav_about">A propos</string>
     <string name="nav_feedback">Faire un retour</string>
 
-    <!--    Tom translator
-    <string name="report_bug">A propos</string>
-    <string name="nav_report">Signaler un problème</string>
-
-
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-
-    <string name="nav_header_desc">Navigation header</string>
-    <string name="action_settings">Settings</string>
-    <string name="camera_permission">This application need the camera to work.</string>
-    <string name="title_activity_settings">Settings</string>
--->
-
-<!--    &lt;!&ndash; Strings related to Settings &ndash;&gt;
-
-    &lt;!&ndash; Example General settings &ndash;&gt;
-    <string name="pref_header_general">General</string>
-
-    <string name="pref_title_social_recommendations">Enable social recommendations</string>
-    <string name="pref_description_social_recommendations">Recommendations for people to contact based on your message
-        history
-    </string>
-
-    <string name="pref_title_display_name">Display name</string>
-    <string name="pref_default_display_name">John Smith</string>
-
-    <string name="pref_title_add_friends_to_messages">Add friends to messages</string>
-    <string-array name="pref_example_list_titles">
-        <item>Always</item>
-        <item>When possible</item>
-        <item>Never</item>
-    </string-array>
-    <string-array name="pref_example_list_values">
-        <item>1</item>
-        <item>0</item>
-        <item>-1</item>
-    </string-array>
-
-    &lt;!&ndash; Example settings for Data & Sync &ndash;&gt;
-    <string name="pref_header_data_sync">Data &amp; sync</string>
-
-    <string name="pref_title_sync_frequency">Sync frequency</string>
-    <string-array name="pref_sync_frequency_titles">
-        <item>15 minutes</item>
-        <item>30 minutes</item>
-        <item>1 hour</item>
-        <item>3 hours</item>
-        <item>6 hours</item>
-        <item>Never</item>
-    </string-array>
-    <string-array name="pref_sync_frequency_values">
-        <item>15</item>
-        <item>30</item>
-        <item>60</item>
-        <item>180</item>
-        <item>360</item>
-        <item>-1</item>
-    </string-array>
-
-    <string-array name="list_preference_entries">
-        <item>Entry 1</item>
-        <item>Entry 2</item>
-        <item>Entry 3</item>
-    </string-array>
-
-    <string-array name="list_preference_entry_values">
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-    </string-array>
--->
-
-    <!-- Tom translator
-    <string-array name="multi_select_list_preference_default_value"/>
-
-    <string name="pref_title_system_sync_settings">System sync settings</string>
--->
-
-    <!--&lt;!&ndash; Example settings for Notifications &ndash;&gt;-->
-    <!-- Tom Translator
-    <string name="pref_header_notifications">Notifications</string>
-
-    <string name="pref_title_new_message_notifications">New message notifications</string>
-
-    <string name="pref_title_ringtone">Ringtone</string>
-    <string name="pref_ringtone_silent">Silent</string>
-
-    <string name="pref_title_vibrate">Vibrate</string>
-
-    <string name="description_info">Info</string>
-    <string name="request_permission">This sample needs camera permission.</string>
-    <string name="camera_error">This device doesn\'t support Camera2 API.</string>
-    -->
 </resources>
