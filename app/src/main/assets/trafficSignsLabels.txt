@@ -1,9 +1,9 @@
 ???
-speedLimit20
-speedLimit30
-speedLimit50
-speedLimit60
-speedLimit70
-speedLimit80
-speedLimit100
-speedLimit120
+Speed limit (20km/h)
+Speed limit (30km/h)
+Speed limit (50km/h)
+Speed limit (60km/h)
+Speed limit (70km/h)
+Speed limit (80km/h)
+Speed limit (100km/h)
+Speed limit (120km/h)

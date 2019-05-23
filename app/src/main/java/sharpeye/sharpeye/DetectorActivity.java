@@ -423,8 +423,9 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                 result.setLocation(location);
                 mappedRecognitions.add(result);
                 try {
-                    if (warningEvent != null)
+                    if (warningEvent != null) {
                         warningEvent.triggerWarning(result.getTitle());
+                    }
                 } catch (NullPointerException ex) {
                     Log.e("Detector", "WarningEvent already cleaned");
                 }
