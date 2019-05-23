@@ -1,0 +1,23 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference
+            android:key="signs_on"
+            android:title="Activer la reconnaissance de panneaux"
+            android:summary="detectera les panneaux importants"
+            android:defaultValue="true"/>
+
+    <!-- Too soon
+    <SwitchPreference
+            android:key="speed_control"
+            android:title="Activer le rappel de vitesse"
+            android:summary="Alertera le conducteur en cas de franchissement de la limite de vitesse"
+            android:defaultValue="true"/>-->
+
+    <!--<RingtonePreference
+            android:dependency="notifications_new_message"
+            android:key="notifications_new_message_ringtone"
+            android:title="Son d'alerte"
+            android:ringtoneType="notification"
+            android:defaultValue="content://settings/system/notification_sound"/>-->
+
+</PreferenceScreen>
