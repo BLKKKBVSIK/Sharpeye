@@ -1,61 +1,17 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory
-            android:key="social"
-            android:title="Réseaux sociaux">
-        <Preference
-                android:key="twitter"
-                android:title="Suivez nous sur Twitter"
-                android:summary="\@Sharpeye_app">
-            <intent
-                    android:action="android.intent.action.VIEW"
-                    android:data="https://twitter.com/sharpeye_app"
-            />
-        </Preference>
-        <Preference
-                android:key="facebook"
-                android:title="Suivez nous sur Facebook"
-                android:summary="sharpeye.app">
-            <intent
-                    android:action="android.intent.action.VIEW"
-                    android:data="https://www.facebook.com/sharpeyeapp/"
-            />
-        </Preference>
-        <Preference
-                android:key="instagram"
-                android:title="Suivez nous sur Instagram"
-                android:summary="sharpeye.app">
-            <intent
-                    android:action="android.intent.action.VIEW"
-                    android:data="https://www.instagram.com/sharpeye.app/"
-            />
-        </Preference>
+            android:key="report"
+            android:title="@string/report_bug">
         <Preference
                 android:key="contact"
                 android:title="Contactez nous">
-            <intent
-                    android:action="android.intent.action.VIEW"
-                    android:data="mailto:contact@sharpeye.ga"
-            />
+            <intent android:action="android.intent.action.VIEW"
+                    android:data="mailto:contact@sharpeye.ga">
+                <extra android:name="android.intent.extra.TEXT"
+                       android:value="Descriptif du problème:" />
+                <extra android:name="android.intent.extra.SUBJECT"
+                       android:value="Rapport d'erreur" />
+            </intent>
         </Preference>
-    </PreferenceCategory>
-    <PreferenceCategory
-    android:key="about"
-    android:title="A propos">
-    <Preference
-            android:key="version"
-            android:title="Version de l'application"
-            android:summary="0.1.0"/>
-    <Preference
-            android:key="aboutUs"
-            android:title="Qui sommes-nous?">
-        <intent
-                android:action="android.intent.action.VIEW"
-                android:data="https://sharpeye.ga/"
-        />
-    </Preference>
-    <Preference
-            android:key="TOS"
-            android:fragment="sharpeye.sharpeye.SettingsActivity$TOSFragment"
-            android:title="Conditions générales d'utilisation"/>
     </PreferenceCategory>
 </PreferenceScreen>

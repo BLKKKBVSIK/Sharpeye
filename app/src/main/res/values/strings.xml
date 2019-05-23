@@ -6,6 +6,9 @@
     <string name="nav_dashcam">Camera embarquée</string>
     <string name="nav_about">A propos</string>
 
+    <string name="report_bug">A propos</string>
+    <string name="nav_report">Signaler un problème</string>
+
     <string name="app_name">Sharpeye</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -16,9 +19,9 @@
     <string name="camera_permission">This application need the camera to work.</string>
     <string name="title_activity_settings">Settings</string>
 
-    <!-- Strings related to Settings -->
+<!--    &lt;!&ndash; Strings related to Settings &ndash;&gt;
 
-    <!-- Example General settings -->
+    &lt;!&ndash; Example General settings &ndash;&gt;
     <string name="pref_header_general">General</string>
 
     <string name="pref_title_social_recommendations">Enable social recommendations</string>
@@ -41,7 +44,7 @@
         <item>-1</item>
     </string-array>
 
-    <!-- Example settings for Data & Sync -->
+    &lt;!&ndash; Example settings for Data & Sync &ndash;&gt;
     <string name="pref_header_data_sync">Data &amp; sync</string>
 
     <string name="pref_title_sync_frequency">Sync frequency</string>
@@ -73,12 +76,12 @@
         <item>2</item>
         <item>3</item>
     </string-array>
-
+-->
     <string-array name="multi_select_list_preference_default_value"/>
 
     <string name="pref_title_system_sync_settings">System sync settings</string>
 
-    <!-- Example settings for Notifications -->
+    <!--&lt;!&ndash; Example settings for Notifications &ndash;&gt;-->
     <string name="pref_header_notifications">Notifications</string>
 
     <string name="pref_title_new_message_notifications">New message notifications</string>

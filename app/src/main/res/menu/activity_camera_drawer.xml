@@ -22,13 +22,20 @@
                 android:title="@string/nav_dashcam"/>
     </group>
 
-    <item android:title="">
-        <menu>
-            <item
-                    android:id="@+id/nav_about"
-                    android:icon="@drawable/ic_menu_about"
-                    android:title="@string/nav_about"/>
-        </menu>
-    </item>
+    <group>
+        <item android:title="">
+            <menu>
+                <item
+                        android:id="@+id/nav_about"
+                        android:icon="@drawable/ic_menu_about"
+                        android:title="@string/nav_about"/>
+
+                <item
+                        android:id="@+id/nav_report"
+                        android:icon="@drawable/ic_menu_about"
+                        android:title="@string/nav_report"/>
+            </menu>
+        </item>
+    </group>
 
 </menu>

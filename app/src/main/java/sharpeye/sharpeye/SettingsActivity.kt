@@ -82,6 +82,7 @@ class SettingsActivity : AppCompatPreferenceActivity() {
                 || SignsPreferenceFragment::class.java.name == fragmentName
                 || VocalPreferenceFragment::class.java.name == fragmentName
                 || TOSFragment::class.java.name == fragmentName
+                || ReportFragment::class.java.name == fragmentName
     }
 
     //about fragment
@@ -181,6 +182,25 @@ class SettingsActivity : AppCompatPreferenceActivity() {
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    class ReportFragment : PreferenceFragment() {
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            addPreferencesFromResource(R.xml.report)
+            setHasOptionsMenu(true)
+            activity.title = resources.getString(R.string.nav_report)
+        }
+
+        override fun onOptionsItemSelected(item: MenuItem): Boolean {
+            val id = item.itemId
+            if (id == android.R.id.home) {
+                startActivity(Intent(activity, SettingsActivity::class.java))
+                return true
+            }
+            return super.onOptionsItemSelected(item)
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     class TOSFragment : PreferenceFragment() {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
@@ -211,13 +231,12 @@ class SettingsActivity : AppCompatPreferenceActivity() {
             if (preference is ListPreference) {
                 // For list preferences, look up the correct display value in
                 // the preference's 'entries' list.
-                val listPreference = preference
-                val index = listPreference.findIndexOfValue(stringValue)
+                val index = preference.findIndexOfValue(stringValue)
 
                 // Set the summary to reflect the new value.
                 preference.setSummary(
                     if (index >= 0)
-                        listPreference.entries[index]
+                        preference.entries[index]
                     else
                         null
                 )
