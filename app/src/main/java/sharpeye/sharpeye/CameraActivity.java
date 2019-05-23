@@ -553,10 +553,10 @@ public abstract class CameraActivity extends AppCompatActivity
               SettingsActivity.VocalPreferenceFragment.class.getName());
       intent.putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true);
       startActivity(intent);
-    } else if (id == R.id.nav_dashcam) {
+    } else if (id == R.id.nav_report) {
       Intent intent = new Intent(this, SettingsActivity.class);
       intent.putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT,
-              SettingsActivity.DashcamPreferenceFragment.class.getName());
+              SettingsActivity.ReportFragment.class.getName());
       intent.putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true);
       startActivity(intent);
     } else if (id == R.id.nav_about) {

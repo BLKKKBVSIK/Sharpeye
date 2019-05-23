@@ -25,4 +25,9 @@
             android:fragment="sharpeye.sharpeye.SettingsActivity$AboutFragment"
             android:title="@string/about"
             android:icon="@drawable/ic_info_black_24dp"/>
+
+    <header
+            android:fragment="sharpeye.sharpeye.SettingsActivity$ReportFragment"
+            android:title="Signaler un problème"
+            android:icon="@drawable/ic_info_black_24dp"/>
 </preference-headers>

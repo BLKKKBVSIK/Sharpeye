@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Sharpeye</string>
+    <string name="nav_danger">Danger detection</string>
+    <string name="nav_signs">Sign detection</string>
+    <string name="nav_assist">Vocal assistance</string>
+    <string name="nav_dashcam">Dashcam</string>
+    <string name="nav_about">About</string>
+    <string name="nav_feedback">Give a feedback</string>
+</resources>

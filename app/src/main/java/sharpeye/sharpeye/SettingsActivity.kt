@@ -82,6 +82,7 @@ class SettingsActivity : AppCompatPreferenceActivity() {
                 || SignsPreferenceFragment::class.java.name == fragmentName
                 || VocalPreferenceFragment::class.java.name == fragmentName
                 || TOSFragment::class.java.name == fragmentName
+                || ReportFragment::class.java.name == fragmentName
     }
 
     //about fragment
@@ -91,7 +92,7 @@ class SettingsActivity : AppCompatPreferenceActivity() {
             super.onCreate(savedInstanceState)
             addPreferencesFromResource(R.xml.about)
             setHasOptionsMenu(true)
-            activity.title = resources.getString(R.string.about)
+            activity.title = resources.getString(R.string.nav_about)
         }
 
         override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -111,7 +112,7 @@ class SettingsActivity : AppCompatPreferenceActivity() {
             super.onCreate(savedInstanceState)
             addPreferencesFromResource(R.xml.pref_dangers)
             setHasOptionsMenu(true)
-            activity.title = resources.getString(R.string.danger_detection)
+            activity.title = resources.getString(R.string.nav_danger)
         }
 
         override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -130,7 +131,7 @@ class SettingsActivity : AppCompatPreferenceActivity() {
             super.onCreate(savedInstanceState)
             addPreferencesFromResource(R.xml.pref_dashcam)
             setHasOptionsMenu(true)
-            activity.title = resources.getString(R.string.dashcam)
+            activity.title = resources.getString(R.string.nav_dashcam)
         }
 
         override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -148,7 +149,7 @@ class SettingsActivity : AppCompatPreferenceActivity() {
             super.onCreate(savedInstanceState)
             addPreferencesFromResource(R.xml.pref_signs)
             setHasOptionsMenu(true)
-            activity.title = resources.getString(R.string.sign_detection)
+            activity.title = resources.getString(R.string.nav_signs)
         }
 
         override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -167,7 +168,26 @@ class SettingsActivity : AppCompatPreferenceActivity() {
             super.onCreate(savedInstanceState)
             addPreferencesFromResource(R.xml.pref_vocal)
             setHasOptionsMenu(true)
-            activity.title = resources.getString(R.string.vocal_assist)
+            activity.title = resources.getString(R.string.nav_assist)
+        }
+
+        override fun onOptionsItemSelected(item: MenuItem): Boolean {
+            val id = item.itemId
+            if (id == android.R.id.home) {
+                startActivity(Intent(activity, SettingsActivity::class.java))
+                return true
+            }
+            return super.onOptionsItemSelected(item)
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    class ReportFragment : PreferenceFragment() {
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            addPreferencesFromResource(R.xml.report)
+            setHasOptionsMenu(true)
+            activity.title = resources.getString(R.string.nav_feedback)
         }
 
         override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -211,13 +231,12 @@ class SettingsActivity : AppCompatPreferenceActivity() {
             if (preference is ListPreference) {
                 // For list preferences, look up the correct display value in
                 // the preference's 'entries' list.
-                val listPreference = preference
-                val index = listPreference.findIndexOfValue(stringValue)
+                val index = preference.findIndexOfValue(stringValue)
 
                 // Set the summary to reflect the new value.
                 preference.setSummary(
                     if (index >= 0)
-                        listPreference.entries[index]
+                        preference.entries[index]
                     else
                         null
                 )

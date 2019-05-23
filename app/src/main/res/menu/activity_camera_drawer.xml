@@ -7,28 +7,34 @@
         <item
                 android:id="@+id/nav_danger"
                 android:icon="?android:attr/alertDialogIcon"
-                android:title="@string/danger_detection"/>
+                android:title="@string/nav_danger"/>
         <item
                 android:id="@+id/nav_signs"
                 android:icon="@drawable/ic_menu_sign"
-                android:title="@string/sign_detection"/>
+                android:title="@string/nav_signs"/>
         <item
                 android:id="@+id/nav_assist"
                 android:icon="@drawable/ic_menu_voice_assist"
-                android:title="@string/vocal_assist"/>
+                android:title="@string/nav_assist"/>
         <item
                 android:id="@+id/nav_dashcam"
                 android:icon="@drawable/ic_menu_camera"
-                android:title="@string/dashcam"/>
+                android:title="@string/nav_dashcam"/>
     </group>
+    <group>
+        <item android:title="">
+            <menu>
+                <item
+                        android:id="@+id/nav_about"
+                        android:icon="@drawable/ic_menu_about"
+                        android:title="@string/nav_about"/>
 
-    <item android:title="">
-        <menu>
-            <item
-                    android:id="@+id/nav_about"
-                    android:icon="@drawable/ic_menu_about"
-                    android:title="@string/about"/>
-        </menu>
-    </item>
+                <item
+                        android:id="@+id/nav_report"
+                        android:icon="@drawable/ic_menu_about"
+                        android:title="@string/nav_feedback"/>
+            </menu>
+        </item>
+    </group>
 
 </menu>
