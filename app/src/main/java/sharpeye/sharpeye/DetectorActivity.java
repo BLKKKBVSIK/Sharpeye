@@ -369,80 +369,73 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             ImageUtils.saveBitmap(croppedBitmap);
         }
 
-        runInBackground(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        LOGGER.i("Running detection on image " + currTimestamp);
-                        final long startTime = SystemClock.uptimeMillis();
-                        // TODO list of recognized item
+        LOGGER.i("Running detection on image " + currTimestamp);
+        final long startTime = SystemClock.uptimeMillis();
 
-                        final List<Classifier.Recognition> results = detector.recognizeImage(croppedBitmap);
-                        lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime;
+        final List<Classifier.Recognition> results = detector.recognizeImage(croppedBitmap);
+        lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime;
 
-                        cropCopyBitmap = Bitmap.createBitmap(croppedBitmap);
-                        final Canvas canvas = new Canvas(cropCopyBitmap);
-                        final Paint paint = new Paint();
-                        paint.setColor(Color.RED);
-                        paint.setStyle(Style.STROKE);
-                        paint.setStrokeWidth(2.0f);
+        cropCopyBitmap = Bitmap.createBitmap(croppedBitmap);
+        final Canvas canvas = new Canvas(cropCopyBitmap);
+        final Paint paint = new Paint();
+        paint.setColor(Color.RED);
+        paint.setStyle(Style.STROKE);
+        paint.setStrokeWidth(2.0f);
 
-                        float minimumConfidence = MINIMUM_CONFIDENCE_TF_OD_API;
-                        switch (MODE) {
-                            case TF_OD_API:
-                                minimumConfidence = MINIMUM_CONFIDENCE_TF_OD_API;
-                                break;
-                            case MULTIBOX:
-                                minimumConfidence = MINIMUM_CONFIDENCE_MULTIBOX;
-                                break;
-                            case YOLO:
-                                minimumConfidence = MINIMUM_CONFIDENCE_YOLO;
-                                break;
-                        }
+        float minimumConfidence = MINIMUM_CONFIDENCE_TF_OD_API;
+        switch (MODE) {
+            case TF_OD_API:
+                minimumConfidence = MINIMUM_CONFIDENCE_TF_OD_API;
+                break;
+            case MULTIBOX:
+                minimumConfidence = MINIMUM_CONFIDENCE_MULTIBOX;
+                break;
+            case YOLO:
+                minimumConfidence = MINIMUM_CONFIDENCE_YOLO;
+                break;
+        }
 
-                        long timeSpent = System.currentTimeMillis();
-                        //Classifier
-                        for (int i = 0; i < results.size(); ++i) {
-                            if (results.get(i).getConfidence() > minimumConfidence) {
-                                String result = signClassifier.detectSign(results.get(i), croppedBitmap, rgbOrientedBitmap, 0.6f);
-                                if (signClassifier.getLastResults().size() >= 1) {
-                                    Classifier.Recognition elem;
-                                    elem = new Classifier.Recognition(results.get(i).getId(), result, signClassifier.getLastResults().get(0).getConfidence(), results.get(i).getLocation());
-                                    results.add(i, elem);
-                                    results.remove(i + 1);
-                                }
-                            }
-                        }
-                        timeSpent = System.currentTimeMillis() - timeSpent;
-                        System.out.println("Time: " + timeSpent / 1000.0f);
+        long timeSpent = System.currentTimeMillis();
+        //Classifier
+        for (int i = 0; i < results.size(); ++i) {
+            if (results.get(i).getConfidence() > minimumConfidence) {
+                String result = signClassifier.detectSign(results.get(i), croppedBitmap, rgbOrientedBitmap, 0.6f);
+                if (signClassifier.getLastResults().size() >= 1) {
+                    Classifier.Recognition elem;
+                    elem = new Classifier.Recognition(results.get(i).getId(), result, signClassifier.getLastResults().get(0).getConfidence(), results.get(i).getLocation());
+                    results.add(i, elem);
+                    results.remove(i + 1);
+                }
+            }
+        }
+        timeSpent = System.currentTimeMillis() - timeSpent;
+        System.out.println("Time: " + timeSpent / 1000.0f);
 
-                        final List<Classifier.Recognition> mappedRecognitions =
-                                new LinkedList<Classifier.Recognition>();
+        final List<Classifier.Recognition> mappedRecognitions =
+                new LinkedList<Classifier.Recognition>();
 
-                        for (final Classifier.Recognition result : results) {
-                            final RectF location = result.getLocation();
-                            if (location != null && result.getConfidence() >= minimumConfidence) {
-                                canvas.drawRect(location, paint);
+        for (final Classifier.Recognition result : results) {
+            final RectF location = result.getLocation();
+            if (location != null && result.getConfidence() >= minimumConfidence) {
+                canvas.drawRect(location, paint);
 
-                                cropToFrameTransform.mapRect(location);
-                                result.setLocation(location);
-                                mappedRecognitions.add(result);
-                                try {
-                                    if (warningEvent != null)
-                                        warningEvent.triggerWarning(result.getTitle());
-                                } catch (NullPointerException ex) {
-                                    Log.e("Detector", "WarningEvent already cleaned");
-                                }
-                            }
-                        }
+                cropToFrameTransform.mapRect(location);
+                result.setLocation(location);
+                mappedRecognitions.add(result);
+                try {
+                    if (warningEvent != null)
+                        warningEvent.triggerWarning(result.getTitle());
+                } catch (NullPointerException ex) {
+                    Log.e("Detector", "WarningEvent already cleaned");
+                }
+            }
+        }
 
-                        multiBoxTracker.trackResults(mappedRecognitions, luminanceCopy, currTimestamp);
-                        trackingOverlay.postInvalidate();
+        multiBoxTracker.trackResults(mappedRecognitions, luminanceCopy, currTimestamp);
+        trackingOverlay.postInvalidate();
 
-                        requestRender();
-                        computingDetection = false;
-                    }
-                });
+        requestRender();
+        computingDetection = false;
     }
 
     @Override
