@@ -156,7 +156,8 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     @Override
     public synchronized void onResume() {
         super.onResume();
-        warningEvent = new WarningEvent(this);
+        if (SharedPreferenceHelper.INSTANCE.getSharedPreferenceBoolean$app_debug(getApplicationContext(),"vocal_on",false))
+            warningEvent = new WarningEvent(this);
     }
 
     @Override
