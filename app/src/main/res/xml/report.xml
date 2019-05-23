@@ -1,7 +1,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory
-            android:key="report"
-            android:title="@string/report_bug">
+            android:key="Report"
+            android:title="@string/signal_bug">
         <Preference
                 android:key="contact"
                 android:title="Contactez nous">
@@ -12,6 +12,18 @@
                 <extra android:name="android.intent.extra.SUBJECT"
                        android:value="Rapport d'erreur" />
             </intent>
+        </Preference>
+    </PreferenceCategory>
+    <PreferenceCategory
+            android:key="Feedback"
+            android:title="@string/nav_feedback">
+        <Preference
+                android:key="form"
+                android:title="Formulaire de satisfaction">
+            <intent
+                    android:action="android.intent.action.VIEW"
+                    android:data="https://docs.google.com/forms/d/10_PiKWYYQGnaVJz_YWOO6Ylth_3CA_zROJNyEG1jjAE/edit?usp=sharing"
+            />
         </Preference>
     </PreferenceCategory>
 </PreferenceScreen>

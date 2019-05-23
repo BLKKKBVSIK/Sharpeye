@@ -187,7 +187,7 @@ class SettingsActivity : AppCompatPreferenceActivity() {
             super.onCreate(savedInstanceState)
             addPreferencesFromResource(R.xml.report)
             setHasOptionsMenu(true)
-            activity.title = resources.getString(R.string.nav_report)
+            activity.title = resources.getString(R.string.nav_feedback)
         }
 
         override fun onOptionsItemSelected(item: MenuItem): Boolean {
