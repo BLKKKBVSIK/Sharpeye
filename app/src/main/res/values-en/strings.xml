@@ -2,12 +2,12 @@
 <resources>
     <string name="app_name">Sharpeye</string>
     <string name="nav_danger">Danger detection</string>
-    <string name="nav_signs">Sign detection</string>
+    <string name="nav_signs">Signs detection</string>
     <string name="nav_assist">Vocal assistance</string>
     <string name="nav_dashcam">Dashcam</string>
     <string name="nav_about">About</string>
-    <string name="nav_feedback">Give a feedback</string>
-    <string name="about_social">Social network</string>
+    <string name="nav_feedback">Make a feedback</string>
+    <string name="about_social">Social networks</string>
     <string name="follow_twitter">Follow us on Twitter</string>
     <string name="follow_facebook">Follow us on Facebook</string>
     <string name="follow_instagram">Follow us on Instagram</string>
@@ -15,23 +15,22 @@
     <string name="about">About</string>
     <string name="app_version">Application version</string>
     <string name="about_us">About us</string>
-    <string name="therms_of_services">Therms of services</string>
+    <string name="terms_of_services">Terms of service</string>
     <string name="tos" translatable="false">TOS</string>
-    <string name="active_danger_detection">Active the risk detection</string>
-    <string name="danger_detection_summary" translatable="false">Will announce passangers when there is danger</string>
-    <string name="active_dashcam">Active the dashcam</string>
-    <string name="dashcam_summary">An automatic record of your driving will be created when you will start driving</string>
-    <string name="record_on_impact">Automatic reacord of any shock</string>
+    <string name="active_danger_detection">Enable danger warnings</string>
+    <string name="active_dashcam">Enable Dashcam</string>
+    <string name="dashcam_summary">An automatic record of your driving will be created while driving</string>
+    <string name="record_on_impact">Automatic shocks recording</string>
     <string name="danger_detection">Danger detection</string>
     <string name="sign_detection">Road signs detection</string>
     <string name="vocal_assist">Vocal assistance</string>
     <string name="dashcam">Dashcam</string>
-    <string name="active_sign_recognition">Active road signs recognision</string>
-    <string name="sign_recognition_summary">Will detect importants road signs</string>
-    <string name="active_speed_reminder">Active the speed reminder</string>
-    <string name="speed_reminder_summary">Will alert the driver if he cross the speed limit</string>
-    <string name="active_vocal_recognition">Active the vocal recognision</string>
-    <string name="vocal_recognition_summary">Active the Sharp\'Eye vocal assist</string>
+    <string name="active_sign_recognition">Enable road signs recognition</string>
+    <string name="sign_recognition_summary">Detects important road signs</string>
+    <string name="active_speed_reminder">Enable speed controller</string>
+    <string name="speed_reminder_summary">Warns the driver when driving over the speed limit</string>
+    <string name="active_vocal_recognition">Enable vocal recognition</string>
+    <string name="vocal_recognition_summary">Enable Sharp\'Eye vocal assist</string>
     <string name="tos_body">"By downloading or using the app, these terms will automatically apply to you – you should
         make sure therefore that you read them carefully before using the app. You’re not allowed to copy, or modify the
         app, any part of the app, or our trademarks in any way. You’re not allowed to attempt to extract the source code
@@ -79,8 +78,7 @@
     <string name="report_bug">Report a bug</string>
     <string name="bug_description">Bug description:</string>
     <string name="error_report">Bug report</string>
-    <string name="satisfaction_form">Satifaction form</string>
-    <string name="record_impact_summary" translatable="false">If the application detect a sudden movement, a record will
-        be archived so it can be consult later
-    </string>
+    <string name="satisfaction_form">Satisfaction form</string>
+    <string name="danger_detection_summary">Warns the driver about dectected dangers</string>
+    <string name="record_impact_summary">When detecting brutal movements, archives the video</string>
 </resources>

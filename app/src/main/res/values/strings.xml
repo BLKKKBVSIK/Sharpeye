@@ -34,18 +34,18 @@
     <string name="about">A propos</string>
     <string name="app_version">Version de l\'application</string>
     <string name="about_us">Qui sommes-nous?</string>
-    <string name="therms_of_services">Conditions générales d\'utilisation</string>
+    <string name="terms_of_services" translatable="true">Conditions générales d\'utilisation</string>
     <string name="tos">CGU</string>
 
     <!--    In pref_dangers.xml     -->
     <string name="active_danger_detection">Activer la detection de dangers</string>
-    <string name="danger_detection_summary">Avertira les passagers quand un danger sera détecté</string>
+    <string name="danger_detection_summary">Avertira le conducteur d\'un danger détecté</string>
 
     <!--    In pref_dashcam.xml     -->
     <string name="active_dashcam">Activer la dashcam</string>
-    <string name="dashcam_summary">Un enregistrement instantané de votre conduite sera crée quand vous roulerez</string>
+    <string name="dashcam_summary">Un enregistrement instantané de votre conduite sera créé quand vous roulerez</string>
     <string name="record_on_impact">Enregistrement automatique des chocs</string>
-    <string name="record_impact_summary">si l\'application détecte un mouvement brusque, la vidéo sera archivée pour pouvoir être consultable bien plus tard</string>
+    <string name="record_impact_summary">Si l\'application détecte un mouvement brusque, la vidéo sera archivée pour pouvoir être consultable plus tard</string>
 
     <!--    In pref_headers.xml     -->
     <string name="danger_detection">Détection de dangers</string>
@@ -55,13 +55,13 @@
 
     <!--    In pref_signs.xml   -->
     <string name="active_sign_recognition">Activer la reconnaissance de panneaux</string>
-    <string name="sign_recognition_summary">detectera les panneaux importants</string>
+    <string name="sign_recognition_summary">Détecte les panneaux importants</string>
     <string name="active_speed_reminder">Activer le rappel de vitesse</string>
-    <string name="speed_reminder_summary">Alertera le conducteur en cas de franchissement de la limite de vitesse</string>
+    <string name="speed_reminder_summary">Alerte le conducteur en cas de dépassement de la limite de vitesse</string>
 
     <!--    In pref_vocal.xml   -->
     <string name="active_vocal_recognition">Activer la reconnaissance vocale</string>
-    <string name="vocal_recognition_summary">activera l\'assistant vocal Sharp\'Eye</string>
+    <string name="vocal_recognition_summary">Active l\'assistant vocal Sharp\'Eye</string>
 
     <!--    In tos.xml      -->
     <string name="tos_body">En téléchargeant ou utilisant cette application, ces conditions s\'appliqueront automatiquement à vous - vous devriez donc être certain d\'avoir lu et compris ces termes avant d\'utiliser l\'application. Vous n\'êtes pas autorisé à copier ou modifier l\'application, toute partie de l\'application ou nos marques déposées d\'aucune manière. Vous n\'êtes pas autorisé à extraire le code source de l\'application, vous ne devriez pas essayer de traduire l\'application dans d\'autres langues, ou de faire des versions dérivées. L\'application en elle-même et tous les marques déposées, copyrights, droits de base de données et autres droits de propriétés intellectuelles liés appartiennent à SharpEye.
@@ -81,7 +81,7 @@
     <string name="report_bug">Signaler un problème</string>
     <string name="bug_description">Descriptif du problème:</string>
     <string name="error_report">Rapport d\'erreur</string>
-    <string name="satisfaction_form" translatable="false">Formulaire de satisfaction</string>
+    <string name="satisfaction_form">Formulaire de satisfaction</string>
 
     <!--    Don\'t know where it\'s used  -->
     <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
@@ -89,7 +89,7 @@
 
     <string name="nav_header_desc" translatable="false">Navigation header</string>
     <string name="action_settings" translatable="false">Settings</string>
-    <string name="camera_permission" translatable="false">This application need the camera to work.</string>
+    <string name="camera_permission" translatable="false">This application needs the camera to work.</string>
     <string name="title_activity_settings" translatable="false">Settings</string>
 
     <string-array name="multi_select_list_preference_default_value"/>

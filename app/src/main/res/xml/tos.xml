@@ -2,11 +2,11 @@
 
     <PreferenceCategory
             android:key="tos"
-            android:title="Conditions générales d'utilisation">
+            android:title="@string/terms_of_services">
         <Preference
+                android:layout="@layout/preference_multiline"
                 android:key="tos"
-                android:title="@string/therms_of_services"
-                android:summary="@string/tos_body">
-        </Preference>
+                android:title="@string/terms_of_services"
+                android:summary="@string/tos_body"/>
     </PreferenceCategory>
 </PreferenceScreen>

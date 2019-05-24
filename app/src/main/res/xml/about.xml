@@ -56,6 +56,6 @@
     <Preference
             android:key="TOS"
             android:fragment="sharpeye.sharpeye.SettingsActivity$TOSFragment"
-            android:title="@string/therms_of_services"/>
+            android:title="@string/terms_of_services"/>
     </PreferenceCategory>
 </PreferenceScreen>
