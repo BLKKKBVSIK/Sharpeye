@@ -2,8 +2,8 @@
 
     <SwitchPreference
             android:key="danger_on"
-            android:title="Activer la detection de dangers"
-            android:summary="Avertira les passagers quand un danger sera détecté"
+            android:title="@string/active_danger_detection"
+            android:summary="@string/danger_detection_summary"
             android:defaultValue="true"/>
 
 </PreferenceScreen>

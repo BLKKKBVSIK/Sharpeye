@@ -1,0 +1,10 @@
+/build
+/local.properties
+/sharpeye-android.iml
+/app/build
+/app/app.iml
+/.idea
+/.gradle
+/app/.externalNativeBuild
+/openCVLibrary410/build
+/openCVLibrary410/openCVLibrary410.iml

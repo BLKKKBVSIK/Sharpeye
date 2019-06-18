@@ -4,25 +4,35 @@
 
     <header
             android:fragment="sharpeye.sharpeye.SettingsActivity$DangersPreferenceFragment"
-            android:title="Detection de dangers"
+            android:title="@string/danger_detection"
             android:icon="@drawable/ic_info_black_24dp"/>
 
     <header
             android:fragment="sharpeye.sharpeye.SettingsActivity$SignsPreferenceFragment"
-            android:title="Detection de panneaux"
+            android:title="@string/sign_detection"
             android:icon="@drawable/ic_info_black_24dp"/>
 
     <header
             android:fragment="sharpeye.sharpeye.SettingsActivity$VocalPreferenceFragment"
-            android:title="Assistance vocale"
+            android:title="@string/vocal_assist"
             android:icon="@drawable/ic_notifications_black_24dp"/>
 
     <header
             android:fragment="sharpeye.sharpeye.SettingsActivity$DashcamPreferenceFragment"
-            android:title="Caméra embarquée"
+            android:title="@string/dashcam"
             android:icon="@drawable/ic_sync_black_24dp"/>
     <header
             android:fragment="sharpeye.sharpeye.SettingsActivity$AboutFragment"
-            android:title="A propos"
+            android:title="@string/about"
+            android:icon="@drawable/ic_info_black_24dp"/>
+
+    <header
+            android:fragment="sharpeye.sharpeye.SettingsActivity$ReportFragment"
+            android:title="Signaler un problème"
+            android:icon="@drawable/ic_info_black_24dp"/>
+
+    <header
+            android:fragment="sharpeye.sharpeye.SettingsActivity$ReportFragment"
+            android:title="Signaler un problème"
             android:icon="@drawable/ic_info_black_24dp"/>
 </preference-headers>

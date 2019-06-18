@@ -2,8 +2,8 @@
 
     <SwitchPreference
             android:key="vocal_on"
-            android:title="Activer la reconnaissance vocale"
-            android:summary="activera l'assistant vocal Sharp'Eye"
+            android:title="@string/active_vocal_recognition"
+            android:summary="@string/vocal_recognition_summary"
             android:defaultValue="true"/>
 
 </PreferenceScreen>

@@ -18,3 +18,10 @@ Sharpeye Android is mostly written in **Kotlin**, **Java is not prohibited** but
 The App is built following a **MVVM** design pattern standing for Model View ViewModel.
 The folder structure follows the standard implementation of MVVM,
 You can find it explained in details Here :[ MVVM folder structure ](https://overflow.buffer.com/2016/09/26/android-rethinking-package-structure/)
+
+## Build
+
+Just click on make project.
+
+#### Please report any bug as soon as possible.
+

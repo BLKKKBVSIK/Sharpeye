@@ -16,8 +16,8 @@
 -->
 
 <resources>
-    <string name="activity_name_classification">TF Classify</string>
-    <string name="activity_name_detection">TF Detect</string>
-    <string name="activity_name_stylize">TF Stylize</string>
-    <string name="activity_name_speech">TF Speech</string>
+    <string name="activity_name_classification" translatable="false">TF Classify</string>
+    <string name="activity_name_detection" translatable="false">TF Detect</string>
+    <string name="activity_name_stylize" translatable="false">TF Stylize</string>
+    <string name="activity_name_speech" translatable="false">TF Speech</string>
 </resources>

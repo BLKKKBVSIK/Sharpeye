@@ -2,15 +2,11 @@
 
     <PreferenceCategory
             android:key="tos"
-            android:title="Conditions générales d'utilisation">
+            android:title="@string/terms_of_services">
         <Preference
+                android:layout="@layout/preference_multiline"
                 android:key="tos"
-                android:title="cgu"
-                android:summary="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum">
-            <intent
-                    android:action="android.intent.action.VIEW"
-                    android:data="https://twitter.com/sharpeye_app"
-            />
-        </Preference>
+                android:title="@string/terms_of_services"
+                android:summary="@string/tos_body"/>
     </PreferenceCategory>
 </PreferenceScreen>
