@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
 	std::map<int, cv::Rect2f> objects;
 	std::string text;
 
-	int xmin, ymin, boxwidth, boxheight;
+	float xmin, ymin, boxwidth, boxheight;
 
 	while (cap.isOpened()) {
 		cap >> frame;
