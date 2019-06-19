@@ -24,9 +24,7 @@ std::vector<cv::Rect2f> arrayListToRectVector(JNIEnv *env, jobject const &javaBo
     jfieldID rectX = env->GetFieldID(rectClass, "x", "F");
     jfieldID rectY = env->GetFieldID(rectClass, "y", "F");
     jfieldID rectWidth = env->GetFieldID(rectClass, "width", "F");
-    //jmethodID rectWidth = env->GetMethodID(rectClass, "width", "()F");
     jfieldID rectHeight = env->GetFieldID(rectClass, "height", "F");
-    //jmethodID rectHeight = env->GetMethodID(rectClass, "height", "()F");
     int size = static_cast<int>(env->CallIntMethod(javaBoxes, sizeMethod));
     for (int i = 0; i < size; ++i) {
         jobject rectObject = env->CallObjectMethod(javaBoxes, getMethod, i);
@@ -34,8 +32,6 @@ std::vector<cv::Rect2f> arrayListToRectVector(JNIEnv *env, jobject const &javaBo
         float y = env->GetFloatField(rectObject, rectY);
         float width = env->GetFloatField(rectObject, rectWidth);
         float height = env->GetFloatField(rectObject, rectHeight);
-        //float width = env->CallFloatMethod(rectObject, rectWidth);
-        //float height = env->CallFloatMethod(rectObject, rectHeight);
         boxes.emplace_back(x, y, width, height);
     }
     env->DeleteLocalRef(arrayListClass);
@@ -70,17 +66,8 @@ Java_sharpeye_sharpeye_tracking_Tracker_addBoxes(JNIEnv *env, jobject obj,
         jlong trackerAddr, jlong frameAddr, jobject javaBoxes) {
     auto *tracker = reinterpret_cast<Tracker*>(trackerAddr);
     auto *frame = reinterpret_cast<cv::Mat*>(frameAddr);
-
     std::vector<cv::Rect2f> boxes = arrayListToRectVector(env, javaBoxes);
-    for (auto const &it: boxes) {
-        __android_log_print(ANDROID_LOG_INFO, "JNIBoxInitial", "box.x=%f box.y=%f box.width=%f box.height=%f", it.x,
-                            it.y, it.width, it.height);
-    }
     std::map<int, cv::Rect2f> boxesAndIDs = tracker->addBoxes(*frame, boxes);
-    for (auto const &it: boxesAndIDs) {
-        __android_log_print(ANDROID_LOG_INFO, "JNIBoxReturned", "box.x=%f box.y=%f box.width=%f box.height=%f", it.second.x,
-                            it.second.y, it.second.width, it.second.height);
-    }
     jobject hashMap = rectMapToHashMap(env, boxesAndIDs);
     return hashMap;
 }

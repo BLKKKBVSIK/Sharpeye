@@ -4,10 +4,8 @@ import android.graphics.Bitmap;
 import android.graphics.RectF;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
-import org.opencv.core.Rect;
 import org.opencv.imgproc.Imgproc;
 import sharpeye.sharpeye.tflite.Classifier;
 
@@ -114,30 +112,44 @@ public class Tracker implements Parcelable {
         for (Classifier.Recognition object: objects) {
             RectF location = object.getLocation();
             Rect2f box = new Rect2f(location.left, location.top, location.width(), location.height());
-            Log.e("BoxInitial", "box.left="+Float.toString(location.left)+" box.top="+Float.toString(location.top)+" box.right="+Float.toString(location.right)+" box.bottom="+Float.toString(location.bottom));
             boxes.add(box);
         }
         Mat matFrame = bitmapToMat(frame);
         long frameAddress = matFrame.nativeObj;
         HashMap<Integer, Rect2f> objectIDs = addBoxes(trackerAddress, frameAddress, boxes);
         HashMap<Integer, Classifier.Recognition> newTrackedObjects = new HashMap<>();
-        boolean throwEx = false;
         for (HashMap.Entry<Integer, Rect2f> objectID: objectIDs.entrySet()) {
             Integer id = objectID.getKey();
             Rect2f box = objectID.getValue();
-            Log.e("BoxReturned", "box.left="+Float.toString(box.x)+" box.top="+Float.toString(box.y)+" box.right="+Float.toString(box.width)+" box.bottom="+Float.toString(box.height));
             Classifier.Recognition recognizedObject;
-            //try {
-                recognizedObject = findRecognitionObjectWithRect(objects, box);
-                newTrackedObjects.put(id, recognizedObject);
-            /*} catch (UnknownError ex) {
-                throwEx = true;
-            }*/
+            recognizedObject = findRecognitionObjectWithRect(objects, box);
+            recognizedObject.setOpencvID(id);
+            newTrackedObjects.put(id, recognizedObject);
         }
-        /*if (throwEx) {
-            throw new UnknownError("Cannot find the initial recognition object");
-        }*/
         trackedObjects = newTrackedObjects;
+    }
+
+    public List<Classifier.Recognition> update(Bitmap frame) {
+        Mat matFrame = bitmapToMat(frame);
+        long frameAddress = matFrame.nativeObj;
+        HashMap<Integer, Rect2f> objectIDs = updateBoxes(trackerAddress, frameAddress);
+        HashMap<Integer, Classifier.Recognition> newTrackedObjects = new HashMap<>();
+        List<Classifier.Recognition> recognitionList = new ArrayList<>();
+        for (HashMap.Entry<Integer, Rect2f> objectID: objectIDs.entrySet()) {
+            Integer id = objectID.getKey();
+            Rect2f box = objectID.getValue();
+            if (trackedObjects.containsKey(id)) {
+                Classifier.Recognition recognizedObject = trackedObjects.get(id);
+                if (recognizedObject != null) {
+                    recognizedObject.setOpencvID(id);
+                    recognizedObject.setLocation(new RectF(box.x, box.y, box.width + box.x, box.height + box.y));
+                    newTrackedObjects.put(id, recognizedObject);
+                    recognitionList.add(recognizedObject);
+                }
+            }
+        }
+        trackedObjects = newTrackedObjects;
+        return recognitionList;
     }
 
     public static class Rect2f {
@@ -152,26 +164,6 @@ public class Tracker implements Parcelable {
             this.width = width;
             this.height = height;
         }
-    }
-
-    public List<Classifier.Recognition> update(Bitmap frame) {
-        Mat matFrame = bitmapToMat(frame);
-        long frameAddress = matFrame.nativeObj;
-        HashMap<Integer, Rect2f> objectIDs = updateBoxes(trackerAddress, frameAddress);
-        HashMap<Integer, Classifier.Recognition> newTrackedObjects = new HashMap<>();
-        List<Classifier.Recognition> recognitionList = new ArrayList<>();
-        for (HashMap.Entry<Integer, Rect2f> objectID: objectIDs.entrySet()) {
-            Integer id = objectID.getKey();
-            Rect2f box = objectID.getValue();
-            if (trackedObjects.containsKey(id)) {
-                Classifier.Recognition recognizedObject = trackedObjects.get(id);
-                recognizedObject.setLocation(new RectF(box.x, box.y, box.width + box.x, box.height + box.y));
-                newTrackedObjects.put(id, recognizedObject);
-                recognitionList.add(recognizedObject);
-            }
-        }
-        trackedObjects = newTrackedObjects;
-        return recognitionList;
     }
 
     private native long createTracker();
