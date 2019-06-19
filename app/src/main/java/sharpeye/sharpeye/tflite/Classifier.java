@@ -1,4 +1,4 @@
-/* Copyright 2015 The TensorFlow Authors. All Rights Reserved.
+/* Copyright 2019 The TensorFlow Authors. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-package sharpeye.sharpeye;
+package sharpeye.sharpeye.tflite;
 
 import android.graphics.Bitmap;
 import android.graphics.RectF;
@@ -22,13 +22,21 @@ import android.os.Parcelable;
 
 import java.util.List;
 
-/**
- * Generic interface for interacting with different recognition engines.
- */
+/** Generic interface for interacting with different recognition engines. */
 public interface Classifier {
-  /**
-   * An immutable result returned by a Classifier describing what was recognized.
-   */
+  List<Recognition> recognizeImage(Bitmap bitmap);
+
+  void enableStatLogging(final boolean debug);
+
+  String getStatString();
+
+  void close();
+
+  void setNumThreads(int num_threads);
+
+  void setUseNNAPI(boolean isChecked);
+
+  /** An immutable result returned by a Classifier describing what was recognized. */
   public class Recognition implements Parcelable {
     /**
      * A unique identifier for what has been recognized. Specific to the class, not the instance of
@@ -36,9 +44,7 @@ public interface Classifier {
      */
     private final String id;
 
-    /**
-     * Display name for the recognition.
-     */
+    /** Display name for the recognition. */
     private final String title;
 
     /**
@@ -50,7 +56,7 @@ public interface Classifier {
     private RectF location;
 
     public Recognition(
-            final String id, final String title, final Float confidence, final RectF location) {
+        final String id, final String title, final Float confidence, final RectF location) {
       this.id = id;
       this.title = title;
       this.confidence = confidence;
@@ -98,7 +104,6 @@ public interface Classifier {
 
       return resultString.trim();
     }
-
     private Recognition(Parcel in) {
       id = in.readString();
       title = in.readString();
@@ -128,14 +133,5 @@ public interface Classifier {
         return new Recognition[size];
       }
     };
-
   }
-
-  List<Recognition> recognizeImage(Bitmap bitmap);
-
-  void enableStatLogging(final boolean debug);
-
-  String getStatString();
-
-  void close();
 }

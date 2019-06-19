@@ -14,6 +14,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import sharpeye.sharpeye.tflite.Classifier;
+import sharpeye.sharpeye.tflite.TFLiteObjectDetectionAPIModel;
+
+
 public class SignClassifier {
 
     //Format d'image attendu par le classifier
@@ -62,6 +66,8 @@ public class SignClassifier {
 
     private List<Classifier.Recognition> resultsFinal;
 
+    private final boolean quantized = false;
+
 
     public SignClassifier(Context context) throws IOException {
         /*classifier =
@@ -75,8 +81,8 @@ public class SignClassifier {
                         INPUT_NAME,
                         OUTPUT_NAME);*/
 
-            detector = TensorFlowObjectDetectionAPIModel.create(
-                    context.getAssets(), TF_OD_API_MODEL_FILE, TF_OD_API_LABELS_FILE, TF_OD_API_INPUT_SIZE);
+            detector = TFLiteObjectDetectionAPIModel.create(
+                    context.getAssets(), TF_OD_API_MODEL_FILE, TF_OD_API_LABELS_FILE, TF_OD_API_INPUT_SIZE, quantized);
 
             resultsFinal = new ArrayList<>();
             resultsFinal.clear();

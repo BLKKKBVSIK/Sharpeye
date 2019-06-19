@@ -26,6 +26,7 @@ import android.os.HandlerThread;
 import android.util.Size;
 import android.util.SparseIntArray;
 import android.view.*;
+import sharpeye.sharpeye.customview.AutoFitTextureView;
 import sharpeye.sharpeye.env.ImageUtils;
 import sharpeye.sharpeye.env.Logger;
 

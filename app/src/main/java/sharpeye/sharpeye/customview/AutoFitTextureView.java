@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 The TensorFlow Authors. All Rights Reserved.
+ * Copyright 2019 The TensorFlow Authors. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package sharpeye.sharpeye;
+package sharpeye.sharpeye.customview;
 
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.TextureView;
 
-/**
- * A {@link TextureView} that can be adjusted to a specified aspect ratio.
- */
+/** A {@link TextureView} that can be adjusted to a specified aspect ratio. */
 public class AutoFitTextureView extends TextureView {
   private int ratioWidth = 0;
   private int ratioHeight = 0;
@@ -41,10 +39,10 @@ public class AutoFitTextureView extends TextureView {
 
   /**
    * Sets the aspect ratio for this view. The size of the view will be measured based on the ratio
-   * calculated from the parameters. Note that the actual sizes of parameters don't matter, that
-   * is, calling setAspectRatio(2, 3) and setAspectRatio(4, 6) make the same result.
+   * calculated from the parameters. Note that the actual sizes of parameters don't matter, that is,
+   * calling setAspectRatio(2, 3) and setAspectRatio(4, 6) make the same result.
    *
-   * @param width  Relative horizontal size
+   * @param width Relative horizontal size
    * @param height Relative vertical size
    */
   public void setAspectRatio(final int width, final int height) {

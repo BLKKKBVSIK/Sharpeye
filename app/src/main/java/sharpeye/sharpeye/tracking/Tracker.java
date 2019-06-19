@@ -4,11 +4,12 @@ import android.graphics.Bitmap;
 import android.graphics.RectF;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
 import org.opencv.imgproc.Imgproc;
-import sharpeye.sharpeye.Classifier;
+import sharpeye.sharpeye.tflite.Classifier;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -97,11 +98,11 @@ public class Tracker implements Parcelable {
         return noAlphaMat;
     }
 
-    private Classifier.Recognition findRecognitionObjectWithRect(List<Classifier.Recognition> initialList, Rect box) {
+    private Classifier.Recognition findRecognitionObjectWithRect(List<Classifier.Recognition> initialList, Rect2f box) {
         for (Classifier.Recognition object: initialList) {
             RectF location = object.getLocation();
-            if (((int)location.left) == box.x && ((int)location.top) == box.y &&
-                    ((int)location.width()) == box.width && ((int)location.height()) == box.height) {
+            if (location.left == box.x && location.top == box.y &&
+                    location.width() == box.width && location.height() == box.height) {
                 return object;
             }
         }
@@ -109,41 +110,62 @@ public class Tracker implements Parcelable {
     }
 
     public void track(Bitmap frame, List<Classifier.Recognition> objects) {
-        ArrayList<Rect> boxes = new ArrayList<>();
+        ArrayList<Rect2f> boxes = new ArrayList<>();
         for (Classifier.Recognition object: objects) {
             RectF location = object.getLocation();
-            boxes.add(new Rect((int)location.left, (int)location.top, (int)location.width(), (int)location.height()));
+            Rect2f box = new Rect2f(location.left, location.top, location.width(), location.height());
+            Log.e("BoxInitial", "box.left="+Float.toString(location.left)+" box.top="+Float.toString(location.top)+" box.right="+Float.toString(location.right)+" box.bottom="+Float.toString(location.bottom));
+            boxes.add(box);
         }
         Mat matFrame = bitmapToMat(frame);
         long frameAddress = matFrame.nativeObj;
-        HashMap<Integer, Rect> objectIDs = addBoxes(trackerAddress, frameAddress, boxes);
+        HashMap<Integer, Rect2f> objectIDs = addBoxes(trackerAddress, frameAddress, boxes);
         HashMap<Integer, Classifier.Recognition> newTrackedObjects = new HashMap<>();
-        for (HashMap.Entry<Integer, Rect> objectID: objectIDs.entrySet()) {
+        boolean throwEx = false;
+        for (HashMap.Entry<Integer, Rect2f> objectID: objectIDs.entrySet()) {
             Integer id = objectID.getKey();
-            Rect box = objectID.getValue();
+            Rect2f box = objectID.getValue();
+            Log.e("BoxReturned", "box.left="+Float.toString(box.x)+" box.top="+Float.toString(box.y)+" box.right="+Float.toString(box.width)+" box.bottom="+Float.toString(box.height));
             Classifier.Recognition recognizedObject;
-            recognizedObject = findRecognitionObjectWithRect(objects, box);
-            newTrackedObjects.put(id, recognizedObject);
+            //try {
+                recognizedObject = findRecognitionObjectWithRect(objects, box);
+                newTrackedObjects.put(id, recognizedObject);
+            /*} catch (UnknownError ex) {
+                throwEx = true;
+            }*/
         }
+        /*if (throwEx) {
+            throw new UnknownError("Cannot find the initial recognition object");
+        }*/
         trackedObjects = newTrackedObjects;
+    }
+
+    public static class Rect2f {
+        public float x;
+        public float y;
+        public float width;
+        public float height;
+
+        public Rect2f(float x, float y, float width, float height) {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+        }
     }
 
     public List<Classifier.Recognition> update(Bitmap frame) {
         Mat matFrame = bitmapToMat(frame);
         long frameAddress = matFrame.nativeObj;
-        HashMap<Integer, Rect> objectIDs = updateBoxes(trackerAddress, frameAddress);
+        HashMap<Integer, Rect2f> objectIDs = updateBoxes(trackerAddress, frameAddress);
         HashMap<Integer, Classifier.Recognition> newTrackedObjects = new HashMap<>();
         List<Classifier.Recognition> recognitionList = new ArrayList<>();
-        for (HashMap.Entry<Integer, Rect> objectID: objectIDs.entrySet()) {
+        for (HashMap.Entry<Integer, Rect2f> objectID: objectIDs.entrySet()) {
             Integer id = objectID.getKey();
-            Rect box = objectID.getValue();
+            Rect2f box = objectID.getValue();
             if (trackedObjects.containsKey(id)) {
                 Classifier.Recognition recognizedObject = trackedObjects.get(id);
-                float left = box.x;
-                float top = box.y;
-                float right = left + box.width;
-                float bottom = top + box.height;
-                recognizedObject.setLocation(new RectF(left, top, right, bottom));
+                recognizedObject.setLocation(new RectF(box.x, box.y, box.width + box.x, box.height + box.y));
                 newTrackedObjects.put(id, recognizedObject);
                 recognitionList.add(recognizedObject);
             }
@@ -154,7 +176,7 @@ public class Tracker implements Parcelable {
 
     private native long createTracker();
     private native void deleteTracker(long ptr);
-    private native HashMap<Integer, Rect> addBoxes(long trackerAddress, long frameAddress, ArrayList<Rect> boxes);
-    private native HashMap<Integer, Rect> updateBoxes(long trackerAddress, long frameAddress);
+    private native HashMap<Integer, Rect2f> addBoxes(long trackerAddress, long frameAddress, ArrayList<Rect2f> boxes);
+    private native HashMap<Integer, Rect2f> updateBoxes(long trackerAddress, long frameAddress);
 
 }
