@@ -173,8 +173,9 @@ private String generateVersionName(File file, Properties versionProps) {
         int versionMajor = versionProps['VERSION_MAJOR'].toInteger()
         int versionMinor = versionProps['VERSION_MINOR'].toInteger()
         int versionPatch = versionProps['VERSION_PATCH'].toInteger()
+        def branch = "git rev-parse --abbrev-ref HEAD".execute().text.trim()
 
-        String versionName = "${versionMajor}.${versionMinor}.${versionPatch}"
+        String versionName = "${versionMajor}.${versionMinor}.${versionPatch}.${branch}"
 
         return versionName
     } else {

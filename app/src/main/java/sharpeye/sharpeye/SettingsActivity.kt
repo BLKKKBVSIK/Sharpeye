@@ -95,8 +95,8 @@ class SettingsActivity : AppCompatPreferenceActivity() {
             addPreferencesFromResource(R.xml.about)
             setHasOptionsMenu(true)
             activity.title = resources.getString(R.string.nav_about)
-            preferenceManager.findPreference("versionName").summary = BuildConfig.VERSION_NAME
-            preferenceManager.findPreference("versionCode").summary = BuildConfig.VERSION_CODE.toString() + "-" + BuildConfig.BUILD_TYPE
+            preferenceManager.findPreference("versionName").summary = BuildConfig.VERSION_NAME + "-" + BuildConfig.BUILD_TYPE
+            preferenceManager.findPreference("versionCode").summary = BuildConfig.VERSION_CODE.toString()
         }
 
         @RequiresApi(Build.VERSION_CODES.M)
