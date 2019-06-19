@@ -14,9 +14,11 @@ import android.preference.PreferenceActivity
 import android.preference.PreferenceFragment
 import android.preference.PreferenceManager
 import android.preference.RingtonePreference
+import android.support.annotation.RequiresApi
 import android.text.TextUtils
 import android.view.MenuItem
 import android.support.v4.app.NavUtils
+
 
 /**
  * A [PreferenceActivity] that presents a set of application settings. On
@@ -67,7 +69,7 @@ class SettingsActivity : AppCompatPreferenceActivity() {
      * {@inheritDoc}
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    override fun onBuildHeaders(target: List<PreferenceActivity.Header>) {
+    override fun onBuildHeaders(target: List<Header>) {
         loadHeadersFromResource(R.xml.pref_headers, target)
     }
 
@@ -93,10 +95,14 @@ class SettingsActivity : AppCompatPreferenceActivity() {
             addPreferencesFromResource(R.xml.about)
             setHasOptionsMenu(true)
             activity.title = resources.getString(R.string.nav_about)
+            preferenceManager.findPreference("versionName").summary = BuildConfig.VERSION_NAME
+            preferenceManager.findPreference("versionCode").summary = BuildConfig.VERSION_CODE.toString() + "-" + BuildConfig.BUILD_TYPE
         }
 
+        @RequiresApi(Build.VERSION_CODES.M)
         override fun onOptionsItemSelected(item: MenuItem): Boolean {
             val id = item.itemId
+
             if (id == android.R.id.home) {
                 startActivity(Intent(activity, SettingsActivity::class.java))
                 return true
