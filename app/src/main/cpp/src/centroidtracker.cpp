@@ -3,14 +3,16 @@
 #include <opencv2/opencv.hpp>
 #include "centroidtracker.hpp"
 
-CentroidTracker::CentroidTracker() {}
+//#include <android/log.h>
 
-CentroidTracker::~CentroidTracker() {}
+CentroidTracker::CentroidTracker() = default;
+
+CentroidTracker::~CentroidTracker() = default;
 
 /*
 ** Adds a new object to the list of tracked objects
 */
-void CentroidTracker::register_object(const cv::Point &centroid, const cv::Rect2f &box) {
+void CentroidTracker::register_object(const cv::Point2d &centroid, const cv::Rect2f &box) {
 	this->objects.insert(std::make_pair(this->nextObjectID, centroid));
 	this->lastBoxes.insert(std::make_pair(this->nextObjectID, box));
 	this->disappeared.insert(std::make_pair(this->nextObjectID, 0));
@@ -29,7 +31,7 @@ void CentroidTracker::deregister_object(const int objectID) {
 /*
 ** Calculates the Euclidian distances between each centroids of the tracked objects and each centroids of the new boxes
 */
-void CentroidTracker::compute_distances(const std::vector<cv::Point> &XA, const std::vector<cv::Point> &XB) {
+void CentroidTracker::compute_distances(const std::vector<cv::Point2d> &XA, const std::vector<cv::Point2d> &XB) {
 	std::vector<std::vector<double>> dist(XA.size(), std::vector<double>(XB.size()));
 
 	for (int i = 0; i < XA.size(); i++) {
@@ -63,7 +65,7 @@ std::vector<int> CentroidTracker::sortRows() const {
 std::vector<int> CentroidTracker::sortCols(const std::vector<int> rows) const {
 	std::vector<int> mins(this->dists.size());
 	for (int i = 0; i < this->dists.size(); i++) {
-		mins[i] = std::distance(this->dists[i].begin(), std::min_element(this->dists[i].begin(), this->dists[i].end()));
+		mins[i] = static_cast<int>(std::distance(this->dists[i].begin(), std::min_element(this->dists[i].begin(), this->dists[i].end())));
 	}
 
 	std::vector<int> cols;
@@ -77,7 +79,7 @@ std::vector<int> CentroidTracker::sortCols(const std::vector<int> rows) const {
 /*
 ** Increments the disappeared counter of each object of the list of tracked objects
 */
-std::map<int, cv::Point> CentroidTracker::allObjectsDisappeared(const std::vector<cv::Rect2f> &boxes) {
+std::map<int, cv::Point2d> CentroidTracker::allObjectsDisappeared(const std::vector<cv::Rect2f> &boxes) {
 	std::vector<int> toDelete;
 	for (auto &object: this->disappeared) {
 		++(this->disappeared[object.first]);
@@ -95,19 +97,19 @@ std::map<int, cv::Point> CentroidTracker::allObjectsDisappeared(const std::vecto
 ** Updates the centroid of the tracked objects
 */
 void CentroidTracker::correlatePositions(
-	const std::vector<int> &objectIDs,
-	const std::vector<cv::Point> &objectCentroids,
-	const std::vector<cv::Point> &inputCentroids,
-	std::vector<int> &unusedRows,
-	std::vector<int> &unusedCols,
-	const std::vector<cv::Rect2f> &boxes) {
-
+        const std::vector<int> &objectIDs,
+        const std::vector<cv::Point2d> &objectCentroids,
+        const std::vector<cv::Point2d> &inputCentroids,
+        std::vector<int> &unusedRows,
+        std::vector<int> &unusedCols,
+        const std::vector<cv::Rect2f> &boxes) {
+    
 	std::vector<int> rows = this->sortRows();
 	std::vector<int> cols = this->sortCols(rows);
 	std::vector<int> usedRows;
 	std::vector<int> usedCols;
 	int objectID;
-	int limit = std::min(rows.size(), cols.size()); 
+	auto limit = std::min(rows.size(), cols.size());
 
 	// for (unsigned int i = 0; i < this->dists.size(); i++) {
 	// 	for (unsigned int j = 0; j < this->dists[i].size(); j++) {
@@ -125,6 +127,7 @@ void CentroidTracker::correlatePositions(
 		objectID = objectIDs[rows[i]];
 		this->objects[objectID] = inputCentroids[cols[i]];
 		this->lastBoxes[objectID] = boxes[cols[i]];
+//        __android_log_print(ANDROID_LOG_INFO, "JNIBoxDebug", "Add box ID=%d, x=%f, y=%f, width=%f, height=%f", objectID, this->lastBoxes[objectID].x, this->lastBoxes[objectID].y, this->lastBoxes[objectID].width, this->lastBoxes[objectID].height);
 		this->disappeared[objectID] = 0;
 		usedRows.push_back(rows[i]);
 		usedCols.push_back(cols[i]);
@@ -140,17 +143,17 @@ void CentroidTracker::correlatePositions(
 */
 std::map<int, cv::Rect2f> CentroidTracker::update(const std::vector<cv::Rect2f> &boxes) {
 	std::map<int, cv::Rect2f> res;
-	if (boxes.size() == 0) {
+	if (boxes.empty()) {
 		this->allObjectsDisappeared(boxes);
 		// return this->lastBoxes;
 		return res;
 	}
 
-	std::vector<cv::Point> inputCentroids;
+	std::vector<cv::Point2d> inputCentroids;
 	for (auto &box: boxes)
-		inputCentroids.push_back(cv::Point(box.x + (box.width / 2.0), box.y + (box.height / 2.0)));
+		inputCentroids.emplace_back(cv::Point2d(box.x + (box.width / 2.0), box.y + (box.height / 2.0)));
 
-	if (this->objects.size() == 0) {
+	if (this->objects.empty()) {
 		int i = 0;
 		for (auto &centroid: inputCentroids) {
 			this->register_object(centroid, boxes[i]);
@@ -158,11 +161,12 @@ std::map<int, cv::Rect2f> CentroidTracker::update(const std::vector<cv::Rect2f> 
 		}
 	} else {
 		std::vector<int> objectIDs;
-		std::vector<cv::Point> objectCentroids;
+		std::vector<cv::Point2d> objectCentroids;
 
 		for (auto &object: this->objects) {
 			objectIDs.push_back(object.first);
 			objectCentroids.push_back(object.second);
+//            __android_log_print(ANDROID_LOG_INFO, "JNIObjects", "Add box ID=%d", object.first);
 		}
 
 		this->compute_distances(objectCentroids, inputCentroids);
@@ -185,22 +189,27 @@ std::map<int, cv::Rect2f> CentroidTracker::update(const std::vector<cv::Rect2f> 
 		// 	}
 		// }
 		for (auto &row: unusedRows) {
-				objectID = objectIDs[row];
-				++(this->disappeared[objectID]);
-				if (this->disappeared[objectID] > this->maxDisappeared) this->deregister_object(objectID);
-			}
+            objectID = objectIDs[row];
+            ++(this->disappeared[objectID]);
+//            __android_log_print(ANDROID_LOG_INFO, "JNIDebug", "Object disappearing with ID %d", objectID);
+            if (this->disappeared[objectID] > this->maxDisappeared) {
+//                __android_log_print(ANDROID_LOG_INFO, "JNIDebug", "Object removed with ID %d", objectID);
+                this->deregister_object(objectID);
+            }
+		}
 		for (auto &col: unusedCols) {
-				this->register_object(inputCentroids[col], boxes[col]);
-			}
+//            __android_log_print(ANDROID_LOG_INFO, "JNIDebug", "unused col added");
+            this->register_object(inputCentroids[col], boxes[col]);
+        }
 
 	}
 
-	unsigned int i = 0;
 	for (auto &[objectID, box]: this->lastBoxes) {
-		if (this->disappeared[i] == 0) {
+//        __android_log_print(ANDROID_LOG_INFO, "JNIDebug", "ObjectID %d in lastboxes", objectID);
+		if (this->disappeared[objectID] == 0) {
+//            __android_log_print(ANDROID_LOG_INFO, "JNIBoxResult", "Box ID=%d, x=%f, y=%f, width=%f, height=%f", objectID, box.x, box.y, box.width, box.height);
 			res.insert(std::make_pair(objectID, box));
 		}
-		++i;
 	}
 	// return this->lastBoxes;
 	return res;
