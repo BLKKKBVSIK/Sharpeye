@@ -93,7 +93,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     private static final boolean MAINTAIN_ASPECT = (MODE == DetectorMode.YOLO);
 
-    private static final boolean SAVE_PREVIEW_BITMAP = false;
+    private static final boolean SAVE_PREVIEW_BITMAP = true;
     private static final float TEXT_SIZE_DIP = 10;
 
     private Integer sensorOrientation;
@@ -366,14 +366,23 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         final Canvas canvas2 = new Canvas(rgbOrientedBitmap);
         canvas2.drawBitmap(rgbFrameBitmap, rotationTransform, null);
         // For examining the actual TF input.
-        if (SAVE_PREVIEW_BITMAP && false) {
+        if (SAVE_PREVIEW_BITMAP) {
             ImageUtils.saveBitmap(croppedBitmap);
         }
 
         LOGGER.i("Running detection on image " + currTimestamp);
         final long startTime = SystemClock.uptimeMillis();
 
-        final List<Classifier.Recognition> results = detector.recognizeImage(croppedBitmap);
+        //final List<Classifier.Recognition> results = detector.recognizeImage(croppedBitmap);
+        final List<Classifier.Recognition> results;
+        if (!initializedTracking || (startTime - lastRecognition) >= 300) {
+            results = detector.recognizeImage(croppedBitmap);
+            tracker.track(croppedBitmap, results);
+            initializedTracking = true;
+            lastRecognition = SystemClock.uptimeMillis();
+        } else {
+            results = tracker.update(croppedBitmap);
+        }
         lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime;
 
         cropCopyBitmap = Bitmap.createBitmap(croppedBitmap);
@@ -404,6 +413,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                 if (signClassifier.getLastResults().size() >= 1) {
                     Classifier.Recognition elem;
                     elem = new Classifier.Recognition(results.get(i).getId(), result, signClassifier.getLastResults().get(0).getConfidence(), results.get(i).getLocation());
+                    elem.setOpencvID(results.get(i).getOpencvID());
                     results.add(i, elem);
                     results.remove(i + 1);
                 }
