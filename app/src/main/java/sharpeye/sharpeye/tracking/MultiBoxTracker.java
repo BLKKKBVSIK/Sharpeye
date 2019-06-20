@@ -73,6 +73,7 @@ public class MultiBoxTracker {
     float detectionConfidence;
     int color;
     String title;
+    int opencvID;
   }
 
   private final List<TrackedRecognition> trackedObjects = new LinkedList<TrackedRecognition>();
@@ -181,11 +182,14 @@ public class MultiBoxTracker {
       final float cornerSize = Math.min(trackedPos.width(), trackedPos.height()) / 8.0f;
       canvas.drawRoundRect(trackedPos, cornerSize, cornerSize, boxPaint);
 
+      // ID of the tracked object
+      final String idString = String.format("ID %d", recognition.opencvID);
       final String labelString =
           !TextUtils.isEmpty(recognition.title)
               ? String.format("%s %.2f", recognition.title, recognition.detectionConfidence)
               : String.format("%.2f", recognition.detectionConfidence);
       borderedText.drawText(canvas, trackedPos.left + cornerSize, trackedPos.bottom, labelString);
+      borderedText.drawText(canvas, trackedPos.left + cornerSize, trackedPos.bottom + textSizePx, idString);
     }
   }
 
@@ -282,6 +286,7 @@ public class MultiBoxTracker {
         trackedRecognition.trackedObject = null;
         trackedRecognition.title = potential.second.getTitle();
         trackedRecognition.color = COLORS[trackedObjects.size()];
+        trackedRecognition.opencvID = potential.second.getOpencvID();
         trackedObjects.add(trackedRecognition);
 
         if (trackedObjects.size() >= COLORS.length) {
@@ -412,6 +417,7 @@ public class MultiBoxTracker {
     // Use the color from a replaced object before taking one from the color queue.
     trackedRecognition.color =
         recogToReplace != null ? recogToReplace.color : availableColors.poll();
+    trackedRecognition.opencvID = potential.second.getOpencvID();
     trackedObjects.add(trackedRecognition);
   }
 }

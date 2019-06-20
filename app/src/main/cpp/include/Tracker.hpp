@@ -16,14 +16,14 @@ private:
     CentroidTracker             ct;
     cv::Ptr<cv::MultiTracker>   trackers;
 
-    std::vector<cv::Rect>       getBoxesFromTracker(cv::Ptr<cv::MultiTracker> const &trackers, cv::Mat const &frame);
+    std::vector<cv::Rect2f>       getBoxesFromTracker(cv::Mat const &frame);
 
 public:
     Tracker();
 
-    std::map<int, cv::Rect>     addBoxes(cv::Mat const &frame, std::vector<cv::Rect> const &boxes);
+    std::map<int, cv::Rect2f>     addBoxes(cv::Mat const &frame, std::vector<cv::Rect2f> const &boxes);
 
-    std::map<int, cv::Rect>     updateBoxes(cv::Mat const &frame);
+    std::map<int, cv::Rect2f>     updateBoxes(cv::Mat const &frame);
 
 
 };
