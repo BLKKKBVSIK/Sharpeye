@@ -49,12 +49,16 @@ public interface Classifier {
     /** Optional location within the source image for the location of the recognized object. */
     private RectF location;
 
+    /** A unique identifier used for the object tracking */
+    private int opencvID;
+
     public Recognition(
             final String id, final String title, final Float confidence, final RectF location) {
       this.id = id;
       this.title = title;
       this.confidence = confidence;
       this.location = location;
+      this.opencvID = -1;
     }
 
     public String getId() {
@@ -75,6 +79,14 @@ public interface Classifier {
 
     public void setLocation(RectF location) {
       this.location = location;
+    }
+
+    public int getOpencvID() {
+      return opencvID;
+    }
+
+    public void setOpencvID(int opencvID) {
+      this.opencvID = opencvID;
     }
 
     @Override

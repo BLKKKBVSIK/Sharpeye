@@ -8,14 +8,13 @@ import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-
 import android.preference.ListPreference
 import android.preference.Preference
 import android.preference.PreferenceActivity
 import android.preference.PreferenceFragment
 import android.preference.PreferenceManager
 import android.preference.RingtonePreference
-
+import android.support.annotation.RequiresApi
 import android.text.TextUtils
 import android.view.MenuItem
 import android.support.v4.app.NavUtils
@@ -95,8 +94,11 @@ class SettingsActivity : AppCompatPreferenceActivity() {
             addPreferencesFromResource(R.xml.about)
             setHasOptionsMenu(true)
             activity.title = resources.getString(R.string.nav_about)
+            preferenceManager.findPreference("versionName").summary = BuildConfig.VERSION_NAME + "-" + BuildConfig.BUILD_TYPE
+            preferenceManager.findPreference("versionCode").summary = BuildConfig.VERSION_CODE.toString()
         }
 
+        @RequiresApi(Build.VERSION_CODES.M)
         override fun onOptionsItemSelected(item: MenuItem): Boolean {
             val id = item.itemId
             if (id == android.R.id.home) {
@@ -152,8 +154,6 @@ class SettingsActivity : AppCompatPreferenceActivity() {
             addPreferencesFromResource(R.xml.pref_signs)
             setHasOptionsMenu(true)
             activity.title = resources.getString(R.string.nav_signs)
-            val signOn = findPreference("signs_on")
-            signOn.setEnabled(false)
         }
 
         override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -235,9 +235,7 @@ class SettingsActivity : AppCompatPreferenceActivity() {
             if (preference is ListPreference) {
                 // For list preferences, look up the correct display value in
                 // the preference's 'entries' list.
-
                 val index = preference.findIndexOfValue(stringValue)
-
 
                 // Set the summary to reflect the new value.
                 preference.setSummary(

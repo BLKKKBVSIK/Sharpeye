@@ -40,23 +40,31 @@
         </Preference>
     </PreferenceCategory>
     <PreferenceCategory
-    android:key="about"
-    android:title="@string/about">
-    <Preference
-            android:key="version"
-            android:title="@string/app_version"
-            android:summary="@string/version"/>
-    <Preference
-            android:key="aboutUs"
-            android:title="@string/about_us">
-        <intent
-                android:action="android.intent.action.VIEW"
-                android:data="@string/link_website"
-        />
-    </Preference>
-    <Preference
-            android:key="TOS"
-            android:fragment="sharpeye.sharpeye.SettingsActivity$TOSFragment"
-            android:title="@string/terms_of_services"/>
+            android:key="about"
+            android:title="@string/about">
+        <Preference
+                android:key="aboutUs"
+                android:title="@string/about_us">
+            <intent
+                    android:action="android.intent.action.VIEW"
+                    android:data="@string/link_website"
+            />
+        </Preference>
+        <Preference
+                android:key="TOS"
+                android:fragment="sharpeye.sharpeye.SettingsActivity$TOSFragment"
+                android:title="@string/terms_of_services"/>
+    </PreferenceCategory>
+    <PreferenceCategory
+            android:key="app_about"
+            android:title="@string/app_about">
+        <Preference
+                android:key="versionName"
+                android:title="@string/app_version"
+                android:summary="@string/versionName"/>
+        <Preference
+                android:key="versionCode"
+                android:title="@string/app_build"
+                android:summary="@string/versionCode"/>
     </PreferenceCategory>
 </PreferenceScreen>

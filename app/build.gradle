@@ -30,24 +30,15 @@ def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 android {
+
     lintOptions {
         disable 'LongLogTag'
     }
 
+    def versionPropsFile = file('version.properties')
+    Properties versionProps = new Properties()
+
     compileSdkVersion 28
-    defaultConfig {
-        applicationId "sharpeye.sharpeye"
-        minSdkVersion 23
-        targetSdkVersion 28
-        versionCode 3
-        versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        externalNativeBuild {
-            cmake {
-                cppFlags "-std=c++17"
-            }
-        }
-    }
     signingConfigs {
         release {
             keyAlias keystoreProperties['keyAlias']
@@ -56,17 +47,39 @@ android {
             storePassword keystoreProperties['storePassword']
         }
     }
+    defaultConfig {
+
+        applicationId "sharpeye.sharpeye"
+        minSdkVersion 23
+        targetSdkVersion 28
+
+        if (!versionPropsFile.exists()) {
+            writeVersionProps(versionPropsFile, versionProps, 0, 1, 0)
+        }
+        incrementPatch(versionPropsFile, versionProps)
+        incrementMinor(versionPropsFile, versionProps)
+        versionCode generateVersionCode(versionPropsFile, versionProps, minSdkVersion.mApiLevel)
+        versionName generateVersionName(versionPropsFile, versionProps)
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        externalNativeBuild {
+            cmake {
+                cppFlags "-std=c++17"
+            }
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path "src/main/cpp/CMakeLists.txt"
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
         }
-    }
-    externalNativeBuild {
-        cmake {
-            path "src/main/cpp/CMakeLists.txt"
-        }
+
     }
 }
 
@@ -85,4 +98,87 @@ dependencies {
         transitive = true
     }
     implementation project(':openCVLibrary410')
+}
+
+private void writeVersionProps(File file, Properties versionProps, int major, int minor, int patch) {
+    if (!file.exists()) {
+        def gitLastCommit = "git rev-parse HEAD".execute().text.trim()
+        versionProps['VERSION_PATCH'] = patch
+        versionProps['VERSION_MINOR'] = minor
+        versionProps['VERSION_MAJOR'] = major
+        versionProps['LAST_COMMIT_MAJOR'] = gitLastCommit
+        versionProps['LAST_COMMIT_MINOR'] = gitLastCommit
+        versionProps.store(file.newWriter(), null)
+    }
+}
+
+private boolean incrementPatch(File file, Properties versionProps) {
+    if (file.exists() && file.canRead()) {
+        versionProps.load(new FileInputStream(file))
+        versionProps['VERSION_PATCH'] = (versionProps['VERSION_PATCH'].toInteger() + 1).toString()
+        versionProps.store(file.newWriter(), null)
+        return true
+    }
+    return false
+}
+
+private boolean incrementMinor(File file, Properties versionProps) {
+    if (file.exists() && file.canRead()) {
+        versionProps.load(new FileInputStream(file))
+        def gitLastCommit = "git rev-parse HEAD".execute().text.trim()
+        def gitCommitCountMajor = "git rev-list ${versionProps['LAST_COMMIT_MAJOR']} --count".execute().text.trim().toInteger()
+        def gitCommitCountHead = "git rev-list HEAD --count".execute().text.trim().toInteger()
+
+        if (versionProps['LAST_COMMIT_MINOR'].toString() != gitLastCommit)
+        {
+            versionProps['VERSION_MINOR'] = (gitCommitCountHead - gitCommitCountMajor + 1).toString()
+            versionProps['VERSION_PATCH'] = "0"
+            versionProps['LAST_COMMIT_MINOR'] = gitLastCommit.toString()
+            versionProps.store(file.newWriter(), null)
+        }
+        return true
+    }
+    return false
+}
+
+private boolean incrementMajor(File file, Properties versionProps) {
+    if (file.exists() && file.canRead()) {
+        versionProps.load(new FileInputStream(file))
+        versionProps['VERSION_MAJOR'] = (versionProps['VERSION_MAJOR'].toInteger() + 1).toString()
+        versionProps['VERSION_MINOR'] = "0"
+        versionProps['VERSION_PATCH'] = "0"
+        versionProps['LAST_COMMIT_MAJOR'] = gitLastCommit
+        versionProps['LAST_COMMIT_MINOR'] = gitLastCommit
+        versionProps.store(file.newWriter(), null)
+        return true
+    }
+    return false
+}
+
+private Integer generateVersionCode(File file, Properties versionProps, int minimumSdkVersion) {
+
+    if (file.exists() && file.canRead()) {
+        versionProps.load(new FileInputStream(file))
+        return minimumSdkVersion * 10000000 + versionProps['VERSION_MAJOR'].toInteger() * 100000 +
+                versionProps['VERSION_MINOR'].toInteger() * 1000 + versionProps['VERSION_PATCH'].toInteger()
+    } else {
+        throw new FileNotFoundException("Could not read version.properties!")
+    }
+}
+
+private String generateVersionName(File file, Properties versionProps) {
+    if (file.exists() && file.canRead()) {
+        versionProps.load(new FileInputStream(file))
+
+        int versionMajor = versionProps['VERSION_MAJOR'].toInteger()
+        int versionMinor = versionProps['VERSION_MINOR'].toInteger()
+        int versionPatch = versionProps['VERSION_PATCH'].toInteger()
+        def branch = "git rev-parse --abbrev-ref HEAD".execute().text.trim()
+
+        String versionName = "${versionMajor}.${versionMinor}.${versionPatch}.${branch}"
+
+        return versionName
+    } else {
+        throw new FileNotFoundException("Could not read version.properties!")
+    }
 }

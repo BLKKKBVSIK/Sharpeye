@@ -20,7 +20,7 @@ set_target_properties(lib_opencv PROPERTIES IMPORTED_LOCATION
 add_library(native-lib SHARED ${SOURCES})
 
 
-target_link_libraries(native-lib lib_opencv)
+target_link_libraries(native-lib lib_opencv log)
 
 add_custom_command(TARGET native-lib POST_BUILD COMMAND
         ${CMAKE_COMMAND} -E copy ${OPENCV_SHARED} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
