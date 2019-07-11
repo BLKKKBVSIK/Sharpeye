@@ -56,8 +56,8 @@ void show_objects(std::map<int, cv::Rect2f> objects, cv::Mat frame, bool isDange
 	for (auto &[objectID, box]: objects) {
 		std::string text = std::to_string(objectID);
 		cv::Scalar color = cv::Scalar(0, 255, 0);
-		cv::putText(frame, text, cv::Point(box.x + (box.width / 2.0) - 5, box.y + (box.height / 2.0)), cv::FONT_HERSHEY_SIMPLEX, 0.5, color, 2);
-		cv::rectangle(frame, cv::Rect(box.x, box.y, box.width, box.height), color, 2);
+		//cv::putText(frame, text, cv::Point(box.x + (box.width / 2.0) - 5, box.y + (box.height / 2.0)), cv::FONT_HERSHEY_SIMPLEX, 0.5, color, 2);
+		//cv::rectangle(frame, cv::Rect(box.x, box.y, box.width, box.height), color, 2);
 	}
 	if (isDangerous) {
 		cv::putText(frame, "WARNING!!!", cv::Point(frame.cols / 2, frame.rows / 2), cv::FONT_HERSHEY_SIMPLEX, 1.0, cv::Scalar(0,0,255), 3);
