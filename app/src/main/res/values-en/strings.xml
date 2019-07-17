@@ -81,4 +81,7 @@
     <string name="satisfaction_form">Satisfaction form</string>
     <string name="danger_detection_summary">Warns the driver about dectected dangers</string>
     <string name="record_impact_summary">When detecting brutal movements, archives the video</string>
+    <string name="app_about">About the app</string>
+    <string name="app_build">Build number</string>
+    <string name="speed_counter">Waiting for GPS signal</string>
 </resources>

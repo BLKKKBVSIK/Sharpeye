@@ -7,6 +7,12 @@
             android:defaultValue="true"/>
 
     <SwitchPreference
+            android:key="speed_display"
+            android:title="@string/active_speed_display"
+            android:summary="@string/speed_display_summary"
+            android:defaultValue="true"/>
+
+    <SwitchPreference
             android:key="speed_control"
             android:title="@string/active_speed_reminder"
             android:summary="@string/speed_reminder_summary"

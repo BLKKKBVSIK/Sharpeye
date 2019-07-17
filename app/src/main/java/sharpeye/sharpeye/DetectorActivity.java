@@ -16,16 +16,25 @@
 
 package sharpeye.sharpeye;
 
+import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.graphics.*;
 import android.graphics.Bitmap.Config;
 import android.graphics.Paint.Style;
+import android.location.Location;
+import android.location.LocationManager;
 import android.media.ImageReader.OnImageAvailableListener;
 import android.os.Bundle;
 import android.os.SystemClock;
 
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.util.Size;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 import sharpeye.sharpeye.OverlayView.DrawCallback;
 import sharpeye.sharpeye.env.BorderedText;
@@ -37,6 +46,8 @@ import sharpeye.sharpeye.warning.WarningEvent;
 
 import java.io.IOException;
 
+import java.math.BigDecimal;
+import java.text.BreakIterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
@@ -46,7 +57,7 @@ import java.util.Vector;
  * An activity that uses a TensorFlowMultiBoxDetector and ObjectTracker to detect and then track
  * objects.
  */
-public class DetectorActivity extends CameraActivity implements OnImageAvailableListener {
+public class DetectorActivity extends CameraActivity implements OnImageAvailableListener, GPSCallback {
     private static final Logger LOGGER = new Logger();
 
     // Configuration values for the prepackaged multibox model.
@@ -132,6 +143,23 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     private WarningEvent warningEvent;
 
+    ///speed update and display
+    /*private var gpsManager: GPSManager? = null
+    private var locationManager: LocationManager? = null
+    var isGPSEnabled: Boolean = false
+    var speed = 0.toDouble()
+    var currentSpeed: Double = 0.toDouble()
+    var kmphSpeed:Double = 0.toDouble()
+    var txtview: TextView? = null*/
+    float speed;
+    double currentSpeed;
+    double kmphSpeed;
+    TextView txtview = null;
+    GPSManager gpsManager;
+    LocationManager locationManager;
+    boolean isGPSEnabled;
+    ///-----------------------
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -145,6 +173,17 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         }
         if (tracker.needInit())
             tracker.init();
+            txtview = findViewById(R.id.speed);
+            txtview.setVisibility(View.VISIBLE);
+            ///ne pas oublier de set la visibility à true
+            try {
+                if (ContextCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 101);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            getCurrentSpeed();
     }
 
     @Override
@@ -156,8 +195,12 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     @Override
     public synchronized void onResume() {
         super.onResume();
-        if (SharedPreferenceHelper.INSTANCE.getSharedPreferenceBoolean$app_debug(getApplicationContext(),"vocal_on",false))
+        if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(getApplicationContext(),"signs_on",false))
             warningEvent = new WarningEvent(this);
+        if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(getApplicationContext(),"speed_display",false))
+            txtview.setVisibility(View.VISIBLE);
+        else
+            txtview.setVisibility(View.INVISIBLE);
     }
 
     @Override
@@ -173,6 +216,9 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     public synchronized void onDestroy() {
         super.onDestroy();
         tracker.free();
+        gpsManager.stopListening();
+        gpsManager.setGPSCallback(null);
+        gpsManager = null;
 
     }
 
@@ -449,6 +495,37 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         requestRender();
         computingDetection = false;
     }
+
+    ///--------Speed-------------------
+    public void getCurrentSpeed(){
+
+        txtview.setText(getString(R.string.speed_counter).toString());
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        gpsManager = new GPSManager(DetectorActivity.this);
+        isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        if(isGPSEnabled) {
+            gpsManager.startListening(getApplicationContext());
+            gpsManager.setGPSCallback((GPSCallback) this);
+        } else {
+            gpsManager.showSettingsAlert();
+        }
+    }
+
+    @Override
+    public void onGPSUpdate(Location location) {
+        speed = location.getSpeed();
+        currentSpeed = round(speed, 3, BigDecimal.ROUND_HALF_UP);
+        kmphSpeed = round((currentSpeed*3.6),3,BigDecimal.ROUND_HALF_UP);
+        txtview.setText(kmphSpeed+"km/h");
+    }
+
+    public static double round(double unrounded, int precision, int roundingMode) {
+        BigDecimal bd = new BigDecimal(unrounded);
+        BigDecimal rounded = bd.setScale(precision, roundingMode);
+        return rounded.doubleValue();
+    }
+    ///-----------------
+
 
     @Override
     protected int getLayoutId() {
