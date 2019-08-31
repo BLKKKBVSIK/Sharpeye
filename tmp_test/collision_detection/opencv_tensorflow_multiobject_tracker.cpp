@@ -56,11 +56,11 @@ void show_objects(std::map<int, cv::Rect2f> objects, cv::Mat frame, bool isDange
 	for (auto &[objectID, box]: objects) {
 		std::string text = std::to_string(objectID);
 		cv::Scalar color = cv::Scalar(0, 255, 0);
-		//cv::putText(frame, text, cv::Point(box.x + (box.width / 2.0) - 5, box.y + (box.height / 2.0)), cv::FONT_HERSHEY_SIMPLEX, 0.5, color, 2);
-		//cv::rectangle(frame, cv::Rect(box.x, box.y, box.width, box.height), color, 2);
+		// cv::putText(frame, text, cv::Point(box.x + (box.width / 2.0) - 5, box.y + (box.height / 2.0)), cv::FONT_HERSHEY_SIMPLEX, 0.5, color, 2);
+		cv::rectangle(frame, cv::Rect(box.x, box.y, box.width, box.height), color, 2);
 	}
 	if (isDangerous) {
-		cv::putText(frame, "WARNING!!!", cv::Point(frame.cols / 2, frame.rows / 2), cv::FONT_HERSHEY_SIMPLEX, 1.0, cv::Scalar(0,0,255), 3);
+		cv::putText(frame, "ALERTE!!!", cv::Point(frame.cols / 2, frame.rows / 2), cv::FONT_HERSHEY_SIMPLEX, 1.0, cv::Scalar(0,0,255), 3);
 	}
 	// Show frame
 	cv::imshow("Frame", frame);
@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
 	OpenCVTracker opencv_tracker;
 	CollisionPredictor collision_predictor;
 
-	std::string videoPath = "videos/danger.mp4";
+	std::string videoPath = argv[1];
 	cv::dnn::Net tensorflowNet = cv::dnn::readNetFromCaffe("model/MobileNetSSD_deploy.prototxt", "model/MobileNetSSD_deploy.caffemodel");
 	cv::VideoCapture cap(videoPath);
 
@@ -102,7 +102,7 @@ int main(int argc, char **argv) {
 		}
 		// Update centroid tracker with the boxes
 		objects = centroid_tracker.update(boxes);
-		isDangerous = collision_predictor.isDangerous(objects, frame.cols);
+		isDangerous = collision_predictor.isDangerous(objects, frame.cols, frame);
 
 		show_objects(objects, frame, isDangerous);
 
