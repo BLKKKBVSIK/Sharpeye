@@ -16,14 +16,15 @@
 
 package sharpeye.sharpeye;
 
-import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.graphics.*;
 import android.graphics.Bitmap.Config;
 import android.graphics.Paint.Style;
 import android.location.Location;
 import android.location.LocationManager;
+import android.media.AudioManager;
 import android.media.ImageReader.OnImageAvailableListener;
+import android.media.ToneGenerator;
 import android.os.Bundle;
 import android.os.SystemClock;
 
@@ -32,7 +33,6 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.util.Size;
 import android.util.TypedValue;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,14 +40,15 @@ import sharpeye.sharpeye.OverlayView.DrawCallback;
 import sharpeye.sharpeye.env.BorderedText;
 import sharpeye.sharpeye.env.ImageUtils;
 import sharpeye.sharpeye.env.Logger;
+import sharpeye.sharpeye.signs.SignList;
 import sharpeye.sharpeye.tracking.MultiBoxTracker;
 import sharpeye.sharpeye.tracking.Tracker;
+import sharpeye.sharpeye.warning.Speech;
 import sharpeye.sharpeye.warning.WarningEvent;
 
 import java.io.IOException;
 
 import java.math.BigDecimal;
-import java.text.BreakIterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
@@ -152,13 +153,14 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     var kmphSpeed:Double = 0.toDouble()
     var txtview: TextView? = null*/
     float speed;
-    double currentSpeed;
     double kmphSpeed;
     TextView txtview = null;
     GPSManager gpsManager;
     LocationManager locationManager;
     boolean isGPSEnabled;
     ///-----------------------
+    CurrentState currentState;
+    SignList signList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -175,6 +177,8 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             tracker.init();
             txtview = findViewById(R.id.speed);
             txtview.setVisibility(View.VISIBLE);
+            currentState = new CurrentState();
+            signList = new SignList(this);
             ///ne pas oublier de set la visibility à true
             try {
                 if (ContextCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -482,6 +486,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                 try {
                     if (warningEvent != null) {
                         warningEvent.triggerWarning(result.getTitle());
+                        currentState.addSign(signList.get(result.getTitle()));
                     }
                 } catch (NullPointerException ex) {
                     Log.e("Detector", "WarningEvent already cleaned");
@@ -513,10 +518,26 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     @Override
     public void onGPSUpdate(Location location) {
-        speed = location.getSpeed();
-        currentSpeed = round(speed, 3, BigDecimal.ROUND_HALF_UP);
-        kmphSpeed = round((currentSpeed*3.6),3,BigDecimal.ROUND_HALF_UP);
+        speed = location.getSpeed() * 3.6f;
+        currentState.setSpeed(round(speed, 3, BigDecimal.ROUND_HALF_UP));
+        kmphSpeed = round((currentState.getSpeed()),3,BigDecimal.ROUND_HALF_UP);//c'est le bordel dans ma tête
         txtview.setText(kmphSpeed+"km/h");
+        if (currentState.getSpeed() >= currentState.getSpeedLimit() * 1.05)
+        {
+            txtview.setTextColor(Color.rgb(255,0,0));
+            if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(getApplicationContext(),"speed_control",false)) {
+                ToneGenerator toneGen1 = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
+                toneGen1.startTone(ToneGenerator.TONE_CDMA_PIP, 150);
+            }
+        }
+        else if (currentState.getSpeed() > currentState.getSpeedLimit())
+        {
+            txtview.setTextColor(Color.rgb(255,165,0));
+        }
+        else
+        {
+            txtview.setTextColor(Color.rgb(255,255,255));
+        }
     }
 
     public static double round(double unrounded, int precision, int roundingMode) {

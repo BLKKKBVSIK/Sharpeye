@@ -1,0 +1,305 @@
+{
+    "traffic_signs": [
+        {
+            "name": "Speed limit (20km/h)",
+            "id": 1,
+            "kind": "SPEEDLIMIT",
+            "speed": 20,
+            "additionalInfo": ""
+        },
+        {
+            "name": "Speed limit (30km/h)",
+            "id": 2,
+            "kind": "SPEEDLIMIT",
+            "speed": 30,
+            "additionalInfo": ""
+        },
+        {
+            "name": "Speed limit (50km/h)",
+            "id": 3,
+            "kind": "SPEEDLIMIT",
+            "speed": 50,
+            "additionalInfo": ""
+        },
+        {
+            "name": "Speed limit (60km/h)",
+            "id": 4,
+            "kind": "SPEEDLIMIT",
+            "speed": 60,
+            "additionalInfo": ""
+        },
+        {
+            "name": "Speed limit (70km/h)",
+            "id": 5,
+            "kind": "SPEEDLIMIT",
+            "speed": 70,
+            "additionalInfo": ""
+        },
+        {
+            "name": "Speed limit (80km/h)",
+            "id": 6,
+            "kind": "SPEEDLIMIT",
+            "speed": 80,
+            "additionalInfo": ""
+        },
+        {
+            "name": "End of speed limit (80km/h)",
+            "id": 7,
+            "kind": "SPEEDLIMIT",
+            "speed": 0,
+            "additionalInfo": "End of speed limit"
+        },
+        {
+            "name": "Speed limit (100km/h)",
+            "id": 8,
+            "kind": "SPEEDLIMIT",
+            "speed": 100,
+            "additionalInfo": ""
+        },
+        {
+            "name": "Speed limit (120km/h)",
+            "id": 9,
+            "kind": "SPEEDLIMIT",
+            "speed": 120,
+            "additionalInfo": ""
+        },
+        {
+            "name": "No passing",
+            "id": 10,
+            "kind": "RESTRICTION",
+            "speed": 0,
+            "additionalInfo": "No passing"
+        },
+        {
+            "name": "No passing for vehicles over 3.5 metric tons",
+            "id": 11,
+            "kind": "RESTRICTION",
+            "speed": 0,
+            "additionalInfo": "No passing for vehicles over 3.5 metric tons"
+        },
+        {
+            "name": "Right-of-way at the next intersection",
+            "id": 12,
+            "kind": "INDICATION",
+            "speed": 0,
+            "additionalInfo": "No passing for vehicles over 3.5 metric tons"
+        },
+        {
+            "name": "Priority road",
+            "id": 13,
+            "kind": "INDICATION",
+            "speed": 0,
+            "additionalInfo": "Priority road"
+        },
+        {
+            "name": "Yield",
+            "id": 14,
+            "kind": "YIELD",
+            "speed": 0,
+            "additionalInfo": "Yield"
+        },
+        {
+            "name": "Stop",
+            "id": 15,
+            "kind": "STOP",
+            "speed": 0,
+            "additionalInfo": "Stop"
+        },
+        {
+            "name": "No vehicles",
+            "id": 16,
+            "kind": "RESTRICTION",
+            "speed": 0,
+            "additionalInfo": "No vehicles"
+        },
+        {
+            "name": "Vehicles over 3.5 metric tons prohibited",
+            "id": 17,
+            "kind": "RESTRICTION",
+            "speed": 0,
+            "additionalInfo": "Vehicles over 3.5 metric tons prohibited"
+        },
+        {
+            "name": "No entry",
+            "id": 18,
+            "kind": "RESTRICTION",
+            "speed": 0,
+            "additionalInfo": "No entry"
+        },
+        {
+            "name": "General caution",
+            "id": 19,
+            "kind": "DANGER",
+            "speed": 0,
+            "additionalInfo": "General caution"
+        },
+        {
+            "name": "Dangerous curve to the left",
+            "id": 20,
+            "kind": "DANGER",
+            "speed": 0,
+            "additionalInfo": "Dangerous curve to the left"
+        },
+        {
+            "name": "Dangerous curve to the right",
+            "id": 21,
+            "kind": "DANGER",
+            "speed": 0,
+            "additionalInfo": "Dangerous curve to the right"
+        },
+        {
+            "name": "Double curve",
+            "id": 22,
+            "kind": "INDICATION",
+            "speed": 0,
+            "additionalInfo": "Double curve"
+        },
+        {
+            "name": "Bumpy road",
+            "id": 23,
+            "kind": "INDICATION",
+            "speed": 0,
+            "additionalInfo": "Bumpy road"
+        },
+        {
+            "name": "Slippery road",
+            "id": 24,
+            "kind": "INDICATION",
+            "speed": 0,
+            "additionalInfo": "Slippery road"
+        },
+        {
+            "name": "Road narrows on the right",
+            "id": 25,
+            "kind": "INDICATION",
+            "speed": 0,
+            "additionalInfo": "Road narrows on the right"
+        },
+        {
+            "name": "Road work",
+            "id": 26,
+            "kind": "DANGER",
+            "speed": 0,
+            "additionalInfo": "Road work"
+        },
+        {
+            "name": "Traffic signals",
+            "id": 27,
+            "kind": "INDICATION",
+            "speed": 0,
+            "additionalInfo": "Traffic signals"
+        },
+        {
+            "name": "Pedestrians",
+            "id": 28,
+            "kind": "DANGER",
+            "speed": 0,
+            "additionalInfo": "Pedestrians"
+        },
+        {
+            "name": "Children crossing",
+            "id": 29,
+            "kind": "DANGER",
+            "speed": 0,
+            "additionalInfo": "Children crossing"
+        },
+        {
+            "name": "Bicycles crossing",
+            "id": 30,
+            "kind": "DANGER",
+            "speed": 0,
+            "additionalInfo": "Bicycles crossing"
+        },
+        {
+            "name": "Beware of ice/snow",
+            "id": 31,
+            "kind": "DANGER",
+            "speed": 0,
+            "additionalInfo": "Beware of ice/snow"
+        },
+        {
+            "name": "Wild animals crossing",
+            "id": 32,
+            "kind": "DANGER",
+            "speed": 0,
+            "additionalInfo": "Wild animals crossing"
+        },
+        {
+            "name": "End of all speed and passing limits",
+            "id": 33,
+            "kind": "INDICATION",
+            "speed": 0,
+            "additionalInfo": "End of all speed and passing limits"
+        },
+        {
+            "name": "Turn right ahead",
+            "id": 34,
+            "kind": "RESTRICTION",
+            "speed": 0,
+            "additionalInfo": "Turn right ahead"
+        },
+        {
+            "name": "Turn left ahead",
+            "id": 35,
+            "kind": "RESTRICTION",
+            "speed": 0,
+            "additionalInfo": "Turn left ahead"
+        },
+        {
+            "name": "Ahead only",
+            "id": 36,
+            "kind": "RESTRICTION",
+            "speed": 0,
+            "additionalInfo": "Ahead only"
+        },
+        {
+            "name": "Go straight or right",
+            "id": 37,
+            "kind": "RESTRICTION",
+            "speed": 0,
+            "additionalInfo": "Go straight or right"
+        },
+        {
+            "name": "Go straight or left",
+            "id": 38,
+            "kind": "RESTRICTION",
+            "speed": 0,
+            "additionalInfo": "Go straight or left"
+        },
+        {
+            "name": "Keep right",
+            "id": 39,
+            "kind": "RESTRICTION",
+            "speed": 0,
+            "additionalInfo": "Keep right"
+        },
+        {
+            "name": "Keep left",
+            "id": 40,
+            "kind": "RESTRICTION",
+            "speed": 0,
+            "additionalInfo": "Keep left"
+        },
+        {
+            "name": "Roundabout mandatory",
+            "id": 41,
+            "kind": "INDICATION",
+            "speed": 0,
+            "additionalInfo": "Roundabout mandatory"
+        },
+        {
+            "name": "End of no passing",
+            "id": 42,
+            "kind": "INDICATION",
+            "speed": 0,
+            "additionalInfo": "End of no passing"
+        },
+        {
+            "name": "End of no passing by vehicles over 3.5 metric tons",
+            "id": 43,
+            "kind": "INDICATION",
+            "speed": 0,
+            "additionalInfo": "End of no passing by vehicles over 3.5 metric tons"
+        }
+    ]
+}
