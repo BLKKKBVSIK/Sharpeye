@@ -5,7 +5,7 @@ import android.content.SharedPreferences
 import android.preference.PreferenceManager
 
 
-object SharedPreferenceHelper {
+object SharedPreferencesHelper {
     private val PREF_FILE = "PREF"
 
     /**
@@ -13,7 +13,7 @@ object SharedPreferenceHelper {
      * @param key - Key to set shared preference
      * @param value - Value for the key
      */
-    internal fun setSharedPreferenceString(context: Context, key: String, value: String) {
+    fun setSharedPreferencesString(context: Context, key: String, value: String) {
         //val settings = context.getSharedPreferences(PREF_FILE, 0)
         val settings = PreferenceManager.getDefaultSharedPreferences(context)
         val editor = settings.edit()
@@ -26,7 +26,7 @@ object SharedPreferenceHelper {
      * @param key - Key to set shared preference
      * @param value - Value for the key
      */
-    internal fun setSharedPreferenceInt(context: Context, key: String, value: Int) {
+    fun setSharedPreferencesInt(context: Context, key: String, value: Int) {
         //val settings = context.getSharedPreferences(PREF_FILE, 0)
         val settings = PreferenceManager.getDefaultSharedPreferences(context)
         val editor = settings.edit()
@@ -39,7 +39,7 @@ object SharedPreferenceHelper {
      * @param key - Key to set shared preference
      * @param value - Value for the key
      */
-    internal fun setSharedPreferenceBoolean(context: Context, key: String, value: Boolean) {
+    fun setSharedPreferencesBoolean(context: Context, key: String, value: Boolean) {
         //val settings = context.getSharedPreferences(PREF_FILE, 0)
         val settings = PreferenceManager.getDefaultSharedPreferences(context)
         val editor = settings.edit()
@@ -53,7 +53,7 @@ object SharedPreferenceHelper {
      * @param defValue - Default value to be returned if shared preference isn't found.
      * @return value - String containing value of the shared preference if found.
      */
-    internal fun getSharedPreferenceString(context: Context, key: String, defValue: String): String? {
+    fun getSharedPreferencesString(context: Context, key: String, defValue: String): String? {
         //val settings = context.getSharedPreferences(PREF_FILE, 0)
         val settings = PreferenceManager.getDefaultSharedPreferences(context)
         return settings.getString(key, defValue)
@@ -65,7 +65,7 @@ object SharedPreferenceHelper {
      * @param defValue - Default value to be returned if shared preference isn't found.
      * @return value - String containing value of the shared preference if found.
      */
-    internal fun getSharedPreferenceInt(context: Context, key: String, defValue: Int): Int {
+    fun getSharedPreferencesInt(context: Context, key: String, defValue: Int): Int {
         //val settings = context.getSharedPreferences(PREF_FILE, 0)
         val settings = PreferenceManager.getDefaultSharedPreferences(context)
         return settings.getInt(key, defValue)
@@ -77,7 +77,7 @@ object SharedPreferenceHelper {
      * @param defValue - Default value to be returned if shared preference isn't found.
      * @return value - String containing value of the shared preference if found.
      */
-    internal fun getSharedPreferenceBoolean(context: Context, key: String, defValue: Boolean): Boolean {
+    fun getSharedPreferencesBoolean(context: Context, key: String, defValue: Boolean): Boolean {
         //val settings = context.getSharedPreferences(PREF_FILE, 0)
         val settings = PreferenceManager.getDefaultSharedPreferences(context)
         return settings.getBoolean(key, defValue)

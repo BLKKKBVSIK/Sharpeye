@@ -59,6 +59,8 @@
     <!--    In pref_signs.xml   -->
     <string name="active_sign_recognition">Activer la reconnaissance de panneaux</string>
     <string name="sign_recognition_summary">Détecte les panneaux importants</string>
+    <string name="active_speed_display">Afficher la vitesse</string>
+    <string name="speed_display_summary">Affiche la vitesse actuelle de votre véhicule en utilisant les signaux GPS</string>
     <string name="active_speed_reminder">Activer le rappel de vitesse</string>
     <string name="speed_reminder_summary">Alerte le conducteur en cas de dépassement de la limite de vitesse</string>
 
@@ -120,4 +122,5 @@
     <string name="nav_about">A propos</string>
     <string name="nav_feedback">Faire un retour</string>
 
+    <string name="speed_counter">En attente d\'un signal GPS</string>
 </resources>

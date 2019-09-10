@@ -9,16 +9,31 @@
         tools:showIn="@layout/app_bar_camera"
         tools:context=".CameraActivity">
 
-    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:tools="http://schemas.android.com/tools"
-            android:id="@+id/container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#000"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+    <RelativeLayout
+            android:layout_width="fill_parent"
+    android:layout_height="fill_parent" android:id="@+id/relativeLayoutContainer"
+    app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent">
+
+        <FrameLayout
+                android:id="@+id/container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#000"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:id="@+id/speed"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="16pt" android:layout_alignBottom="@+id/container"
+                android:textColor="@android:color/background_light"
+                android:visibility="invisible" tools:text="@string/speed_counter"/>
+    </RelativeLayout>
+
+
     <!-- Not for the beta -->
     <!--<Switch
             android:layout_width="wrap_content"
