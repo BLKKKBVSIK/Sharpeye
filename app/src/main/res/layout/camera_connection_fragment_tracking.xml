@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!--
- Copyright 2016 The TensorFlow Authors. All Rights Reserved.
+ Copyright 2019 The TensorFlow Authors. All Rights Reserved.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -17,18 +17,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-      <sharpeye.sharpeye.AutoFitTextureView
-          android:id="@+id/texture"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"/>
+    <org.tensorflow.lite.examples.detection.customview.AutoFitTextureView
+        android:id="@+id/texture"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
-      <sharpeye.sharpeye.OverlayView
-          android:id="@+id/tracking_overlay"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"/>
+    <org.tensorflow.lite.examples.detection.customview.OverlayView
+        android:id="@+id/tracking_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
-      <sharpeye.sharpeye.OverlayView
-          android:id="@+id/debug_overlay"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"/>
 </FrameLayout>

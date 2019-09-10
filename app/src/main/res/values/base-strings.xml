@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
+<?xml version="1.0" encoding="UTF-8"?><!--
  Copyright 2016 The TensorFlow Authors. All Rights Reserved.
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,8 +15,5 @@
 -->
 
 <resources>
-    <string name="activity_name_classification" translatable="false">TF Classify</string>
-    <string name="activity_name_detection" translatable="false">TF Detect</string>
-    <string name="activity_name_stylize" translatable="false">TF Stylize</string>
-    <string name="activity_name_speech" translatable="false">TF Speech</string>
+    <string name="activity_name_detection">TFL Detect</string>
 </resources>

@@ -1,184 +1,44 @@
-buildscript {
-    repositories {
-        maven { url 'https://maven.fabric.io/public' }
-    }
-
-    dependencies {
-        // These docs use an open ended version so that our plugin
-        // can be updated quickly in response to Android tooling updates
-
-        // We recommend changing it to the latest version from our changelog:
-        // https://docs.fabric.io/android/changelog.html#fabric-gradle-plugin
-        classpath 'io.fabric.tools:gradle:1.+'
-    }
-}
-
 apply plugin: 'com.android.application'
-
-apply plugin: 'kotlin-android'
-
-apply plugin: 'kotlin-android-extensions'
-
-apply plugin: 'io.fabric'
-
-repositories {
-    maven { url 'https://maven.fabric.io/public' }
-}
-
-def keystorePropertiesFile = rootProject.file("keystore.properties")
-def keystoreProperties = new Properties()
-keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+apply plugin: 'de.undercouch.download'
 
 android {
-
-    lintOptions {
-        disable 'LongLogTag'
-    }
-
-    def versionPropsFile = file('version.properties')
-    Properties versionProps = new Properties()
-
     compileSdkVersion 28
-    signingConfigs {
-        release {
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storeFile file(rootDir.getCanonicalPath() + '/' + keystoreProperties['keyStore'])
-            storePassword keystoreProperties['storePassword']
-        }
-    }
+    buildToolsVersion '28.0.3'
     defaultConfig {
-
-        applicationId "sharpeye.sharpeye"
-        minSdkVersion 23
-        targetSdkVersion 28
-
-        if (!versionPropsFile.exists()) {
-            writeVersionProps(versionPropsFile, versionProps, 0, 1, 0)
-        }
-        incrementPatch(versionPropsFile, versionProps)
-        incrementMinor(versionPropsFile, versionProps)
-        versionCode generateVersionCode(versionPropsFile, versionProps, minSdkVersion.mApiLevel)
-        versionName generateVersionName(versionPropsFile, versionProps)
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        externalNativeBuild {
-            cmake {
-                cppFlags "-std=c++17"
-            }
-        }
-    }
-
-    externalNativeBuild {
-        cmake {
-            path "src/main/cpp/CMakeLists.txt"
-        }
+        applicationId "org.tensorflow.lite.examples.detection"
+        minSdkVersion 21
+        targetSdkVersion 21
+        versionCode 1
+        versionName "1.0"
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
         }
-
+    }
+    aaptOptions {
+        noCompress "tflite"
+    }
+    compileOptions {
+        sourceCompatibility = '1.8'
+        targetCompatibility = '1.8'
     }
 }
+
+// import DownloadModels task
+project.ext.ASSET_DIR = projectDir.toString() + '/src/main/assets'
+project.ext.TMP_DIR   = project.buildDir.toString() + '/downloads'
+
+// Download default models; if you wish to use your own models then
+// place them in the "assets" directory and comment out this line.
+//apply from: "download_model.gradle"
+
+apply from:'download_model.gradle'
 
 dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation fileTree(dir: 'libs', include: ['*.jar','*.aar'])
     implementation 'com.android.support:appcompat-v7:28.0.0'
-    implementation 'com.android.support:support-v4:28.0.0'
     implementation 'com.android.support:design:28.0.0'
-    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-    implementation 'org.tensorflow:tensorflow-android:+'
-    implementation('com.crashlytics.sdk.android:crashlytics:2.9.9@aar') {
-        transitive = true
-    }
-    implementation project(':openCVLibrary410')
-}
-
-private void writeVersionProps(File file, Properties versionProps, int major, int minor, int patch) {
-    if (!file.exists()) {
-        def gitLastCommit = "git rev-parse HEAD".execute().text.trim()
-        versionProps['VERSION_PATCH'] = patch
-        versionProps['VERSION_MINOR'] = minor
-        versionProps['VERSION_MAJOR'] = major
-        versionProps['LAST_COMMIT_MAJOR'] = gitLastCommit
-        versionProps['LAST_COMMIT_MINOR'] = gitLastCommit
-        versionProps.store(file.newWriter(), null)
-    }
-}
-
-private boolean incrementPatch(File file, Properties versionProps) {
-    if (file.exists() && file.canRead()) {
-        versionProps.load(new FileInputStream(file))
-        versionProps['VERSION_PATCH'] = (versionProps['VERSION_PATCH'].toInteger() + 1).toString()
-        versionProps.store(file.newWriter(), null)
-        return true
-    }
-    return false
-}
-
-private boolean incrementMinor(File file, Properties versionProps) {
-    if (file.exists() && file.canRead()) {
-        versionProps.load(new FileInputStream(file))
-        def gitLastCommit = "git rev-parse HEAD".execute().text.trim()
-        def gitCommitCountMajor = "git rev-list ${versionProps['LAST_COMMIT_MAJOR']} --count".execute().text.trim().toInteger()
-        def gitCommitCountHead = "git rev-list HEAD --count".execute().text.trim().toInteger()
-
-        if (versionProps['LAST_COMMIT_MINOR'].toString() != gitLastCommit)
-        {
-            versionProps['VERSION_MINOR'] = (gitCommitCountHead - gitCommitCountMajor + 1).toString()
-            versionProps['VERSION_PATCH'] = "0"
-            versionProps['LAST_COMMIT_MINOR'] = gitLastCommit.toString()
-            versionProps.store(file.newWriter(), null)
-        }
-        return true
-    }
-    return false
-}
-
-private boolean incrementMajor(File file, Properties versionProps) {
-    if (file.exists() && file.canRead()) {
-        versionProps.load(new FileInputStream(file))
-        versionProps['VERSION_MAJOR'] = (versionProps['VERSION_MAJOR'].toInteger() + 1).toString()
-        versionProps['VERSION_MINOR'] = "0"
-        versionProps['VERSION_PATCH'] = "0"
-        versionProps['LAST_COMMIT_MAJOR'] = gitLastCommit
-        versionProps['LAST_COMMIT_MINOR'] = gitLastCommit
-        versionProps.store(file.newWriter(), null)
-        return true
-    }
-    return false
-}
-
-private Integer generateVersionCode(File file, Properties versionProps, int minimumSdkVersion) {
-
-    if (file.exists() && file.canRead()) {
-        versionProps.load(new FileInputStream(file))
-        return minimumSdkVersion * 10000000 + versionProps['VERSION_MAJOR'].toInteger() * 100000 +
-                versionProps['VERSION_MINOR'].toInteger() * 1000 + versionProps['VERSION_PATCH'].toInteger()
-    } else {
-        throw new FileNotFoundException("Could not read version.properties!")
-    }
-}
-
-private String generateVersionName(File file, Properties versionProps) {
-    if (file.exists() && file.canRead()) {
-        versionProps.load(new FileInputStream(file))
-
-        int versionMajor = versionProps['VERSION_MAJOR'].toInteger()
-        int versionMinor = versionProps['VERSION_MINOR'].toInteger()
-        int versionPatch = versionProps['VERSION_PATCH'].toInteger()
-        def branch = "git rev-parse --abbrev-ref HEAD".execute().text.trim()
-
-        String versionName = "${versionMajor}.${versionMinor}.${versionPatch}.${branch}"
-
-        return versionName
-    } else {
-        throw new FileNotFoundException("Could not read version.properties!")
-    }
+    implementation 'org.tensorflow:tensorflow-lite:0.0.0-nightly'
 }

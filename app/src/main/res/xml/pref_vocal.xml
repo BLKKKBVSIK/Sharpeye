@@ -1,9 +1,0 @@
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <SwitchPreference
-            android:key="vocal_on"
-            android:title="@string/active_vocal_recognition"
-            android:summary="@string/vocal_recognition_summary"
-            android:defaultValue="true"/>
-
-</PreferenceScreen>
