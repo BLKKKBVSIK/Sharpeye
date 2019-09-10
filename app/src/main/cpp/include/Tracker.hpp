@@ -8,6 +8,7 @@
 
 #include <opencv2/tracking.hpp>
 #include "centroidtracker.hpp"
+#include "collisionpredictor.hpp"
 
 class Tracker {
 
@@ -15,6 +16,8 @@ private:
 
     CentroidTracker             ct;
     cv::Ptr<cv::MultiTracker>   trackers;
+    CollisionPredictor          cp;
+    bool                        dangerous;
 
     std::vector<cv::Rect2f>       getBoxesFromTracker(cv::Mat const &frame);
 
@@ -24,6 +27,8 @@ public:
     std::map<int, cv::Rect2f>     addBoxes(cv::Mat const &frame, std::vector<cv::Rect2f> const &boxes);
 
     std::map<int, cv::Rect2f>     updateBoxes(cv::Mat const &frame);
+
+    bool                          isDangerous() const;
 
 
 };

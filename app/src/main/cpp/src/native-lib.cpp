@@ -2,6 +2,7 @@
 #include "Tracker.hpp"
 
 #include <android/log.h>
+#include <collisionpredictor.hpp>
 
 extern "C" JNIEXPORT jlong JNICALL
 Java_sharpeye_sharpeye_tracking_Tracker_createTracker(JNIEnv *env, jobject obj) {
@@ -93,4 +94,10 @@ Java_sharpeye_sharpeye_tracking_Tracker_updateBoxes(JNIEnv *env, jobject obj,
     std::map<int, cv::Rect2f> boxes = tracker->updateBoxes(*frame);
     jobject hashMap = rectMapToHashMap(env, boxes);
     return hashMap;
+}
+
+extern "C" JNIEXPORT jboolean JNICALL
+Java_sharpeye_sharpeye_tracking_Tracker_isDangerous(JNIEnv *env, jobject obj, jlong trackerAddr) {
+    auto *tracker = reinterpret_cast<Tracker*>(trackerAddr);
+    return static_cast<jboolean>(tracker->isDangerous());
 }
