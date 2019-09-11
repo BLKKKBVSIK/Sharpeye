@@ -509,7 +509,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         gpsManager = new GPSManager(DetectorActivity.this);
         isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
         if(isGPSEnabled) {
-            gpsManager.startListening(getApplicationContext());
+            gpsManager.startListening(this);
             gpsManager.setGPSCallback((GPSCallback) this);
         } else {
             gpsManager.showSettingsAlert();
