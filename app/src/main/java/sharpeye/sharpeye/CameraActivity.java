@@ -17,14 +17,10 @@
 package sharpeye.sharpeye;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.Point;
 import android.hardware.Camera;
 import android.hardware.camera2.CameraAccessException;
@@ -53,8 +49,8 @@ import android.widget.*;
 import com.crashlytics.android.Crashlytics;
 import io.fabric.sdk.android.Fabric;
 import sharpeye.sharpeye.customview.OverlayView;
-import sharpeye.sharpeye.env.ImageUtils;
-import sharpeye.sharpeye.env.Logger;
+import sharpeye.sharpeye.utils.ImageUtils;
+import sharpeye.sharpeye.utils.Logger;
 
 import java.nio.ByteBuffer;
 

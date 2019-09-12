@@ -1,4 +1,4 @@
-package sharpeye.sharpeye.warning;
+package sharpeye.sharpeye.objects_logic;
 
 import android.content.Context;
 import android.speech.tts.TextToSpeech;

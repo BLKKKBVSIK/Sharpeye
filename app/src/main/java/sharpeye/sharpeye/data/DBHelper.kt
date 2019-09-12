@@ -1,4 +1,4 @@
-package sharpeye.sharpeye
+package sharpeye.sharpeye.data
 
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
@@ -7,8 +7,9 @@ import android.database.sqlite.SQLiteOpenHelper
 import java.util.ArrayList
 
 abstract class DBHelper<T>(context: Context): SQLiteOpenHelper(context,
-    this.DATABASE_NAME, null,
-    this.DATABASE_VERSION)
+    DATABASE_NAME, null,
+    DATABASE_VERSION
+)
 {
     abstract override fun onCreate(db: SQLiteDatabase)
 

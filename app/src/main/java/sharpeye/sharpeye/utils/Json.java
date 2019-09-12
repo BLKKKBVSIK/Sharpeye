@@ -1,4 +1,4 @@
-package sharpeye.sharpeye.warning;
+package sharpeye.sharpeye.utils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-public class Utils {
+public class Json {
 
     public static JSONObject getJsonFromInputStream(InputStream inputStream) throws JSONException, IOException {
         BufferedReader bufferedReader = new BufferedReader(

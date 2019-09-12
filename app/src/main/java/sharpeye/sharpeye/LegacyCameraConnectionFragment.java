@@ -27,8 +27,8 @@ import android.util.Size;
 import android.util.SparseIntArray;
 import android.view.*;
 import sharpeye.sharpeye.customview.AutoFitTextureView;
-import sharpeye.sharpeye.env.ImageUtils;
-import sharpeye.sharpeye.env.Logger;
+import sharpeye.sharpeye.utils.ImageUtils;
+import sharpeye.sharpeye.utils.Logger;
 
 import java.io.IOException;
 import java.util.List;

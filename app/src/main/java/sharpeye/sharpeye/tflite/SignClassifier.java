@@ -1,4 +1,4 @@
-package sharpeye.sharpeye;
+package sharpeye.sharpeye.tflite;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -60,9 +60,14 @@ public class SignClassifier {
 
 
     private static final int TF_OD_API_INPUT_SIZE = 300;
-    private static final String TF_OD_API_MODEL_FILE =
+    /*private static final String TF_OD_API_MODEL_FILE =
             "file:///android_asset/trafficSignReader.pb";
-    private static final String TF_OD_API_LABELS_FILE = "file:///android_asset/trafficSignsLabels.txt";
+    private static final String TF_OD_API_LABELS_FILE = "file:///android_asset/trafficSignsLabels.txt";*/
+    private static final String TF_OD_API_MODEL_FILE =
+            //"models/traffic_sign_classifier/signDetectorClassifierSmall.tflite";
+            "models/traffic_sign_classifier/signDetectorClassifierSlowAccurate.tflite";
+    private static final String TF_OD_API_LABELS_FILE =
+            "file:///android_asset/models/traffic_sign_classifier/labelsigndetector.txt";
 
     private List<Classifier.Recognition> resultsFinal;
 

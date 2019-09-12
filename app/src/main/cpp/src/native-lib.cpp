@@ -2,7 +2,6 @@
 #include "Tracker.hpp"
 
 #include <android/log.h>
-#include <collisionpredictor.hpp>
 
 extern "C" JNIEXPORT jlong JNICALL
 Java_sharpeye_sharpeye_tracking_Tracker_createTracker(JNIEnv *env, jobject obj) {

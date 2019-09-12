@@ -16,8 +16,8 @@ limitations under the License.
 package sharpeye.sharpeye.tracking;
 
 import android.graphics.*;
-import sharpeye.sharpeye.env.Logger;
-import sharpeye.sharpeye.env.Size;
+import sharpeye.sharpeye.utils.Logger;
+import sharpeye.sharpeye.utils.Size;
 
 import javax.microedition.khronos.opengles.GL10;
 import java.util.*;

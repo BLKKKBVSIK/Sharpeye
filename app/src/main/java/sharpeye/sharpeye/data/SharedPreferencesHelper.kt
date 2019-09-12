@@ -1,4 +1,4 @@
-package sharpeye.sharpeye
+package sharpeye.sharpeye.data
 
 import android.content.Context
 import android.content.SharedPreferences

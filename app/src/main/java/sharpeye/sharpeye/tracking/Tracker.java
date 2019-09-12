@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.RectF;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
@@ -22,10 +23,12 @@ public class Tracker implements Parcelable {
 
     private long trackerAddress;
     private HashMap<Integer, Classifier.Recognition> trackedObjects;
+    public boolean isDangerous;
 
     public Tracker() {
         trackerAddress = -1;
         trackedObjects = new HashMap<>();
+        isDangerous = false;
     }
 
     public  boolean needInit() {
@@ -111,8 +114,10 @@ public class Tracker implements Parcelable {
         ArrayList<Rect2f> boxes = new ArrayList<>();
         for (Classifier.Recognition object: objects) {
             RectF location = object.getLocation();
-            Rect2f box = new Rect2f(location.left, location.top, location.width(), location.height());
-            boxes.add(box);
+            if (location.width() >= 2.0 && location.height() >= 2.0) {
+                Rect2f box = new Rect2f(location.left, location.top, location.width(), location.height());
+                boxes.add(box);
+            }
         }
         Mat matFrame = bitmapToMat(frame);
         long frameAddress = matFrame.nativeObj;
@@ -134,7 +139,7 @@ public class Tracker implements Parcelable {
         long frameAddress = matFrame.nativeObj;
         HashMap<Integer, Rect2f> objectIDs = updateBoxes(trackerAddress, frameAddress);
         Log.e("Debug", "after updateboxes and before alert");
-        boolean isDangerous = isDangerous(trackerAddress);
+        isDangerous = isDangerous(trackerAddress);
         Log.e("isDangerous", String.valueOf(isDangerous));
         HashMap<Integer, Classifier.Recognition> newTrackedObjects = new HashMap<>();
         List<Classifier.Recognition> recognitionList = new ArrayList<>();

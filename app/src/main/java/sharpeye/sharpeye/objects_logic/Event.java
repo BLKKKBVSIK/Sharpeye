@@ -1,4 +1,4 @@
-package sharpeye.sharpeye.warning;
+package sharpeye.sharpeye.objects_logic;
 
 import android.os.SystemClock;
 import android.support.annotation.NonNull;

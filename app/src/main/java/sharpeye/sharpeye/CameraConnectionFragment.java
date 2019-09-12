@@ -32,13 +32,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
 import android.view.*;
 import android.widget.Toast;
 import sharpeye.sharpeye.customview.AutoFitTextureView;
-import sharpeye.sharpeye.env.Logger;
+import sharpeye.sharpeye.utils.Logger;
 
 import java.util.*;
 import java.util.concurrent.Semaphore;

@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 import org.tensorflow.lite.Interpreter;
-import sharpeye.sharpeye.env.Logger;
+import sharpeye.sharpeye.utils.Logger;
 
 /**
  * Wrapper for frozen detection models trained using the Tensorflow Object Detection API:

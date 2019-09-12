@@ -24,9 +24,9 @@ import android.text.TextUtils;
 import android.util.Pair;
 import android.util.TypedValue;
 import sharpeye.sharpeye.tflite.Classifier.Recognition;
-import sharpeye.sharpeye.env.BorderedText;
-import sharpeye.sharpeye.env.ImageUtils;
-import sharpeye.sharpeye.env.Logger;
+import sharpeye.sharpeye.utils.BorderedText;
+import sharpeye.sharpeye.utils.ImageUtils;
+import sharpeye.sharpeye.utils.Logger;
 
 import java.util.LinkedList;
 import java.util.List;

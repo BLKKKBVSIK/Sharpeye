@@ -29,20 +29,22 @@ import android.util.TypedValue;
 import android.widget.Toast;
 import sharpeye.sharpeye.customview.OverlayView;
 import sharpeye.sharpeye.customview.OverlayView.DrawCallback;
-import sharpeye.sharpeye.env.BorderedText;
-import sharpeye.sharpeye.env.ImageUtils;
-import sharpeye.sharpeye.env.Logger;
+import sharpeye.sharpeye.data.SharedPreferenceHelper;
+import sharpeye.sharpeye.objects_logic.ObjectsProcessing;
+import sharpeye.sharpeye.utils.BorderedText;
+import sharpeye.sharpeye.utils.ImageUtils;
+import sharpeye.sharpeye.utils.Logger;
 import sharpeye.sharpeye.tflite.Classifier;
+import sharpeye.sharpeye.tflite.SignClassifier;
 import sharpeye.sharpeye.tflite.TFLiteObjectDetectionAPIModel;
 import sharpeye.sharpeye.tracking.MultiBoxTracker;
 import sharpeye.sharpeye.tracking.Tracker;
-import sharpeye.sharpeye.warning.WarningEvent;
+import sharpeye.sharpeye.objects_logic.WarningEvent;
 
 import java.io.IOException;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Vector;
 
 
 /**
@@ -104,7 +106,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     long lastDetection = 0;
 
-    SignClassifier signClassifier;
+    //SignClassifier signClassifier;
     private Tracker tracker;
 
     protected boolean initializedTracking = false;
@@ -113,7 +115,9 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     private long lastRecognition = 0;
 
-    private WarningEvent warningEvent;
+    private ObjectsProcessing objectsProcessing;
+
+    //private WarningEvent warningEvent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,16 +143,20 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     @Override
     public synchronized void onResume() {
         super.onResume();
-        if (SharedPreferenceHelper.INSTANCE.getSharedPreferenceBoolean$app_debug(getApplicationContext(),"vocal_on",false))
-            warningEvent = new WarningEvent(this);
+        if (SharedPreferenceHelper.INSTANCE.getSharedPreferenceBoolean$app_debug(getApplicationContext(),"vocal_on",false)) {
+            if (objectsProcessing == null) {
+                objectsProcessing = new ObjectsProcessing();
+            }
+            objectsProcessing.init(this);
+        }
     }
 
     @Override
     public synchronized void onPause() {
         super.onPause();
-        if (warningEvent != null) {
-            warningEvent.clean();
-            warningEvent = null;
+        if (objectsProcessing != null) {
+            objectsProcessing.release();
+            objectsProcessing = null;
         }
     }
 
@@ -332,13 +340,20 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                 result.setLocation(location);
                 mappedRecognitions.add(result);
                 try {
-                    if (warningEvent != null) {
-                        warningEvent.triggerWarning(result.getTitle());
+                    if (objectsProcessing != null) {
+                        objectsProcessing.processDetectedObject(result);
                     }
                 } catch (NullPointerException ex) {
-                    Log.e("Detector", "WarningEvent already cleaned");
+                    Log.e("Detector", "WarningEvent already released");
                 }
             }
+        }
+        try {
+            if (objectsProcessing != null && tracker != null) {
+                objectsProcessing.processDangerousObject(tracker.isDangerous);
+            }
+        } catch (NullPointerException ex) {
+            Log.e("Detector", "ObjectsProcessing already released");
         }
 
         multiBoxTracker.trackResults(mappedRecognitions, currTimestamp);
