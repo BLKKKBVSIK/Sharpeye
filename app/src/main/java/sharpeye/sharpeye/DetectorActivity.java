@@ -40,6 +40,7 @@ import sharpeye.sharpeye.OverlayView.DrawCallback;
 import sharpeye.sharpeye.env.BorderedText;
 import sharpeye.sharpeye.env.ImageUtils;
 import sharpeye.sharpeye.env.Logger;
+import sharpeye.sharpeye.signs.BipGenerator;
 import sharpeye.sharpeye.signs.SignList;
 import sharpeye.sharpeye.tracking.MultiBoxTracker;
 import sharpeye.sharpeye.tracking.Tracker;
@@ -158,6 +159,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     GPSManager gpsManager;
     LocationManager locationManager;
     boolean isGPSEnabled;
+    BipGenerator bipGenerator;
     ///-----------------------
     CurrentState currentState;
     SignList signList;
@@ -175,19 +177,10 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         }
         if (tracker.needInit())
             tracker.init();
-            txtview = findViewById(R.id.speed);
-            txtview.setVisibility(View.VISIBLE);
-            currentState = new CurrentState();
-            signList = new SignList(this);
-            ///ne pas oublier de set la visibility à true
-            try {
-                if (ContextCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 101);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            getCurrentSpeed();
+        txtview = findViewById(R.id.speed);
+        //txtview.setVisibility(View.VISIBLE);
+        currentState = new CurrentState();
+        signList = new SignList(this);
     }
 
     @Override
@@ -202,9 +195,10 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(getApplicationContext(),"signs_on",false))
             warningEvent = new WarningEvent(this);
         if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(getApplicationContext(),"speed_display",false))
-            txtview.setVisibility(View.VISIBLE);
+            txtview.setVisibility(View.VISIBLE); //séparer afficher la vitesse et rappel de vitesse pour pouvoir mieux désactiver l'un ou l'autre
         else
             txtview.setVisibility(View.INVISIBLE);
+        initializeGPS();
     }
 
     @Override
@@ -214,16 +208,13 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             warningEvent.clean();
             warningEvent = null;
         }
+        cleanGPS();
     }
 
     @Override
     public synchronized void onDestroy() {
         super.onDestroy();
         tracker.free();
-        gpsManager.stopListening();
-        gpsManager.setGPSCallback(null);
-        gpsManager = null;
-
     }
 
     @Override
@@ -502,41 +493,65 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     }
 
     ///--------Speed-------------------
-    public void getCurrentSpeed(){
-
-        txtview.setText(getString(R.string.speed_counter).toString());
+    public void initializeGPS(){
+        Log.d("initializeGPS", "start");
+        try {
+            if (ContextCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 101);
+            }//demander dans camera Activity
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        txtview.setText(getString(R.string.speed_counter));
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         gpsManager = new GPSManager(DetectorActivity.this);
         isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
         if(isGPSEnabled) {
-            gpsManager.startListening(getApplicationContext());
+            gpsManager.startListening(this);
             gpsManager.setGPSCallback((GPSCallback) this);
         } else {
             gpsManager.showSettingsAlert();
         }
+        if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(getApplicationContext(),"speed_control",false))
+        {
+            bipGenerator = new BipGenerator();
+        } else {
+            bipGenerator = null;
+        }
+        Log.d("initializeGPS", "end");
+    }
+
+    private void cleanGPS() {
+        Log.d("cleanGPS", "start");
+        if (gpsManager != null) {
+            gpsManager.stopListening();
+            gpsManager.setGPSCallback(null);
+            gpsManager = null;
+        }
+        if (bipGenerator != null)
+        {
+            bipGenerator = null;
+        }
+        Log.d("cleanGPS", "end");
     }
 
     @Override
     public void onGPSUpdate(Location location) {
         speed = location.getSpeed() * 3.6f;
         currentState.setSpeed(round(speed, 3, BigDecimal.ROUND_HALF_UP));
-        kmphSpeed = round((currentState.getSpeed()),3,BigDecimal.ROUND_HALF_UP);//c'est le bordel dans ma tête
+        kmphSpeed = round((currentState.getSpeed()),3,BigDecimal.ROUND_HALF_UP);
         txtview.setText(kmphSpeed+"km/h");
-        if (currentState.getSpeed() >= currentState.getSpeedLimit() * 1.05)
-        {
-            txtview.setTextColor(Color.rgb(255,0,0));
-            if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(getApplicationContext(),"speed_control",false)) {
-                ToneGenerator toneGen1 = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
-                toneGen1.startTone(ToneGenerator.TONE_CDMA_PIP, 150);
+        if (currentState != null && currentState.getSpeedLimit() != 0) {
+            if (currentState.getSpeed() >= currentState.getSpeedLimit() * 1.05) {
+                txtview.setTextColor(Color.rgb(255, 0, 0));
+                if (bipGenerator != null) {
+                    bipGenerator.bip(150, 100);
+                }
+            } else if (currentState.getSpeed() > currentState.getSpeedLimit()) {
+                txtview.setTextColor(Color.rgb(255, 165, 0));
+            } else {
+                txtview.setTextColor(Color.rgb(255, 255, 255));
             }
-        }
-        else if (currentState.getSpeed() > currentState.getSpeedLimit())
-        {
-            txtview.setTextColor(Color.rgb(255,165,0));
-        }
-        else
-        {
-            txtview.setTextColor(Color.rgb(255,255,255));
         }
     }
 

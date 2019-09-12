@@ -28,7 +28,9 @@ public class GPSManager implements android.location.GpsStatus.Listener
         GPSManager.locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(final Location location) {
+                Log.d("GPS onLocationChanged", "onLocationChanged callback");
                 if (GPSManager.gpsCallback != null) {
+                    Log.d("GPS onLocationChanged", "onLocationChanged callback");
                     GPSManager.gpsCallback.onGPSUpdate(location);
                 }
             }
@@ -100,6 +102,7 @@ public class GPSManager implements android.location.GpsStatus.Listener
             }
         }
     }
+
     public void stopListening() {
         try
         {
