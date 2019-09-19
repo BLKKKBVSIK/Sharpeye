@@ -43,6 +43,7 @@ import sharpeye.sharpeye.objects_logic.WarningEvent;
 
 import java.io.IOException;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -57,8 +58,10 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     private static final boolean TF_OD_API_IS_QUANTIZED = true;
     private static final int TF_OD_API_INPUT_SIZE = 300;
-    private static final String TF_OD_API_MODEL_FILE = "detect.tflite";
-    private static final String TF_OD_API_LABELS_FILE = "file:///android_asset/labelmap.txt";
+    private static final String TF_OD_API_MODEL_FILE = "models/traffic sign general/signDetectSmallData.tflite";
+    private static final String TF_OD_API_LABELS_FILE = "file:///android_asset/models/traffic sign general/generalTrafficLabels.txt";
+    private static final String TF_OD_API_MODEL_FILE_DANGER = "models/car - person/detect_coco.tflite";
+    private static final String TF_OD_API_LABELS_FILE_DANGER = "file:///android_asset/models/car - person/labelmap_coco.txt";
     /*private static final String TF_OD_API_MODEL_FILE =
             "file:///android_asset/trafficSignGeneralMobilenet.pb";
     private static final String TF_OD_API_LABELS_FILE = "file:///android_asset/generalTrafficLabels.txt";*/
@@ -74,7 +77,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     private static final DetectorMode MODE = DetectorMode.TF_OD_API;
 
     // Minimum detection confidence to track a detection.
-    private static final float MINIMUM_CONFIDENCE_TF_OD_API = 0.5f;
+    private static final float MINIMUM_CONFIDENCE_TF_OD_API = 0.6f;
 
     private static final boolean MAINTAIN_ASPECT = false;
 
@@ -84,6 +87,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     private Integer sensorOrientation;
 
     private Classifier detector;
+    private Classifier dangerDetector;
 
     private long lastProcessingTimeMs;
     private Bitmap rgbFrameBitmap = null;
@@ -106,7 +110,8 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     long lastDetection = 0;
 
-    //SignClassifier signClassifier;
+    private SignClassifier signClassifier;
+
     private Tracker tracker;
 
     protected boolean initializedTracking = false;
@@ -116,8 +121,6 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     private long lastRecognition = 0;
 
     private ObjectsProcessing objectsProcessing;
-
-    //private WarningEvent warningEvent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -178,7 +181,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         multiBoxTracker = new MultiBoxTracker(this);
 
         // TODO uncomment and set tflite model
-        /*try {
+        try {
             signClassifier = new SignClassifier(getApplicationContext());
         } catch (final IOException e) {
             LOGGER.e("Exception initializing classifier!", e);
@@ -187,7 +190,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                             getApplicationContext(), "Classifier could not be initialized", Toast.LENGTH_SHORT);
             toast.show();
             finish();
-        }*/
+        }
 
         int cropSize = TF_OD_API_INPUT_SIZE;
         
@@ -199,6 +202,13 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 		      TF_OD_API_LABELS_FILE,
 		      TF_OD_API_INPUT_SIZE,
 		      TF_OD_API_IS_QUANTIZED);
+	      dangerDetector =
+                  TFLiteObjectDetectionAPIModel.create(
+                            getAssets(),
+                            TF_OD_API_MODEL_FILE_DANGER,
+                            TF_OD_API_LABELS_FILE_DANGER,
+                            TF_OD_API_INPUT_SIZE,
+                            TF_OD_API_IS_QUANTIZED);
 	      cropSize = TF_OD_API_INPUT_SIZE;
 	    } catch (final IOException e) {
 	      e.printStackTrace();
@@ -287,13 +297,63 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         final long startTime = SystemClock.uptimeMillis();
 
         final List<Classifier.Recognition> results;
+        List<Classifier.Recognition> dangerResults = null;
+        final List<Classifier.Recognition> fullResults = new ArrayList<>();
+        boolean tracking = false;
         if (!initializedTracking || (startTime - lastRecognition) >= 300) {
-            results = detector.recognizeImage(croppedBitmap);
-            tracker.track(croppedBitmap, results);
+            results = new ArrayList<>();
+            List<Classifier.Recognition> tmp = detector.recognizeImage(croppedBitmap);
+            for (Classifier.Recognition val: tmp) {
+                if (val.getConfidence() >= MINIMUM_CONFIDENCE_TF_OD_API && val.getLocation().right >= 0 &&
+                        val.getLocation().left >= 0 && val.getLocation().bottom >= 0 && val.getLocation().top >= 0 &&
+                        val.getLocation().right < 500 && val.getLocation().left < 500 && val.getLocation().bottom < 500 &&
+                        val.getLocation().top < 500) {
+                    results.add(val);
+                }
+            }
+            // TODO uncomment and set tflite model
+            long timeSpent = System.currentTimeMillis();
+            //Classifier
+            for (int i = 0; i < results.size(); ++i) {
+                if (results.get(i).getConfidence() > MINIMUM_CONFIDENCE_TF_OD_API) {
+                    String result = signClassifier.detectSign(results.get(i), croppedBitmap, rgbOrientedBitmap, 0.6f);
+                    if (signClassifier.getLastResults().size() >= 1) {
+                        Classifier.Recognition elem;
+                        elem = new Classifier.Recognition(results.get(i).getId(), result, signClassifier.getLastResults().get(0).getConfidence(), results.get(i).getLocation());
+                        elem.setOpencvID(results.get(i).getOpencvID());
+                        Log.d("SIGNCLASSIFIER", "ResultAdd="+elem.getTitle()+"|"+elem.getOpencvID());
+
+                        results.add(i, elem);
+                        Log.d("SIGNCLASSIFIER", "ResultRemove="+results.get(i+1).getTitle()+"|"+results.get(i+1).getOpencvID());
+                        results.remove(i + 1);
+                    }
+                }
+            }
+            timeSpent = System.currentTimeMillis() - timeSpent;
+            System.out.println("Time: " + timeSpent / 1000.0f);
+
+            dangerResults = new ArrayList<>();
+            tmp = dangerDetector.recognizeImage(croppedBitmap);
+            for (Classifier.Recognition val: tmp) {
+                if ((val.getTitle().equals("person") || val.getTitle().equals("car")) &&
+                        val.getConfidence() >= MINIMUM_CONFIDENCE_TF_OD_API && val.getLocation().right >= 0 &&
+                        val.getLocation().left >= 0 && val.getLocation().bottom >= 0 && val.getLocation().top >= 0 &&
+                        val.getLocation().right < 500 && val.getLocation().left < 500 && val.getLocation().bottom < 500 &&
+                        val.getLocation().top < 500) {
+                    dangerResults.add(val);
+                }
+            }
+            for (Classifier.Recognition recog : dangerResults) {
+                Log.d("DETECTORACTIVITY", "OID="+recog.getOpencvID()+ " | ID="+recog.getId()+" | title="+recog.getTitle()+" | bottom="+recog.getLocation().bottom+" | top="+ recog.getLocation().top+" | left="+recog.getLocation().left+" | right="+recog.getLocation().right);
+            }
+            fullResults.addAll(results);
+            fullResults.addAll(dangerResults);
+            tracker.track(croppedBitmap, fullResults);
             initializedTracking = true;
             lastRecognition = SystemClock.uptimeMillis();
         } else {
             results = tracker.update(croppedBitmap);
+            tracking = true;
         }
         lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime;
 
@@ -312,21 +372,27 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         }
 
         // TODO uncomment and set tflite model
-        /*long timeSpent = System.currentTimeMillis();
-        //Classifier
-        for (int i = 0; i < results.size(); ++i) {
-            if (results.get(i).getConfidence() > minimumConfidence) {
-                String result = signClassifier.detectSign(results.get(i), croppedBitmap, rgbOrientedBitmap, 0.6f);
-                if (signClassifier.getLastResults().size() >= 1) {
-                    Classifier.Recognition elem;
-                    elem = new Classifier.Recognition(results.get(i).getId(), result, signClassifier.getLastResults().get(0).getConfidence(), results.get(i).getLocation());
-                    results.add(i, elem);
-                    results.remove(i + 1);
+        /*if (!tracking) {
+            long timeSpent = System.currentTimeMillis();
+            //Classifier
+            for (int i = 0; i < results.size(); ++i) {
+                if (results.get(i).getConfidence() > minimumConfidence) {
+                    String result = signClassifier.detectSign(results.get(i), croppedBitmap, rgbOrientedBitmap, 0.6f);
+                    if (signClassifier.getLastResults().size() >= 1) {
+                        Classifier.Recognition elem;
+                        elem = new Classifier.Recognition(results.get(i).getId(), result, signClassifier.getLastResults().get(0).getConfidence(), results.get(i).getLocation());
+                        elem.setOpencvID(results.get(i).getOpencvID());
+                        Log.d("SIGNCLASSIFIER", "ResultAdd="+elem.getTitle()+"|"+elem.getOpencvID());
+
+                        results.add(i, elem);
+                        Log.d("SIGNCLASSIFIER", "ResultRemove="+results.get(i+1).getTitle()+"|"+results.get(i+1).getOpencvID());
+                        results.remove(i + 1);
+                    }
                 }
             }
-        }
-        timeSpent = System.currentTimeMillis() - timeSpent;
-        System.out.println("Time: " + timeSpent / 1000.0f);*/
+            timeSpent = System.currentTimeMillis() - timeSpent;
+            System.out.println("Time: " + timeSpent / 1000.0f);
+        }*/
 
         final List<Classifier.Recognition> mappedRecognitions =
                 new LinkedList<Classifier.Recognition>();
@@ -340,7 +406,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                 result.setLocation(location);
                 mappedRecognitions.add(result);
                 try {
-                    if (objectsProcessing != null) {
+                    if (objectsProcessing != null && !tracking) {
                         objectsProcessing.processDetectedObject(result);
                     }
                 } catch (NullPointerException ex) {
@@ -348,13 +414,32 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                 }
             }
         }
-        try {
+        if (dangerResults != null) {
+            for (final Classifier.Recognition result : dangerResults) {
+                final RectF location = result.getLocation();
+                if (location != null && result.getConfidence() >= minimumConfidence) {
+                    canvas.drawRect(location, paint);
+
+                    cropToFrameTransform.mapRect(location);
+                    result.setLocation(location);
+                    mappedRecognitions.add(result);
+                    try {
+                        if (objectsProcessing != null) {
+                            objectsProcessing.processDetectedObject(result);
+                        }
+                    } catch (NullPointerException ex) {
+                        Log.e("Detector", "WarningEvent already released");
+                    }
+                }
+            }
+        }
+        /*try {
             if (objectsProcessing != null && tracker != null) {
                 objectsProcessing.processDangerousObject(tracker.isDangerous);
             }
         } catch (NullPointerException ex) {
             Log.e("Detector", "ObjectsProcessing already released");
-        }
+        }*/
 
         multiBoxTracker.trackResults(mappedRecognitions, currTimestamp);
         trackingOverlay.postInvalidate();

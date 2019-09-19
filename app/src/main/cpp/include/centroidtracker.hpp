@@ -22,7 +22,7 @@ private:
 		const std::vector<cv::Rect2f> &boxes);
 
 	int nextObjectID = 0;
-	int maxDisappeared = 100;
+	int maxDisappeared = 60;
 	std::map<int, cv::Point2d> objects;
 	std::map<int, cv::Rect2f> lastBoxes;
 	std::map<int, int> disappeared;

@@ -63,15 +63,19 @@ public class SignClassifier {
     /*private static final String TF_OD_API_MODEL_FILE =
             "file:///android_asset/trafficSignReader.pb";
     private static final String TF_OD_API_LABELS_FILE = "file:///android_asset/trafficSignsLabels.txt";*/
-    private static final String TF_OD_API_MODEL_FILE =
+    /*private static final String TF_OD_API_MODEL_FILE =
             //"models/traffic_sign_classifier/signDetectorClassifierSmall.tflite";
-            "models/traffic_sign_classifier/signDetectorClassifierSlowAccurate.tflite";
+            "models/traffic_sign_classifier/signDetectorClassifierSmall.tflite";
     private static final String TF_OD_API_LABELS_FILE =
-            "file:///android_asset/models/traffic_sign_classifier/labelsigndetector.txt";
+            "file:///android_asset/models/traffic_sign_classifier/labelsigndetector.txt";*/
+    private static final String TF_OD_API_MODEL_FILE =
+            "models/traffic_sign_classifier/signDetector43.tflite";
+    private static final String TF_OD_API_LABELS_FILE =
+            "file:///android_asset/models/traffic_sign_classifier/label43.txt";
 
     private List<Classifier.Recognition> resultsFinal;
 
-    private final boolean quantized = false;
+    private final boolean quantized = true;
 
 
     public SignClassifier(Context context) throws IOException {
