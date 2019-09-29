@@ -7,7 +7,7 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteConstraintException
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
-import sharpeye.sharpeye.DBHelper
+import sharpeye.sharpeye.data.DBHelper
 
 import java.util.ArrayList
 

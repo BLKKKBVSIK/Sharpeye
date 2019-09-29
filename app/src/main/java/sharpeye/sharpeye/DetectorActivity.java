@@ -22,9 +22,7 @@ import android.graphics.Bitmap.Config;
 import android.graphics.Paint.Style;
 import android.location.Location;
 import android.location.LocationManager;
-import android.media.AudioManager;
 import android.media.ImageReader.OnImageAvailableListener;
-import android.media.ToneGenerator;
 import android.os.Bundle;
 import android.os.SystemClock;
 
@@ -36,23 +34,28 @@ import android.util.TypedValue;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
-import sharpeye.sharpeye.OverlayView.DrawCallback;
-import sharpeye.sharpeye.env.BorderedText;
-import sharpeye.sharpeye.env.ImageUtils;
-import sharpeye.sharpeye.env.Logger;
+import sharpeye.sharpeye.customview.OverlayView;
+import sharpeye.sharpeye.customview.OverlayView.DrawCallback;
+import sharpeye.sharpeye.data.SharedPreferencesHelper;
+import sharpeye.sharpeye.objects_logic.ObjectsProcessing;
+import sharpeye.sharpeye.utils.BorderedText;
+import sharpeye.sharpeye.utils.ImageUtils;
+import sharpeye.sharpeye.utils.Logger;
+import sharpeye.sharpeye.tflite.Classifier;
+import sharpeye.sharpeye.tflite.SignClassifier;
+import sharpeye.sharpeye.tflite.TFLiteObjectDetectionAPIModel;
 import sharpeye.sharpeye.signs.BipGenerator;
 import sharpeye.sharpeye.signs.SignList;
 import sharpeye.sharpeye.tracking.MultiBoxTracker;
 import sharpeye.sharpeye.tracking.Tracker;
-import sharpeye.sharpeye.warning.Speech;
-import sharpeye.sharpeye.warning.WarningEvent;
+import sharpeye.sharpeye.objects_logic.WarningEvent;
 
 import java.io.IOException;
 
+import java.util.ArrayList;
 import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Vector;
 
 
 /**
@@ -62,56 +65,39 @@ import java.util.Vector;
 public class DetectorActivity extends CameraActivity implements OnImageAvailableListener, GPSCallback {
     private static final Logger LOGGER = new Logger();
 
-    // Configuration values for the prepackaged multibox model.
-    private static final int MB_INPUT_SIZE = 224;
-    private static final int MB_IMAGE_MEAN = 128;
-    private static final float MB_IMAGE_STD = 128;
-    private static final String MB_INPUT_NAME = "ResizeBilinear";
-    private static final String MB_OUTPUT_LOCATIONS_NAME = "output_locations/Reshape";
-    private static final String MB_OUTPUT_SCORES_NAME = "output_scores/Reshape";
-    private static final String MB_MODEL_FILE = "file:///android_asset/multibox_model.pb";
-    private static final String MB_LOCATION_FILE =
-            "file:///android_asset/multibox_location_priors.txt";
 
+    private static final boolean TF_OD_API_IS_QUANTIZED = true;
     private static final int TF_OD_API_INPUT_SIZE = 300;
-    private static final String TF_OD_API_MODEL_FILE =
+    private static final String TF_OD_API_MODEL_FILE = "models/traffic sign general/signDetectSmallData.tflite";
+    private static final String TF_OD_API_LABELS_FILE = "file:///android_asset/models/traffic sign general/generalTrafficLabels.txt";
+    private static final String TF_OD_API_MODEL_FILE_DANGER = "models/car - person/detect_coco.tflite";
+    private static final String TF_OD_API_LABELS_FILE_DANGER = "file:///android_asset/models/car - person/labelmap_coco.txt";
+    /*private static final String TF_OD_API_MODEL_FILE =
             "file:///android_asset/trafficSignGeneralMobilenet.pb";
-    private static final String TF_OD_API_LABELS_FILE = "file:///android_asset/generalTrafficLabels.txt";
+    private static final String TF_OD_API_LABELS_FILE = "file:///android_asset/generalTrafficLabels.txt";*/
 
-    // Configuration values for tiny-yolo-voc. Note that the graph is not included with TensorFlow and
-    // must be manually placed in the assets/ directory by the user.
-    // Graphs and models downloaded from http://pjreddie.com/darknet/yolo/ may be converted e.g. via
-    // DarkFlow (https://github.com/thtrieu/darkflow). Sample command:
-    // ./flow --model cfg/tiny-yolo-voc.cfg --load bin/tiny-yolo-voc.weights --savepb --verbalise
-    private static final String YOLO_MODEL_FILE = "file:///android_asset/generalTraffic.pb";
-    private static final String YOLO_LABEL_FILE = "file:///android_asset/generalTrafficLabels.txt";
-    private static final int YOLO_INPUT_SIZE = 416;
-    private static final String YOLO_INPUT_NAME = "input";
-    private static final String YOLO_OUTPUT_NAMES = "output";
-    private static final int YOLO_BLOCK_SIZE = 32;
 
     // Which detection model to use: by default uses Tensorflow Object Detection API frozen
     // checkpoints.  Optionally use legacy Multibox (trained using an older version of the API)
     // or YOLO.
     private enum DetectorMode {
-        TF_OD_API, MULTIBOX, YOLO;
+        TF_OD_API
     }
 
-    private static final DetectorMode MODE = DetectorMode.TF_OD_API;//DetectorMode.TF_OD_API;
+    private static final DetectorMode MODE = DetectorMode.TF_OD_API;
 
     // Minimum detection confidence to track a detection.
-    private static final float MINIMUM_CONFIDENCE_TF_OD_API = 0.2f;
-    private static final float MINIMUM_CONFIDENCE_MULTIBOX = 0.1f;
-    private static final float MINIMUM_CONFIDENCE_YOLO = 0.5f;
+    private static final float MINIMUM_CONFIDENCE_TF_OD_API = 0.6f;
 
-    private static final boolean MAINTAIN_ASPECT = (MODE == DetectorMode.YOLO);
+    private static final boolean MAINTAIN_ASPECT = false;
 
-    private static final boolean SAVE_PREVIEW_BITMAP = true;
+    private static final boolean SAVE_PREVIEW_BITMAP = false;
     private static final float TEXT_SIZE_DIP = 10;
 
     private Integer sensorOrientation;
 
     private Classifier detector;
+    private Classifier dangerDetector;
 
     private long lastProcessingTimeMs;
     private Bitmap rgbFrameBitmap = null;
@@ -134,7 +120,8 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     long lastDetection = 0;
 
-    SignClassifier signClassifier;
+    private SignClassifier signClassifier;
+
     private Tracker tracker;
 
     protected boolean initializedTracking = false;
@@ -143,7 +130,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     private long lastRecognition = 0;
 
-    private WarningEvent warningEvent;
+    private ObjectsProcessing objectsProcessing;
 
     ///speed update and display
     /*private var gpsManager: GPSManager? = null
@@ -192,8 +179,12 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     @Override
     public synchronized void onResume() {
         super.onResume();
-        if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(getApplicationContext(),"signs_on",false))
-            warningEvent = new WarningEvent(this);
+        if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(getApplicationContext(),"vocal_on",false)) {
+            if (objectsProcessing == null) {
+                objectsProcessing = new ObjectsProcessing();
+            }
+            objectsProcessing.init(this);
+        }
         if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(getApplicationContext(),"speed_display",false))
             txtview.setVisibility(View.VISIBLE); //séparer afficher la vitesse et rappel de vitesse pour pouvoir mieux désactiver l'un ou l'autre
         else
@@ -204,9 +195,9 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     @Override
     public synchronized void onPause() {
         super.onPause();
-        if (warningEvent != null) {
-            warningEvent.clean();
-            warningEvent = null;
+        if (objectsProcessing != null) {
+            objectsProcessing.release();
+            objectsProcessing = null;
         }
         cleanGPS();
     }
@@ -239,52 +230,33 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         }
 
         int cropSize = TF_OD_API_INPUT_SIZE;
-        if (MODE == DetectorMode.YOLO) {
-            try {
-                detector =
-                        TensorFlowYoloDetector.create(
-                                getAssets(),
-                                YOLO_MODEL_FILE,
-                                YOLO_LABEL_FILE,
-                                YOLO_INPUT_SIZE,
-                                YOLO_INPUT_NAME,
-                                YOLO_OUTPUT_NAMES,
-                                YOLO_BLOCK_SIZE);
-                cropSize = YOLO_INPUT_SIZE;
-            } catch (final IOException e) {
-                LOGGER.e("Exception initializing classifier!", e);
-                Toast toast =
-                        Toast.makeText(
-                                getApplicationContext(), "Classifier could not be initialized", Toast.LENGTH_SHORT);
-                toast.show();
-                finish();
-            }
-        } else if (MODE == DetectorMode.MULTIBOX) {
-            detector =
-                    TensorFlowMultiBoxDetector.create(
+
+	    try {
+	      detector =
+		  TFLiteObjectDetectionAPIModel.create(
+		      getAssets(),
+		      TF_OD_API_MODEL_FILE,
+		      TF_OD_API_LABELS_FILE,
+		      TF_OD_API_INPUT_SIZE,
+		      TF_OD_API_IS_QUANTIZED);
+	      dangerDetector =
+                  TFLiteObjectDetectionAPIModel.create(
                             getAssets(),
-                            MB_MODEL_FILE,
-                            MB_LOCATION_FILE,
-                            MB_IMAGE_MEAN,
-                            MB_IMAGE_STD,
-                            MB_INPUT_NAME,
-                            MB_OUTPUT_LOCATIONS_NAME,
-                            MB_OUTPUT_SCORES_NAME);
-            cropSize = MB_INPUT_SIZE;
-        } else {
-            try {
-                detector = TensorFlowObjectDetectionAPIModel.create(
-                        getAssets(), TF_OD_API_MODEL_FILE, TF_OD_API_LABELS_FILE, TF_OD_API_INPUT_SIZE);
-                cropSize = TF_OD_API_INPUT_SIZE;
-            } catch (final IOException e) {
-                LOGGER.e("Exception initializing classifier!", e);
-                Toast toast =
-                        Toast.makeText(
-                                getApplicationContext(), "Classifier could not be initialized", Toast.LENGTH_SHORT);
-                toast.show();
-                finish();
-            }
-        }
+                            TF_OD_API_MODEL_FILE_DANGER,
+                            TF_OD_API_LABELS_FILE_DANGER,
+                            TF_OD_API_INPUT_SIZE,
+                            TF_OD_API_IS_QUANTIZED);
+	      cropSize = TF_OD_API_INPUT_SIZE;
+	    } catch (final IOException e) {
+	      e.printStackTrace();
+	      LOGGER.e(e, "Exception initializing classifier!");
+	      Toast toast =
+		  Toast.makeText(
+		      getApplicationContext(), "Classifier could not be initialized", Toast.LENGTH_SHORT);
+	      toast.show();
+	      finish();
+	    }
+
 
         previewWidth = size.getWidth();
         previewHeight = size.getHeight();
@@ -326,49 +298,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                         }
                     }
                 });
-
-        addCallback(
-                new DrawCallback() {
-                    @Override
-                    public void drawCallback(final Canvas canvas) {
-                        if (!isDebug()) {
-                            return;
-                        }
-                        final Bitmap copy = cropCopyBitmap;
-                        if (copy == null) {
-                            return;
-                        }
-
-                        final int backgroundColor = Color.argb(100, 0, 0, 0);
-                        canvas.drawColor(backgroundColor);
-
-                        final Matrix matrix = new Matrix();
-                        final float scaleFactor = 2;
-                        matrix.postScale(scaleFactor, scaleFactor);
-                        matrix.postTranslate(
-                                canvas.getWidth() - copy.getWidth() * scaleFactor,
-                                canvas.getHeight() - copy.getHeight() * scaleFactor);
-                        canvas.drawBitmap(copy, matrix, new Paint());
-
-                        final Vector<String> lines = new Vector<String>();
-                        if (detector != null) {
-                            final String statString = detector.getStatString();
-                            final String[] statLines = statString.split("\n");
-                            for (final String line : statLines) {
-                                lines.add(line);
-                            }
-                        }
-                        lines.add("");
-
-                        lines.add("Frame: " + previewWidth + "x" + previewHeight);
-                        lines.add("Crop: " + copy.getWidth() + "x" + copy.getHeight());
-                        lines.add("View: " + canvas.getWidth() + "x" + canvas.getHeight());
-                        lines.add("Rotation: " + sensorOrientation);
-                        lines.add("Inference time: " + lastProcessingTimeMs + "ms");
-
-                        borderedText.drawLines(canvas, 10, canvas.getHeight() - 10, lines);
-                    }
-                });
+	    multiBoxTracker.setFrameConfiguration(previewWidth, previewHeight, sensorOrientation);
     }
 
     OverlayView trackingOverlay;
@@ -377,14 +307,6 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     protected void processImage() {
         ++timestamp;
         final long currTimestamp = timestamp;
-        byte[] originalLuminance = getLuminance();
-        multiBoxTracker.onFrame(
-                previewWidth,
-                previewHeight,
-                getLuminanceStride(),
-                sensorOrientation,
-                originalLuminance,
-                timestamp);
         trackingOverlay.postInvalidate();
 
         // No mutex needed as this method is not reentrant.
@@ -396,10 +318,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         LOGGER.i("Preparing image " + currTimestamp + " for detection in bg thread.");
 
         rgbFrameBitmap.setPixels(getRgbBytes(), 0, previewWidth, 0, 0, previewWidth, previewHeight);
-        if (luminanceCopy == null) {
-            luminanceCopy = new byte[originalLuminance.length];
-        }
-        System.arraycopy(originalLuminance, 0, luminanceCopy, 0, originalLuminance.length);
+
         readyForNextImage();
 
         final Canvas canvas1 = new Canvas(croppedBitmap);
@@ -414,15 +333,64 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         LOGGER.i("Running detection on image " + currTimestamp);
         final long startTime = SystemClock.uptimeMillis();
 
-        //final List<Classifier.Recognition> results = detector.recognizeImage(croppedBitmap);
         final List<Classifier.Recognition> results;
+        List<Classifier.Recognition> dangerResults = null;
+        final List<Classifier.Recognition> fullResults = new ArrayList<>();
+        boolean tracking = false;
         if (!initializedTracking || (startTime - lastRecognition) >= 300) {
-            results = detector.recognizeImage(croppedBitmap);
-            tracker.track(croppedBitmap, results);
+            results = new ArrayList<>();
+            List<Classifier.Recognition> tmp = detector.recognizeImage(croppedBitmap);
+            for (Classifier.Recognition val: tmp) {
+                if (val.getConfidence() >= MINIMUM_CONFIDENCE_TF_OD_API && val.getLocation().right >= 0 &&
+                        val.getLocation().left >= 0 && val.getLocation().bottom >= 0 && val.getLocation().top >= 0 &&
+                        val.getLocation().right < 500 && val.getLocation().left < 500 && val.getLocation().bottom < 500 &&
+                        val.getLocation().top < 500) {
+                    results.add(val);
+                }
+            }
+            // TODO uncomment and set tflite model
+            long timeSpent = System.currentTimeMillis();
+            //Classifier
+            for (int i = 0; i < results.size(); ++i) {
+                if (results.get(i).getConfidence() > MINIMUM_CONFIDENCE_TF_OD_API) {
+                    String result = signClassifier.detectSign(results.get(i), croppedBitmap, rgbOrientedBitmap, 0.6f);
+                    if (signClassifier.getLastResults().size() >= 1) {
+                        Classifier.Recognition elem;
+                        elem = new Classifier.Recognition(results.get(i).getId(), result, signClassifier.getLastResults().get(0).getConfidence(), results.get(i).getLocation());
+                        elem.setOpencvID(results.get(i).getOpencvID());
+                        Log.d("SIGNCLASSIFIER", "ResultAdd="+elem.getTitle()+"|"+elem.getOpencvID());
+
+                        results.add(i, elem);
+                        Log.d("SIGNCLASSIFIER", "ResultRemove="+results.get(i+1).getTitle()+"|"+results.get(i+1).getOpencvID());
+                        results.remove(i + 1);
+                    }
+                }
+            }
+            timeSpent = System.currentTimeMillis() - timeSpent;
+            System.out.println("Time: " + timeSpent / 1000.0f);
+
+            dangerResults = new ArrayList<>();
+            tmp = dangerDetector.recognizeImage(croppedBitmap);
+            for (Classifier.Recognition val: tmp) {
+                if ((val.getTitle().equals("person") || val.getTitle().equals("car")) &&
+                        val.getConfidence() >= MINIMUM_CONFIDENCE_TF_OD_API && val.getLocation().right >= 0 &&
+                        val.getLocation().left >= 0 && val.getLocation().bottom >= 0 && val.getLocation().top >= 0 &&
+                        val.getLocation().right < 500 && val.getLocation().left < 500 && val.getLocation().bottom < 500 &&
+                        val.getLocation().top < 500) {
+                    dangerResults.add(val);
+                }
+            }
+            for (Classifier.Recognition recog : dangerResults) {
+                Log.d("DETECTORACTIVITY", "OID="+recog.getOpencvID()+ " | ID="+recog.getId()+" | title="+recog.getTitle()+" | bottom="+recog.getLocation().bottom+" | top="+ recog.getLocation().top+" | left="+recog.getLocation().left+" | right="+recog.getLocation().right);
+            }
+            fullResults.addAll(results);
+            fullResults.addAll(dangerResults);
+            tracker.track(croppedBitmap, fullResults);
             initializedTracking = true;
             lastRecognition = SystemClock.uptimeMillis();
         } else {
             results = tracker.update(croppedBitmap);
+            tracking = true;
         }
         lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime;
 
@@ -438,30 +406,8 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             case TF_OD_API:
                 minimumConfidence = MINIMUM_CONFIDENCE_TF_OD_API;
                 break;
-            case MULTIBOX:
-                minimumConfidence = MINIMUM_CONFIDENCE_MULTIBOX;
-                break;
-            case YOLO:
-                minimumConfidence = MINIMUM_CONFIDENCE_YOLO;
-                break;
         }
 
-        long timeSpent = System.currentTimeMillis();
-        //Classifier
-        for (int i = 0; i < results.size(); ++i) {
-            if (results.get(i).getConfidence() > minimumConfidence) {
-                String result = signClassifier.detectSign(results.get(i), croppedBitmap, rgbOrientedBitmap, 0.6f);
-                if (signClassifier.getLastResults().size() >= 1) {
-                    Classifier.Recognition elem;
-                    elem = new Classifier.Recognition(results.get(i).getId(), result, signClassifier.getLastResults().get(0).getConfidence(), results.get(i).getLocation());
-                    elem.setOpencvID(results.get(i).getOpencvID());
-                    results.add(i, elem);
-                    results.remove(i + 1);
-                }
-            }
-        }
-        timeSpent = System.currentTimeMillis() - timeSpent;
-        System.out.println("Time: " + timeSpent / 1000.0f);
 
         final List<Classifier.Recognition> mappedRecognitions =
                 new LinkedList<Classifier.Recognition>();
@@ -475,21 +421,48 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                 result.setLocation(location);
                 mappedRecognitions.add(result);
                 try {
-                    if (warningEvent != null) {
-                        warningEvent.triggerWarning(result.getTitle());
+                    if (objectsProcessing != null && !tracking) {
+                        objectsProcessing.processDetectedObject(result);
                         currentState.addSign(signList.get(result.getTitle()));
                     }
                 } catch (NullPointerException ex) {
-                    Log.e("Detector", "WarningEvent already cleaned");
+                    Log.e("Detector", "WarningEvent already released");
+                }
+            }
+        }
+        if (dangerResults != null) {
+            for (final Classifier.Recognition result : dangerResults) {
+                final RectF location = result.getLocation();
+                if (location != null && result.getConfidence() >= minimumConfidence) {
+                    canvas.drawRect(location, paint);
+
+                    cropToFrameTransform.mapRect(location);
+                    result.setLocation(location);
+                    mappedRecognitions.add(result);
+                    try {
+                        if (objectsProcessing != null) {
+                            objectsProcessing.processDetectedObject(result);
+                        }
+                    } catch (NullPointerException ex) {
+                        Log.e("Detector", "WarningEvent already released");
+                    }
                 }
             }
         }
 
-        multiBoxTracker.trackResults(mappedRecognitions, luminanceCopy, currTimestamp);
+        multiBoxTracker.trackResults(mappedRecognitions, currTimestamp);
         trackingOverlay.postInvalidate();
 
-        requestRender();
         computingDetection = false;
+	runOnUiThread(
+                new Runnable() {
+                  @Override
+                  public void run() {
+                    showFrameInfo(previewWidth + "x" + previewHeight);
+                    showCropInfo(cropCopyBitmap.getWidth() + "x" + cropCopyBitmap.getHeight());
+                    showInference(lastProcessingTimeMs + "ms");
+                  }
+                });
     }
 
     ///--------Speed-------------------
@@ -576,5 +549,14 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     @Override
     public void onSetDebug(final boolean debug) {
         detector.enableStatLogging(debug);
+    }
+    @Override
+    protected void setUseNNAPI(final boolean isChecked) {
+      runInBackground(() -> detector.setUseNNAPI(isChecked));
+    }
+
+    @Override
+    protected void setNumThreads(final int numThreads) {
+      runInBackground(() -> detector.setNumThreads(numThreads));
     }
 }

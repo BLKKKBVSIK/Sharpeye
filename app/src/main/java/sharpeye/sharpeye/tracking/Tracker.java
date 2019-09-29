@@ -4,11 +4,11 @@ import android.graphics.Bitmap;
 import android.graphics.RectF;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
-import sharpeye.sharpeye.BuildConfig;
-import sharpeye.sharpeye.Classifier;
+import sharpeye.sharpeye.tflite.Classifier;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,10 +23,12 @@ public class Tracker implements Parcelable {
 
     private long trackerAddress;
     private HashMap<Integer, Classifier.Recognition> trackedObjects;
+    public boolean isDangerous;
 
     public Tracker() {
         trackerAddress = -1;
         trackedObjects = new HashMap<>();
+        isDangerous = false;
     }
 
     public  boolean needInit() {
@@ -79,7 +81,7 @@ public class Tracker implements Parcelable {
         }
     }
 
-    public static final Creator<Tracker> CREATOR = new Creator<Tracker>() {
+    public static final Parcelable.Creator<Tracker> CREATOR = new Parcelable.Creator<Tracker>() {
         public Tracker createFromParcel(Parcel in) {
             return new Tracker(in);
         }
@@ -136,6 +138,9 @@ public class Tracker implements Parcelable {
         Mat matFrame = bitmapToMat(frame);
         long frameAddress = matFrame.nativeObj;
         HashMap<Integer, Rect2f> objectIDs = updateBoxes(trackerAddress, frameAddress);
+        Log.e("Debug", "after updateboxes and before alert");
+        isDangerous = isDangerous(trackerAddress);
+        Log.e("isDangerous", String.valueOf(isDangerous));
         HashMap<Integer, Classifier.Recognition> newTrackedObjects = new HashMap<>();
         List<Classifier.Recognition> recognitionList = new ArrayList<>();
         for (HashMap.Entry<Integer, Rect2f> objectID: objectIDs.entrySet()) {
@@ -146,7 +151,6 @@ public class Tracker implements Parcelable {
                 if (recognizedObject != null) {
                     recognizedObject.setOpencvID(id);
                     recognizedObject.setLocation(new RectF(box.x, box.y, box.width + box.x, box.height + box.y));
-                    recognizedObject.setOpencvID(id);
                     newTrackedObjects.put(id, recognizedObject);
                     recognitionList.add(recognizedObject);
                 }
@@ -174,5 +178,6 @@ public class Tracker implements Parcelable {
     private native void deleteTracker(long ptr);
     private native HashMap<Integer, Rect2f> addBoxes(long trackerAddress, long frameAddress, ArrayList<Rect2f> boxes);
     private native HashMap<Integer, Rect2f> updateBoxes(long trackerAddress, long frameAddress);
+    private native boolean isDangerous(long trackerAddress);
 
 }

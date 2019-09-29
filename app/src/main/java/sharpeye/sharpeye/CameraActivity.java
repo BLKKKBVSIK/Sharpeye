@@ -17,14 +17,10 @@
 package sharpeye.sharpeye;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.Point;
 import android.hardware.Camera;
 import android.hardware.camera2.CameraAccessException;
@@ -37,24 +33,30 @@ import android.media.ImageReader;
 import android.media.ImageReader.OnImageAvailableListener;
 import android.os.*;
 import android.preference.PreferenceActivity;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.Size;
 import android.view.*;
-import android.widget.Toast;
+import android.widget.*;
 import com.crashlytics.android.Crashlytics;
 import io.fabric.sdk.android.Fabric;
-import sharpeye.sharpeye.env.ImageUtils;
-import sharpeye.sharpeye.env.Logger;
+import sharpeye.sharpeye.customview.OverlayView;
+import sharpeye.sharpeye.utils.ImageUtils;
+import sharpeye.sharpeye.utils.Logger;
 
 import java.nio.ByteBuffer;
 
 public abstract class CameraActivity extends AppCompatActivity
-    implements OnImageAvailableListener, Camera.PreviewCallback, NavigationView.OnNavigationItemSelectedListener {
+    implements OnImageAvailableListener, Camera.PreviewCallback, NavigationView.OnNavigationItemSelectedListener,
+        CompoundButton.OnCheckedChangeListener, View.OnClickListener {
   private static final Logger LOGGER = new Logger();
 
   private static final int PERMISSIONS_REQUEST = 1;
@@ -80,7 +82,15 @@ public abstract class CameraActivity extends AppCompatActivity
 
   protected static Size DESIRED_PREVIEW_SIZE = new Size(640, 480);
 
+  private LinearLayout bottomSheetLayout;
+  private LinearLayout gestureLayout;
+  private BottomSheetBehavior sheetBehavior;
 
+  protected TextView frameValueTextView, cropValueTextView, inferenceTimeTextView;
+  protected ImageView bottomSheetArrowImageView;
+  private ImageView plusImageView, minusImageView;
+  private SwitchCompat apiSwitchCompat;
+  private TextView threadsTextView;
 
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
@@ -108,8 +118,10 @@ public abstract class CameraActivity extends AppCompatActivity
 
     Point size = new Point();
     getWindowManager().getDefaultDisplay().getSize(size);
-    int x = size.x;
-    int y = size.y;
+    int x = /*640;*/size.x;
+    int y = /*480;*/size.y;
+    Log.e("CameraActivity", "Size="+String.valueOf(x)+"x"+String.valueOf(y));
+
     DESIRED_PREVIEW_SIZE = new Size(((x > y) ? x : y), ((x > y) ? y : x));
 
     if (hasPermission()) {
@@ -117,6 +129,68 @@ public abstract class CameraActivity extends AppCompatActivity
     } else {
       requestPermission();
     }
+    threadsTextView = findViewById(R.id.threads);
+    plusImageView = findViewById(R.id.plus);
+    minusImageView = findViewById(R.id.minus);
+    apiSwitchCompat = findViewById(R.id.api_info_switch);
+    bottomSheetLayout = findViewById(R.id.bottom_sheet_layout);
+    gestureLayout = findViewById(R.id.gesture_layout);
+    sheetBehavior = BottomSheetBehavior.from(bottomSheetLayout);
+    bottomSheetArrowImageView = findViewById(R.id.bottom_sheet_arrow);
+
+
+    ViewTreeObserver vto = gestureLayout.getViewTreeObserver();
+    vto.addOnGlobalLayoutListener(
+        new ViewTreeObserver.OnGlobalLayoutListener() {
+          @Override
+          public void onGlobalLayout() {
+            gestureLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+            //                int width = bottomSheetLayout.getMeasuredWidth();
+            int height = gestureLayout.getMeasuredHeight();
+
+            sheetBehavior.setPeekHeight(height);
+          }
+        });
+    sheetBehavior.setHideable(false);
+
+    sheetBehavior.setBottomSheetCallback(
+        new BottomSheetBehavior.BottomSheetCallback() {
+          @Override
+          public void onStateChanged(@NonNull View bottomSheet, int newState) {
+            switch (newState) {
+              case BottomSheetBehavior.STATE_HIDDEN:
+                break;
+              case BottomSheetBehavior.STATE_EXPANDED:
+                {
+                  bottomSheetArrowImageView.setImageResource(R.drawable.icn_chevron_down);
+                }
+                break;
+              case BottomSheetBehavior.STATE_COLLAPSED:
+                {
+                  bottomSheetArrowImageView.setImageResource(R.drawable.icn_chevron_up);
+                }
+                break;
+              case BottomSheetBehavior.STATE_DRAGGING:
+                break;
+              case BottomSheetBehavior.STATE_SETTLING:
+                bottomSheetArrowImageView.setImageResource(R.drawable.icn_chevron_up);
+                break;
+            }
+          }
+
+          @Override
+          public void onSlide(@NonNull View bottomSheet, float slideOffset) {}
+        });
+
+    frameValueTextView = findViewById(R.id.frame_info);
+    cropValueTextView = findViewById(R.id.crop_info);
+    inferenceTimeTextView = findViewById(R.id.inference_info);
+
+    apiSwitchCompat.setOnCheckedChangeListener(this);
+
+    plusImageView.setOnClickListener(this);
+    minusImageView.setOnClickListener(this);
+    bottomSheetLayout.setVisibility(((debug) ? View.VISIBLE : View.INVISIBLE));
   }
 
   private byte[] lastPreviewFrame;
@@ -413,6 +487,7 @@ public abstract class CameraActivity extends AppCompatActivity
                 public void onPreviewSizeChosen(final Size size, final int rotation) {
                   previewHeight = size.getHeight();
                   previewWidth = size.getWidth();
+                  Log.e("CameraActivity", "PreviewTextureSize="+String.valueOf(size.getWidth())+"x"+String.valueOf(size.getHeight()));
                   CameraActivity.this.onPreviewSizeChosen(size, rotation);
                 }
               },
@@ -431,6 +506,7 @@ public abstract class CameraActivity extends AppCompatActivity
         .beginTransaction()
         .replace(R.id.container, fragment)
         .commit();
+    Log.e("CameraActivity", "PreviewTexturePlaced");
   }
 
   protected void fillBytes(final Plane[] planes, final byte[][] yuvBytes) {
@@ -451,9 +527,9 @@ public abstract class CameraActivity extends AppCompatActivity
   }
 
   public void requestRender() {
-    final OverlayView overlay = (OverlayView) findViewById(R.id.debug_overlay);
-    if (overlay != null) {
-      overlay.postInvalidate();
+    if (bottomSheetLayout != null) {
+      bottomSheetLayout.setVisibility(((debug) ? View.VISIBLE : View.INVISIBLE));
+      bottomSheetLayout.postInvalidate();
     }
   }
 
@@ -495,6 +571,46 @@ public abstract class CameraActivity extends AppCompatActivity
       default:
         return 0;
     }
+  }
+
+  @Override
+  public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+    setUseNNAPI(isChecked);
+    if (isChecked) apiSwitchCompat.setText("NNAPI");
+    else apiSwitchCompat.setText("TFLITE");
+  }
+
+  @Override
+  public void onClick(View v) {
+    if (v.getId() == R.id.plus) {
+      String threads = threadsTextView.getText().toString().trim();
+      int numThreads = Integer.parseInt(threads);
+      if (numThreads >= 9) return;
+      numThreads++;
+      threadsTextView.setText(String.valueOf(numThreads));
+      setNumThreads(numThreads);
+    } else if (v.getId() == R.id.minus) {
+      String threads = threadsTextView.getText().toString().trim();
+      int numThreads = Integer.parseInt(threads);
+      if (numThreads == 1) {
+        return;
+      }
+      numThreads--;
+      threadsTextView.setText(String.valueOf(numThreads));
+      setNumThreads(numThreads);
+    }
+  }
+
+  protected void showFrameInfo(String frameInfo) {
+    frameValueTextView.setText(frameInfo);
+  }
+
+  protected void showCropInfo(String cropInfo) {
+    cropValueTextView.setText(cropInfo);
+  }
+
+  protected void showInference(String inferenceTime) {
+    inferenceTimeTextView.setText(inferenceTime);
   }
 
   @Override
@@ -577,4 +693,8 @@ public abstract class CameraActivity extends AppCompatActivity
   protected abstract void onPreviewSizeChosen(final Size size, final int rotation);
   protected abstract int getLayoutId();
   protected abstract Size getDesiredPreviewFrameSize();
+
+  protected abstract void setNumThreads(int numThreads);
+
+  protected abstract void setUseNNAPI(boolean isChecked);
 }

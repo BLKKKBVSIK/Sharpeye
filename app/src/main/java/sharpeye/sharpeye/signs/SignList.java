@@ -5,11 +5,12 @@ import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import sharpeye.sharpeye.warning.Utils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+
+import sharpeye.sharpeye.utils.Json;
 
 public class SignList {
 
@@ -22,7 +23,7 @@ public class SignList {
             // TODO add integrity verification
             Log.d("SignList", "init: debut");
             InputStream inputStream = context.getAssets().open("traffic_signs.json");
-            JSONObject jsonObject = Utils.getJsonFromInputStream(inputStream);
+            JSONObject jsonObject = Json.getJsonFromInputStream(inputStream);
             JSONArray trafficSigns = jsonObject.getJSONArray("traffic_signs");
             Log.d("SignList", "init: loaded json");
             if (trafficSigns.length() > 0) {

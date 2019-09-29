@@ -1,6 +1,16 @@
 {
     "warning_events": [
         {
+            "name": "car",
+            "text": "Voiture",
+            "delay": 10
+        },
+        {
+            "name": "person",
+            "text": "Piéton",
+            "delay": 5
+        },
+        {
             "name": "Speed limit (20km/h)",
             "text": "Limite de vitesse maximale de 20 kilomètre par heure",
             "delay": 10
