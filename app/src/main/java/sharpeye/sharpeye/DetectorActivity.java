@@ -38,6 +38,7 @@ import sharpeye.sharpeye.customview.OverlayView;
 import sharpeye.sharpeye.customview.OverlayView.DrawCallback;
 import sharpeye.sharpeye.data.SharedPreferencesHelper;
 import sharpeye.sharpeye.objects_logic.ObjectsProcessing;
+import sharpeye.sharpeye.signs.Sign;
 import sharpeye.sharpeye.utils.BorderedText;
 import sharpeye.sharpeye.utils.ImageUtils;
 import sharpeye.sharpeye.utils.Logger;
@@ -48,7 +49,6 @@ import sharpeye.sharpeye.signs.BipGenerator;
 import sharpeye.sharpeye.signs.SignList;
 import sharpeye.sharpeye.tracking.MultiBoxTracker;
 import sharpeye.sharpeye.tracking.Tracker;
-import sharpeye.sharpeye.objects_logic.WarningEvent;
 
 import java.io.IOException;
 
@@ -132,24 +132,13 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     private ObjectsProcessing objectsProcessing;
 
-    ///speed update and display
-    /*private var gpsManager: GPSManager? = null
-    private var locationManager: LocationManager? = null
-    var isGPSEnabled: Boolean = false
-    var speed = 0.toDouble()
-    var currentSpeed: Double = 0.toDouble()
-    var kmphSpeed:Double = 0.toDouble()
-    var txtview: TextView? = null*/
-    float speed;
-    double kmphSpeed;
     TextView txtview = null;
     GPSManager gpsManager;
     LocationManager locationManager;
-    boolean isGPSEnabled;
-    BipGenerator bipGenerator;
     ///-----------------------
-    CurrentState currentState;
-    SignList signList;
+    private BipGenerator bipGenerator;
+    private CurrentState currentState;
+    private SignList signList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -165,7 +154,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         if (tracker.needInit())
             tracker.init();
         txtview = findViewById(R.id.speed);
-        //txtview.setVisibility(View.VISIBLE);
+        txtview.setVisibility(View.VISIBLE);
         currentState = new CurrentState();
         signList = new SignList(this);
     }
@@ -423,7 +412,8 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                 try {
                     if (objectsProcessing != null && !tracking) {
                         objectsProcessing.processDetectedObject(result);
-                        currentState.addSign(signList.get(result.getTitle()));
+                        Sign sign = signList.get(result.getTitle());
+                        if (sign != null) currentState.addSign(sign);
                     }
                 } catch (NullPointerException ex) {
                     Log.e("Detector", "WarningEvent already released");
@@ -478,7 +468,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         txtview.setText(getString(R.string.speed_counter));
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         gpsManager = new GPSManager(DetectorActivity.this);
-        isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        boolean isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
         if(isGPSEnabled) {
             gpsManager.startListening(this);
             gpsManager.setGPSCallback((GPSCallback) this);
@@ -510,10 +500,9 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     @Override
     public void onGPSUpdate(Location location) {
-        speed = location.getSpeed() * 3.6f;
+        double speed = location.getSpeed() * 3.6f;
         currentState.setSpeed(round(speed, 3, BigDecimal.ROUND_HALF_UP));
-        kmphSpeed = round((currentState.getSpeed()),3,BigDecimal.ROUND_HALF_UP);
-        txtview.setText(kmphSpeed+"km/h");
+        txtview.setText(currentState.getSpeed() +"km/h");
         if (currentState != null && currentState.getSpeedLimit() != 0) {
             if (currentState.getSpeed() >= currentState.getSpeedLimit() * 1.05) {
                 txtview.setTextColor(Color.rgb(255, 0, 0));
