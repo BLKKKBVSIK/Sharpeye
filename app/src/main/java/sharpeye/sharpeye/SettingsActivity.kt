@@ -18,6 +18,8 @@ import android.support.annotation.RequiresApi
 import android.text.TextUtils
 import android.view.MenuItem
 import android.support.v4.app.NavUtils
+import sharpeye.sharpeye.utils.App
+import sharpeye.sharpeye.utils.Phone
 
 
 /**
@@ -192,9 +194,16 @@ class SettingsActivity : AppCompatPreferenceActivity() {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             addPreferencesFromResource(R.xml.report)
+            var intent = composeEmail(Array(1){"sharpeye.common@gmail.com"}, "Manual Bug report",
+                "Phone Model: " + Phone.getDeviceName() + "\n" +
+                        "Build Number: " + App.BuildNumber() + "\n" +
+                        "App version: " + App.FullVersionName() + "\n\n" +
+                        "Décrivez votre problème:\n")
             setHasOptionsMenu(true)
             activity.title = resources.getString(R.string.nav_feedback)
+            preferenceManager.findPreference("contact").intent = intent
         }
+
 
         override fun onOptionsItemSelected(item: MenuItem): Boolean {
             val id = item.itemId
@@ -203,6 +212,16 @@ class SettingsActivity : AppCompatPreferenceActivity() {
                 return true
             }
             return super.onOptionsItemSelected(item)
+        }
+
+        //create the mail intent that can only be sent with email app
+        private fun composeEmail(addresses: Array<String>, subject: String, text: String) : Intent{
+            return Intent(Intent.ACTION_SENDTO).apply {
+                data = Uri.parse("mailto:")
+                putExtra(Intent.EXTRA_EMAIL, addresses)
+                putExtra(Intent.EXTRA_SUBJECT, subject)
+                putExtra(Intent.EXTRA_TEXT, text)
+            }
         }
     }
 
