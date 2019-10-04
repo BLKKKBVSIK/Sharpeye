@@ -126,15 +126,6 @@ public abstract class CameraActivity extends AppCompatActivity
     navigationView.setNavigationItemSelectedListener(this);
     navigationView.setItemIconTintList(null);
 
-
-    Point size = new Point();
-    getWindowManager().getDefaultDisplay().getSize(size);
-    int x = /*640;*/size.x;
-    int y = /*480;*/size.y;
-    Log.e("CameraActivity", "Size="+String.valueOf(x)+"x"+String.valueOf(y));
-
-    DESIRED_PREVIEW_SIZE = new Size(((x > y) ? x : y), ((x > y) ? y : x));
-
     if (hasPermission()) {
       setFragment();
     } else {
