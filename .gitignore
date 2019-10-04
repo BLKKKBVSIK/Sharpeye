@@ -1,6 +1,7 @@
 /build
 /local.properties
 /sharpeye-android.iml
+/app/.cxx
 /app/build
 /app/app.iml
 /.idea
