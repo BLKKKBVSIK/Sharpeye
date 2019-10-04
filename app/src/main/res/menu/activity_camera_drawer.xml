@@ -6,7 +6,7 @@
     <group>
         <item
                 android:id="@+id/nav_danger"
-                android:icon="?android:attr/alertDialogIcon"
+                android:icon="@drawable/ic_menu_alert"
                 android:title="@string/nav_danger"/>
         <item
                 android:id="@+id/nav_signs"
@@ -31,7 +31,7 @@
                 
                 <item
                         android:id="@+id/nav_report"
-                        android:icon="@drawable/ic_menu_about"
+                        android:icon="@drawable/ic_menu_mail"
                         android:title="@string/nav_feedback"/>
             </menu>
         </item>

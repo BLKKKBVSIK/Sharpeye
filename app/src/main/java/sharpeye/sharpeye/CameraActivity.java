@@ -17,6 +17,7 @@
 package sharpeye.sharpeye;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
@@ -92,15 +93,24 @@ public abstract class CameraActivity extends AppCompatActivity
   private SwitchCompat apiSwitchCompat;
   private TextView threadsTextView;
 
+    public static void setWindowFlag(Activity activity, final int bits, boolean on) {
+
+        Window win = activity.getWindow();
+        WindowManager.LayoutParams winParams = win.getAttributes();
+        if (on) {
+            winParams.flags |= bits;
+        } else {
+            winParams.flags &= ~bits;
+        }
+        win.setAttributes(winParams);
+    }
+
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
     LOGGER.d("onCreate " + this);
     super.onCreate(null);
     Fabric.with(this, new Crashlytics());
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
-    /* Set the status bar transparent */
-    getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
 
     setContentView(R.layout.activity_camera);
 
@@ -114,15 +124,7 @@ public abstract class CameraActivity extends AppCompatActivity
 
     NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
     navigationView.setNavigationItemSelectedListener(this);
-
-
-    Point size = new Point();
-    getWindowManager().getDefaultDisplay().getSize(size);
-    int x = /*640;*/size.x;
-    int y = /*480;*/size.y;
-    Log.e("CameraActivity", "Size="+String.valueOf(x)+"x"+String.valueOf(y));
-
-    DESIRED_PREVIEW_SIZE = new Size(((x > y) ? x : y), ((x > y) ? y : x));
+    navigationView.setItemIconTintList(null);
 
     if (hasPermission()) {
       setFragment();

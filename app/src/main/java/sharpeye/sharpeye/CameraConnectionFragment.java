@@ -32,6 +32,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
 import android.view.*;
@@ -256,6 +257,7 @@ public class CameraConnectionFragment extends Fragment {
     final List<Size> bigEnough = new ArrayList<Size>();
     final List<Size> middleChoice = new ArrayList<Size>();
     final List<Size> tooSmall = new ArrayList<Size>();
+    Log.i("Rejected", "DesiredSize="+desiredSize);
     for (final Size option : choices) {
       if (option.equals(desiredSize)) {
         // Set the size but don't return yet so that remaining sizes will still be logged.
@@ -287,7 +289,7 @@ public class CameraConnectionFragment extends Fragment {
       LOGGER.i("Chosen size: " + chosenSize.getWidth() + "x" + chosenSize.getHeight());
       return chosenSize;
     } else if (!middleChoice.isEmpty()) {
-      final Size chosenSize = Collections.min(bigEnough, new CompareSizesByArea());
+      final Size chosenSize = Collections.min(middleChoice, new CompareSizesByArea());
       LOGGER.i("Chosen size: " + chosenSize.getWidth() + "x" + chosenSize.getHeight());
       return chosenSize;
     }
