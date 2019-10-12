@@ -684,9 +684,6 @@ public abstract class CameraActivity extends AppCompatActivity
       intent.putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true);
       startActivity(intent);
     }
-
-    DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-    drawer.closeDrawer(GravityCompat.START);
     return true;
   }
 
