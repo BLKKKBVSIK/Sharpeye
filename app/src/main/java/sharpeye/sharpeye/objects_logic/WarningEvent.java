@@ -20,7 +20,7 @@ public class WarningEvent {
         init(context);
     }
 
-    private void init(Context context) {
+    public void init(Context context) {
         speech = new Speech(context);
         try {
             // TODO add integrity verification
@@ -41,6 +41,10 @@ public class WarningEvent {
             Log.e("WarningEvent", ex.toString());
             warningSpeeches = null;
         }
+    }
+
+    public boolean isTTSAvailable() {
+        return speech.isAvailable();
     }
 
     public void clean() {

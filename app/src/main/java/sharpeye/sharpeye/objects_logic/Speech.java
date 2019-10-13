@@ -11,6 +11,7 @@ import java.util.UUID;
 public class Speech {
 
     private TextToSpeech textToSpeech;
+    private boolean TTSAvailable = true;
 
     public Speech(Context context) {
         init(context);
@@ -32,11 +33,21 @@ public class Speech {
         }
     }
 
+    public boolean isAvailable() {
+        return (TTSAvailable);
+    }
+
     public void init(Context context) {
         textToSpeech = new TextToSpeech(context, new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
-                setLanguage();
+                if (status == TextToSpeech.SUCCESS) {
+                    TTSAvailable = true;
+                    setLanguage();
+                } else {
+                    TTSAvailable = false;
+                    textToSpeech = null;
+                }
             }
         });
     }
@@ -45,11 +56,14 @@ public class Speech {
         if (textToSpeech != null) {
             textToSpeech.stop();
             textToSpeech.shutdown();
+            textToSpeech = null;
         }
     }
 
     public void speak(String text) {
-        textToSpeech.speak(text, TextToSpeech.QUEUE_ADD, null,
-                UUID.randomUUID().toString());
+        if (textToSpeech != null) {
+            textToSpeech.speak(text, TextToSpeech.QUEUE_ADD, null,
+                    UUID.randomUUID().toString());
+        }
     }
 }

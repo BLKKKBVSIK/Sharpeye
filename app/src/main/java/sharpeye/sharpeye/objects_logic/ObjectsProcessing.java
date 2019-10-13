@@ -28,6 +28,9 @@ public class ObjectsProcessing {
         }
         dangerSound.release();
     }
+    public boolean isTTSAvailable() {
+        return warningEvent.isTTSAvailable();
+    }
 
     public void processDangerousObject(boolean isDangerous) {
         int volume = 100;
