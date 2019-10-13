@@ -138,9 +138,7 @@ public class Tracker implements Parcelable {
         Mat matFrame = bitmapToMat(frame);
         long frameAddress = matFrame.nativeObj;
         HashMap<Integer, Rect2f> objectIDs = updateBoxes(trackerAddress, frameAddress);
-        Log.e("Debug", "after updateboxes and before alert");
         isDangerous = isDangerous(trackerAddress);
-        Log.e("isDangerous", String.valueOf(isDangerous));
         HashMap<Integer, Classifier.Recognition> newTrackedObjects = new HashMap<>();
         List<Classifier.Recognition> recognitionList = new ArrayList<>();
         for (HashMap.Entry<Integer, Rect2f> objectID: objectIDs.entrySet()) {
