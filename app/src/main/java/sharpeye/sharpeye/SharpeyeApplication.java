@@ -11,6 +11,6 @@ public class SharpeyeApplication extends Application {
         PreferenceManager.setDefaultValues(this, R.xml.pref_dangers, true);
         PreferenceManager.setDefaultValues(this, R.xml.pref_dashcam, true);
         PreferenceManager.setDefaultValues(this, R.xml.pref_signs, true);
-        PreferenceManager.setDefaultValues(this, R.xml.pref_vocal, false);
+        PreferenceManager.setDefaultValues(this, R.xml.pref_vocal, true);
     }
 }
