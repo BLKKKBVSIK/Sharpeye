@@ -324,7 +324,6 @@ public class CameraConnectionFragment extends Fragment {
   @Override
   public void onStart() {
     super.onStart();
-    Log.e("CameraFragment", "OnStart");
     startBackgroundThread();
 
     // When the screen is turned off and turned back on, the SurfaceTexture is already
@@ -340,7 +339,6 @@ public class CameraConnectionFragment extends Fragment {
 
   @Override
   public void onStop() {
-    Log.e("CameraFragment", "OnStop");
     closeCamera();
     stopBackgroundThread();
     super.onStop();
