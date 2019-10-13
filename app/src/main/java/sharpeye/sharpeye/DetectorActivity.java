@@ -16,36 +16,30 @@
 
 package sharpeye.sharpeye;
 
-import android.content.pm.PackageManager;
 import android.graphics.*;
 import android.graphics.Bitmap.Config;
 import android.graphics.Paint.Style;
-import android.location.Location;
-import android.location.LocationManager;
 import android.media.ImageReader.OnImageAvailableListener;
 import android.os.Bundle;
 import android.os.SystemClock;
 
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.util.Size;
 import android.util.TypedValue;
-import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import sharpeye.sharpeye.GPS.GPS;
 import sharpeye.sharpeye.customview.OverlayView;
-import sharpeye.sharpeye.customview.OverlayView.DrawCallback;
 import sharpeye.sharpeye.data.SharedPreferencesHelper;
 import sharpeye.sharpeye.objects_logic.ObjectsProcessing;
 import sharpeye.sharpeye.signs.Sign;
 import sharpeye.sharpeye.utils.BorderedText;
+import sharpeye.sharpeye.utils.CurrentState;
 import sharpeye.sharpeye.utils.ImageUtils;
 import sharpeye.sharpeye.utils.Logger;
 import sharpeye.sharpeye.tflite.Classifier;
 import sharpeye.sharpeye.tflite.SignClassifier;
 import sharpeye.sharpeye.tflite.TFLiteObjectDetectionAPIModel;
-import sharpeye.sharpeye.signs.BipGenerator;
 import sharpeye.sharpeye.signs.SignList;
 import sharpeye.sharpeye.tracking.MultiBoxTracker;
 import sharpeye.sharpeye.tracking.Tracker;
@@ -53,7 +47,6 @@ import sharpeye.sharpeye.tracking.Tracker;
 import java.io.IOException;
 
 import java.util.ArrayList;
-import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -62,7 +55,7 @@ import java.util.List;
  * An activity that uses a TensorFlowMultiBoxDetector and ObjectTracker to detect and then track
  * objects.
  */
-public class DetectorActivity extends CameraActivity implements OnImageAvailableListener, GPSCallback {
+public class DetectorActivity extends CameraActivity implements OnImageAvailableListener {
     private static final Logger LOGGER = new Logger();
 
 
@@ -132,13 +125,9 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     private ObjectsProcessing objectsProcessing;
 
-    TextView txtview = null;
-    GPSManager gpsManager;
-    LocationManager locationManager;
-    ///-----------------------
-    private BipGenerator bipGenerator;
     private CurrentState currentState;
     private SignList signList;
+    private GPS gps;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -153,10 +142,10 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         }
         if (tracker.needInit())
             tracker.init();
-        txtview = findViewById(R.id.speed);
-        txtview.setVisibility(View.VISIBLE);
         currentState = new CurrentState();
         signList = new SignList(this);
+        gps = new GPS(this, findViewById(R.id.speed));
+        gps.create();
     }
 
     @Override
@@ -174,11 +163,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             }
             objectsProcessing.init(this);
         }
-        if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(getApplicationContext(),"speed_display",false))
-            txtview.setVisibility(View.VISIBLE); //séparer afficher la vitesse et rappel de vitesse pour pouvoir mieux désactiver l'un ou l'autre
-        else
-            txtview.setVisibility(View.INVISIBLE);
-        initializeGPS();
+        gps.resume(currentState);
     }
 
     @Override
@@ -188,13 +173,13 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             objectsProcessing.release();
             objectsProcessing = null;
         }
-        cleanGPS();
     }
 
     @Override
     public synchronized void onDestroy() {
         super.onDestroy();
         tracker.free();
+        gps.clean();
     }
 
     @Override
@@ -276,15 +261,12 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         cropToFrameTransform = new Matrix();
         frameToCropTransform.invert(cropToFrameTransform);
 
-        trackingOverlay = (OverlayView) findViewById(R.id.tracking_overlay);
+        trackingOverlay = findViewById(R.id.tracking_overlay);
         trackingOverlay.addCallback(
-                new DrawCallback() {
-                    @Override
-                    public void drawCallback(final Canvas canvas) {
-                        multiBoxTracker.draw(canvas);
-                        if (isDebug()) {
-                            multiBoxTracker.drawDebug(canvas);
-                        }
+                canvas -> {
+                    multiBoxTracker.draw(canvas);
+                    if (isDebug()) {
+                        multiBoxTracker.drawDebug(canvas);
                     }
                 });
 	    multiBoxTracker.setFrameConfiguration(previewWidth, previewHeight, sensorOrientation);
@@ -292,8 +274,13 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     OverlayView trackingOverlay;
 
+
+
     @Override
     protected void processImage() {
+        //------------------service gps------------------
+        currentState = gps.process(currentState, this);
+        //-----------------------------------------------
         ++timestamp;
         final long currTimestamp = timestamp;
         trackingOverlay.postInvalidate();
@@ -445,85 +432,12 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
         computingDetection = false;
 	runOnUiThread(
-                new Runnable() {
-                  @Override
-                  public void run() {
-                    showFrameInfo(previewWidth + "x" + previewHeight);
-                    showCropInfo(cropCopyBitmap.getWidth() + "x" + cropCopyBitmap.getHeight());
-                    showInference(lastProcessingTimeMs + "ms");
-                  }
-                });
+            () -> {
+              showFrameInfo(previewWidth + "x" + previewHeight);
+              showCropInfo(cropCopyBitmap.getWidth() + "x" + cropCopyBitmap.getHeight());
+              showInference(lastProcessingTimeMs + "ms");
+            });
     }
-
-    ///--------Speed-------------------
-    public void initializeGPS(){
-        Log.d("initializeGPS", "start");
-        try {
-            if (ContextCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 101);
-            }//demander dans camera Activity
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        txtview.setText(getString(R.string.speed_counter));
-        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        gpsManager = new GPSManager(DetectorActivity.this);
-        boolean isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        if(isGPSEnabled) {
-            gpsManager.startListening(this);
-            gpsManager.setGPSCallback((GPSCallback) this);
-        } else {
-            gpsManager.showSettingsAlert();
-        }
-        if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(getApplicationContext(),"speed_control",false))
-        {
-            bipGenerator = new BipGenerator();
-        } else {
-            bipGenerator = null;
-        }
-        Log.d("initializeGPS", "end");
-    }
-
-    private void cleanGPS() {
-        Log.d("cleanGPS", "start");
-        if (gpsManager != null) {
-            gpsManager.stopListening();
-            gpsManager.setGPSCallback(null);
-            gpsManager = null;
-        }
-        if (bipGenerator != null)
-        {
-            bipGenerator = null;
-        }
-        Log.d("cleanGPS", "end");
-    }
-
-    @Override
-    public void onGPSUpdate(Location location) {
-        double speed = location.getSpeed() * 3.6f;
-        currentState.setSpeed(round(speed, 3, BigDecimal.ROUND_HALF_UP));
-        txtview.setText(currentState.getSpeed() +"km/h");
-        if (currentState != null && currentState.getSpeedLimit() != 0) {
-            if (currentState.getSpeed() >= currentState.getSpeedLimit() * 1.05) {
-                txtview.setTextColor(Color.rgb(255, 0, 0));
-                if (bipGenerator != null) {
-                    bipGenerator.bip(150, 100);
-                }
-            } else if (currentState.getSpeed() > currentState.getSpeedLimit()) {
-                txtview.setTextColor(Color.rgb(255, 165, 0));
-            } else {
-                txtview.setTextColor(Color.rgb(255, 255, 255));
-            }
-        }
-    }
-
-    public static double round(double unrounded, int precision, int roundingMode) {
-        BigDecimal bd = new BigDecimal(unrounded);
-        BigDecimal rounded = bd.setScale(precision, roundingMode);
-        return rounded.doubleValue();
-    }
-    ///-----------------
-
 
     @Override
     protected int getLayoutId() {
