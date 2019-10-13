@@ -28,6 +28,8 @@ import android.util.Size;
 import android.util.TypedValue;
 import android.widget.Toast;
 
+import sharpeye.BooleanKeyValueDBHelper;
+import sharpeye.BooleanKeyValueModel;
 import sharpeye.sharpeye.GPS.GPS;
 import sharpeye.sharpeye.customview.OverlayView;
 import sharpeye.sharpeye.data.SharedPreferencesHelper;
