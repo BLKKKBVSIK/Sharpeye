@@ -8,12 +8,7 @@ import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.preference.ListPreference
-import android.preference.Preference
-import android.preference.PreferenceActivity
-import android.preference.PreferenceFragment
-import android.preference.PreferenceManager
-import android.preference.RingtonePreference
+import android.preference.*
 import android.support.annotation.RequiresApi
 import android.text.TextUtils
 import android.view.MenuItem
@@ -97,8 +92,10 @@ class SettingsActivity : AppCompatPreferenceActivity() {
             addPreferencesFromResource(R.xml.about)
             setHasOptionsMenu(true)
             activity.title = resources.getString(R.string.nav_about)
-            preferenceManager.findPreference("versionName").summary = BuildConfig.VERSION_NAME + "-" + BuildConfig.BUILD_TYPE
-            preferenceManager.findPreference("versionCode").summary = BuildConfig.VERSION_CODE.toString()
+            val prefVersionName = preferenceManager.findPreference("versionName")
+            if (prefVersionName != null) prefVersionName.summary = BuildConfig.VERSION_NAME + "-" + BuildConfig.BUILD_TYPE
+            val prefVersionCode = preferenceManager.findPreference("versionCode")
+            if (prefVersionCode != null) prefVersionCode.summary = BuildConfig.VERSION_CODE.toString()
         }
 
         @RequiresApi(Build.VERSION_CODES.M)
@@ -201,7 +198,8 @@ class SettingsActivity : AppCompatPreferenceActivity() {
                         "Décrivez votre problème:\n")
             setHasOptionsMenu(true)
             activity.title = resources.getString(R.string.nav_feedback)
-            preferenceManager.findPreference("contact").intent = intent
+            val prefContact = preferenceManager.findPreference("contact")
+            if (prefContact != null) prefContact.intent = intent
         }
 
 
