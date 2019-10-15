@@ -31,6 +31,8 @@ public class GPSService extends Service implements GPSCallback {
     private final IBinder binder = new GPSBinder();
     private CurrentState currentState;
     private BipGenerator bipGenerator;
+    private GPSManager gpsManager;
+    private LocationManager locationManager;
 
     @Override
     public int onStartCommand (Intent intent, int flags, int startId)
@@ -95,7 +97,6 @@ public class GPSService extends Service implements GPSCallback {
     public void onGPSUpdate(Location location) {
         double speed = location.getSpeed() * 3.6f;
         currentState.setSpeed(round(speed, 3, BigDecimal.ROUND_HALF_UP));
-        currentState.setSpeed(81);
         if (currentState != null && currentState.getSpeedLimit() != 0) {
             if (currentState.getSpeed() > currentState.getSpeedLimit())
             {
@@ -113,32 +114,26 @@ public class GPSService extends Service implements GPSCallback {
         return rounded.doubleValue();
     }
 
-    GPSManager gpsManager;
-    LocationManager locationManager;
-
     public void initializeGPS(){
         Log.d("service initializeGPS", "start");
         try {
             if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
                     ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
 
-            locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-            gpsManager = new GPSManager(this);
+                locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+                gpsManager = new GPSManager(this);
 
-            currentState.setGPSenabled(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER));
-            if (currentState.getGPSenabled()) {
-                gpsManager.startListening(this);
-                gpsManager.setGPSCallback((GPSCallback) this);
-            }
-            if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(getApplicationContext(), "speed_control", false)) {
-                bipGenerator = new BipGenerator();
+                currentState.setGPSenabled(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER));
+                if (currentState.getGPSenabled()) {
+                    gpsManager.startListening(this);
+                    gpsManager.setGPSCallback((GPSCallback) this);
+                }
+                if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(getApplicationContext(), "speed_control", false)) {
+                    bipGenerator = new BipGenerator();
+                } else {
+                    bipGenerator = null;
+                }
             } else {
-                bipGenerator = null;
-            }
-            //ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 101);/
-            //todo add ça dans l'activity
-            }
-            else {
                 currentState.setGPSPermission(false);
             }
         } catch (Exception e) {

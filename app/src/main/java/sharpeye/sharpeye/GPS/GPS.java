@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.IBinder;
 import android.provider.Settings;
@@ -23,6 +24,7 @@ import sharpeye.sharpeye.utils.CurrentState;
 import sharpeye.sharpeye.R;
 import sharpeye.sharpeye.Services.GPSService;
 import sharpeye.sharpeye.data.SharedPreferencesHelper;
+import sharpeye.sharpeye.utils.ServiceTools;
 
 public class GPS {
 
@@ -33,6 +35,7 @@ public class GPS {
     private TextView textview;
     private GPSService mService;
     private boolean mBound = false;
+    private LocationManager locationManager;
 
     public GPS(Context _context, TextView _textview)
     {
@@ -43,6 +46,7 @@ public class GPS {
     public void create()
     {
         textview.setVisibility(View.VISIBLE);
+        locationManager = (LocationManager) context.getSystemService(context.LOCATION_SERVICE);
         if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(context,"speed_display",false)) {
             initializeGPS();
         }
@@ -53,23 +57,29 @@ public class GPS {
         Log.d("gpsresume", "start");
         if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(context,"speed_display",false)) {
             textview.setVisibility(View.VISIBLE);
-            textview.setText(context.getString(R.string.speed_counter)); //séparer afficher la vitesse et rappel de vitesse pour pouvoir mieux désactiver l'un ou l'autre
-            /*if (!currentState.getGPSenabled() && GpsOnAlertAlreadyInflated) {
+            textview.setText(context.getString(R.string.speed_counter));
+            if (mBound) {
+                mService.setCurrentState(currentState);
+                currentState = mService.getCurrentState();
+            }
+            if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)  && GpsOnAlertAlreadyInflated) {
                 turnOffGpsPreferences();
                 stopService();
-                Log.d("gpsresume", "gps not enables");
+                textview.setVisibility(View.INVISIBLE);
+                Log.d("gpsresume", "gps not enabled");
             }
             else if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                     && GPSPermissionAlreadyInflated)
             {
                 turnOffGpsPreferences();
                 stopService();
+                textview.setVisibility(View.INVISIBLE);
                 Log.d("gpsresume", "unauthorized");
-            } else if (mService == null) {
+            } else if (!ServiceTools.isServiceRunning("GPSService", context)) {
                 startService();
                 textview.setVisibility(View.VISIBLE);
                 Log.d("gpsresume", "restart service");
-            }*/
+            }
         }
         else {
             textview.setVisibility(View.INVISIBLE);//TODO check tous les droits.
@@ -111,7 +121,7 @@ public class GPS {
     private void stopService()
     {
         Log.d("gpsstopService", "start");
-        if (mService != null) {
+        if (mService != null && mBound) {
             context.unbindService(connection);
             mBound = false;
             context.stopService(i);
@@ -133,17 +143,19 @@ public class GPS {
             currentState = mService.getCurrentState();
         }
         CurrentState finalCurrentState = currentState;
+        Log.d("GPS process", "gps enables: " + currentState.getGPSenabled() + " " + locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) +
+                "\nPermission: " + ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION));
         activity.runOnUiThread(() -> {
-            /*if (!finalCurrentState.getGPSenabled() && !GpsOnAlertAlreadyInflated)
+            if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) && !GpsOnAlertAlreadyInflated)
             {
-                //stopService();
+                stopService();
                 showSettingsAlert();
                 GpsOnAlertAlreadyInflated = true;
-            }*/
+            }
             if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                     && !GPSPermissionAlreadyInflated)
             {
-                //stopService();
+                stopService();
                 ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 101);
                 GPSPermissionAlreadyInflated = true;
             } else if (finalCurrentState.getGPSenabled() && finalCurrentState.getGPSPermission()) {
