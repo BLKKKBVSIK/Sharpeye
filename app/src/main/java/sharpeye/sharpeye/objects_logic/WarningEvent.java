@@ -5,11 +5,11 @@ import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import sharpeye.sharpeye.utils.Json;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
+
+import sharpeye.sharpeye.utils.Json;
 
 public class WarningEvent {
 
@@ -24,9 +24,7 @@ public class WarningEvent {
         speech = new Speech(context);
         try {
             // TODO add integrity verification
-            InputStream inputStream = context.getAssets().open("warning_events.json");
-            JSONObject jsonObject =  Json.getJsonFromInputStream(inputStream);
-            JSONArray warningEvents = jsonObject.getJSONArray("warning_events");
+            JSONArray warningEvents = Json.getJsonArray(context, "warning_events.json", "warning_events");
             if (warningEvents.length() > 0) {
                 warningSpeeches = new HashMap<>();
                 for (int i = 0; i < warningEvents.length(); i++) {
