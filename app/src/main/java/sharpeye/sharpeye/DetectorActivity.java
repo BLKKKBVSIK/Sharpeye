@@ -19,7 +19,6 @@ package sharpeye.sharpeye;
 import android.graphics.*;
 import android.graphics.Bitmap.Config;
 import android.graphics.Paint.Style;
-import android.location.LocationManager;
 import android.media.ImageReader.OnImageAvailableListener;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -29,19 +28,17 @@ import android.util.Size;
 import android.util.TypedValue;
 import android.widget.Toast;
 
-import sharpeye.BooleanKeyValueDBHelper;
-import sharpeye.BooleanKeyValueModel;
 import sharpeye.sharpeye.GPS.GPS;
 import sharpeye.sharpeye.customview.OverlayView;
 import sharpeye.sharpeye.data.SharedPreferencesHelper;
 import sharpeye.sharpeye.objects_logic.ObjectsProcessing;
 import sharpeye.sharpeye.signs.Sign;
+import sharpeye.sharpeye.tflite.SignDetector;
 import sharpeye.sharpeye.utils.BorderedText;
 import sharpeye.sharpeye.utils.CurrentState;
 import sharpeye.sharpeye.utils.ImageUtils;
 import sharpeye.sharpeye.utils.Logger;
 import sharpeye.sharpeye.tflite.Classifier;
-import sharpeye.sharpeye.tflite.SignClassifier;
 import sharpeye.sharpeye.tflite.TFLiteObjectDetectionAPIModel;
 import sharpeye.sharpeye.signs.SignList;
 import sharpeye.sharpeye.tracking.MultiBoxTracker;
@@ -64,10 +61,10 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     private static final boolean TF_OD_API_IS_QUANTIZED = true;
     private static final int TF_OD_API_INPUT_SIZE = 300;
-    private static final String TF_OD_API_MODEL_FILE = "models/traffic sign general/signDetectSmallData.tflite";
-    private static final String TF_OD_API_LABELS_FILE = "file:///android_asset/models/traffic sign general/generalTrafficLabels.txt";
-    private static final String TF_OD_API_MODEL_FILE_DANGER = "models/car - person/detect_coco.tflite";
-    private static final String TF_OD_API_LABELS_FILE_DANGER = "file:///android_asset/models/car - person/labelmap_coco.txt";
+    private static final String TF_OD_API_MODEL_FILE = "models/traffic_sign_general/signDetectSmallData.tflite";
+    private static final String TF_OD_API_LABELS_FILE = "file:///android_asset/models/traffic_sign_general/generalTrafficLabels.txt";
+    private static final String TF_OD_API_MODEL_FILE_DANGER = "models/car_person/detect_coco.tflite";
+    private static final String TF_OD_API_LABELS_FILE_DANGER = "file:///android_asset/models/car_person/labelmap_coco.txt";
     /*private static final String TF_OD_API_MODEL_FILE =
             "file:///android_asset/trafficSignGeneralMobilenet.pb";
     private static final String TF_OD_API_LABELS_FILE = "file:///android_asset/generalTrafficLabels.txt";*/
@@ -116,7 +113,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     long lastDetection = 0;
 
-    private SignClassifier signClassifier;
+    private SignDetector signClassifier;
 
     private Tracker tracker;
 
@@ -196,7 +193,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         multiBoxTracker = new MultiBoxTracker(this);
 
         try {
-            signClassifier = new SignClassifier(getApplicationContext());
+            signClassifier = new SignDetector(getApplicationContext());
         } catch (final IOException e) {
             LOGGER.e("Exception initializing classifier!", e);
             Toast toast =
@@ -318,35 +315,18 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         boolean tracking = false;
         if (!initializedTracking || (startTime - lastRecognition) >= 300) {
             results = new ArrayList<>();
-            List<Classifier.Recognition> tmp = detector.recognizeImage(croppedBitmap);
+            List<Classifier.Recognition> tmp = signClassifier.detectSign(rgbOrientedBitmap, MINIMUM_CONFIDENCE_TF_OD_API);
             for (Classifier.Recognition val: tmp) {
-                if (val.getConfidence() >= MINIMUM_CONFIDENCE_TF_OD_API && val.getLocation().right >= 0 &&
+                if (val.getLocation().right >= 0 &&
                         val.getLocation().left >= 0 && val.getLocation().bottom >= 0 && val.getLocation().top >= 0 &&
-                        val.getLocation().right < 500 && val.getLocation().left < 500 && val.getLocation().bottom < 500 &&
-                        val.getLocation().top < 500) {
+                        val.getLocation().right < 5000 && val.getLocation().left < 5000 && val.getLocation().bottom < 5000 &&
+                        val.getLocation().top < 5000) {
                     results.add(val);
                 }
             }
-            // TODO uncomment and set tflite model
-            long timeSpent = System.currentTimeMillis();
-            //Classifier
-            for (int i = 0; i < results.size(); ++i) {
-                if (results.get(i).getConfidence() > MINIMUM_CONFIDENCE_TF_OD_API) {
-                    String result = signClassifier.detectSign(results.get(i), croppedBitmap, rgbOrientedBitmap, 0.6f);
-                    if (signClassifier.getLastResults().size() >= 1) {
-                        Classifier.Recognition elem;
-                        elem = new Classifier.Recognition(results.get(i).getId(), result, signClassifier.getLastResults().get(0).getConfidence(), results.get(i).getLocation());
-                        elem.setOpencvID(results.get(i).getOpencvID());
-                        Log.d("SIGNCLASSIFIER", "ResultAdd="+elem.getTitle()+"|"+elem.getOpencvID());
-
-                        results.add(i, elem);
-                        Log.d("SIGNCLASSIFIER", "ResultRemove="+results.get(i+1).getTitle()+"|"+results.get(i+1).getOpencvID());
-                        results.remove(i + 1);
-                    }
-                }
+            for (Classifier.Recognition recog : results) {
+                Log.d("DETECTORACTIVITY", "OID="+recog.getOpencvID()+ " | ID="+recog.getId()+" | title="+recog.getTitle()+" | bottom="+recog.getLocation().bottom+" | top="+ recog.getLocation().top+" | left="+recog.getLocation().left+" | right="+recog.getLocation().right);
             }
-            timeSpent = System.currentTimeMillis() - timeSpent;
-            System.out.println("Time: " + timeSpent / 1000.0f);
 
             dangerResults = new ArrayList<>();
             tmp = dangerDetector.recognizeImage(croppedBitmap);
