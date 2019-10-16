@@ -28,6 +28,7 @@ import android.util.Size;
 import android.util.TypedValue;
 import android.widget.Toast;
 
+import sharpeye.BooleanKeyValueDBHelper;
 import sharpeye.sharpeye.GPS.GPS;
 import sharpeye.sharpeye.customview.OverlayView;
 import sharpeye.sharpeye.data.SharedPreferencesHelper;
@@ -128,6 +129,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     private CurrentState currentState;
     private SignList signList;
     private GPS gps;
+    private BooleanKeyValueDBHelper kvDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,6 +148,9 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         signList = new SignList(this);
         gps = new GPS(this, findViewById(R.id.speed));
         gps.create();
+        kvDatabase = new BooleanKeyValueDBHelper(this);
+        PopupHandler starting = new PopupHandler(this, "starting_popup_fr", kvDatabase);
+        starting.NextPopup(0);
     }
 
     @Override

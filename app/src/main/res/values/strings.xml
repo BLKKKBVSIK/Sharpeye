@@ -26,6 +26,8 @@
     <!--    Variable strings    -->
     <!--                        -->
 
+    <!--    In detectorActivity   -->
+    <string name="starting_popup">starting_popup_fr</string>
     <!--    In about.xml    -->
     <string name="about_social">Réseaux sociaux</string>
     <string name="follow_twitter">Suivez nous sur Twitter</string>
