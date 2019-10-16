@@ -22,6 +22,7 @@ import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
+import android.graphics.Point;
 import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.*;
@@ -31,11 +32,13 @@ import android.media.ImageReader.OnImageAvailableListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
 import android.view.*;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 import sharpeye.sharpeye.customview.AutoFitTextureView;
 import sharpeye.sharpeye.utils.Logger;
@@ -207,8 +210,9 @@ public class CameraConnectionFragment extends Fragment {
    */
   private final int layout;
 
-
   private final ConnectionCallback cameraConnectionCallback;
+
+  private Size desiredPreviewSize;
 
   private CameraConnectionFragment(
       final ConnectionCallback connectionCallback,
@@ -219,6 +223,17 @@ public class CameraConnectionFragment extends Fragment {
     this.imageListener = imageListener;
     this.layout = layout;
     this.inputSize = inputSize;
+  }
+
+  @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    Point size = new Point();
+    getActivity().getWindowManager().getDefaultDisplay().getSize(size);
+    int x = size.x;
+    int y = size.y;
+    Log.e("CameraActivity", "sxsy="+String.valueOf(x)+"x"+String.valueOf(y));
+    desiredPreviewSize = new Size(((x > y) ? x : y), ((x > y) ? y : x));
   }
 
   /**
@@ -378,11 +393,15 @@ public class CameraConnectionFragment extends Fragment {
               inputSize.getHeight());
 
       // We fit the aspect ratio of TextureView to the size of preview we picked.
+
       final int orientation = getResources().getConfiguration().orientation;
       if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-        textureView.setAspectRatio(previewSize.getWidth(), previewSize.getHeight());
+        //textureView.setAspectRatio(previewSize.getWidth(), previewSize.getHeight());
+        textureView.setAspectRatio(desiredPreviewSize.getWidth(), desiredPreviewSize.getHeight());
+
       } else {
-        textureView.setAspectRatio(previewSize.getHeight(), previewSize.getWidth());
+        //textureView.setAspectRatio(previewSize.getHeight(), previewSize.getWidth());
+        textureView.setAspectRatio(desiredPreviewSize.getHeight(), desiredPreviewSize.getWidth());
       }
     } catch (final CameraAccessException e) {
       LOGGER.e(e, "Exception!");
