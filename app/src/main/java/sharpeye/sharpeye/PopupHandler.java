@@ -80,11 +80,13 @@ public class PopupHandler {
     public void NextPopup(int factor)
     {
         Log.d("PopupHandler NextPopup", "start");
-        if (!labels.isEmpty() && !popups.isEmpty()) {
+        if (!labels.isEmpty()) {
             if (factor == 1) {
                 database.insert(new BooleanKeyValueModel(labels.get(0), true));
                 labels.remove(0);
             }
+        }
+        if (!popups.isEmpty()) {
             Log.d("PopupHandler NextPopup", "is not empty");
             PopUpFactory tmp = popups.get(0);
             popups.remove(0);
