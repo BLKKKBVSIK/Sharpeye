@@ -33,12 +33,9 @@ import sharpeye.sharpeye.GPS.GPS;
 import sharpeye.sharpeye.customview.OverlayView;
 import sharpeye.sharpeye.data.SharedPreferencesHelper;
 import sharpeye.sharpeye.objects_logic.ObjectsProcessing;
-<<<<<<< HEAD
 import sharpeye.sharpeye.objects_logic.Speech;
-=======
 import sharpeye.sharpeye.signs.Sign;
 import sharpeye.sharpeye.tflite.SignDetector;
->>>>>>> 6b637d9e935249911d344cc57f18391bb55613ec
 import sharpeye.sharpeye.utils.BorderedText;
 import sharpeye.sharpeye.utils.CurrentState;
 import sharpeye.sharpeye.utils.ImageUtils;
@@ -133,6 +130,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     private CurrentState currentState;
     private SignList signList;
     private GPS gps;
+//    private boolean alertCollision = false;
     private BooleanKeyValueDBHelper kvDatabase;
 
     @Override
@@ -358,7 +356,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             lastRecognition = SystemClock.uptimeMillis();
         } else {
             results = tracker.update(croppedBitmap);
-            alertCollision = tracker.isAlertCollision();
+//            alertCollision = tracker.isAlertCollision();
             tracking = true;
         }
 //        if (currentState.getSpeed() > 10 && alertCollision) {
