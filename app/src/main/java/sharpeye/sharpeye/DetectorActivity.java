@@ -38,6 +38,7 @@ import sharpeye.sharpeye.customview.OverlayView;
 import sharpeye.sharpeye.customview.OverlayView.DrawCallback;
 import sharpeye.sharpeye.data.SharedPreferencesHelper;
 import sharpeye.sharpeye.objects_logic.ObjectsProcessing;
+import sharpeye.sharpeye.objects_logic.Speech;
 import sharpeye.sharpeye.utils.BorderedText;
 import sharpeye.sharpeye.utils.ImageUtils;
 import sharpeye.sharpeye.utils.Logger;
@@ -140,6 +141,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     var currentSpeed: Double = 0.toDouble()
     var kmphSpeed:Double = 0.toDouble()
     var txtview: TextView? = null*/
+    boolean alertCollision = false;
     float speed;
     double kmphSpeed;
     TextView txtview = null;
@@ -302,7 +304,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     }
 
     OverlayView trackingOverlay;
-
+    private Speech speech;
     @Override
     protected void processImage() {
         ++timestamp;
@@ -337,7 +339,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         List<Classifier.Recognition> dangerResults = null;
         final List<Classifier.Recognition> fullResults = new ArrayList<>();
         boolean tracking = false;
-        if (!initializedTracking || (startTime - lastRecognition) >= 300) {
+        if (!initializedTracking || (startTime - lastRecognition) >=2000) {
             results = new ArrayList<>();
             List<Classifier.Recognition> tmp = detector.recognizeImage(croppedBitmap);
             for (Classifier.Recognition val: tmp) {
@@ -390,8 +392,16 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             lastRecognition = SystemClock.uptimeMillis();
         } else {
             results = tracker.update(croppedBitmap);
+            alertCollision = tracker.isAlertCollision();
             tracking = true;
         }
+//        if (currentState.getSpeed() > 10 && alertCollision) {
+//            if (speech == null) {
+//                speech = new Speech(getApplicationContext());
+//            }
+//            speech.speak("Alerte collision");
+//            Log.e("Collision", "alerte collision");
+//        }
         lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime;
 
         cropCopyBitmap = Bitmap.createBitmap(croppedBitmap);
