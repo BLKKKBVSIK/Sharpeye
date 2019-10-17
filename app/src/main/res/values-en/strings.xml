@@ -84,4 +84,5 @@
     <string name="app_about">About the app</string>
     <string name="app_build">Build number</string>
     <string name="speed_counter">Waiting for GPS signal</string>
+    <string name="starting_popup">starting_popup_en</string>
 </resources>

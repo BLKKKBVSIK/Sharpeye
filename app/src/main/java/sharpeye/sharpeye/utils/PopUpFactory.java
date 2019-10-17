@@ -9,6 +9,10 @@ import android.widget.CompoundButton;
 
 import sharpeye.sharpeye.R;
 
+/**
+ * Example d'utilisation:
+ * new PopUpFactory(this).setTitle("title").setMessage("message").setPositiveButton("ok", () -> {  }).show();
+ */
 public class PopUpFactory {
 
     private AlertDialog.Builder dialogBuilder;

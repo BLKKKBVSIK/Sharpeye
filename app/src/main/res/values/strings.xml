@@ -13,8 +13,8 @@
     <string name="link_facebook" translatable="false">https://www.facebook.com/sharpeyeapp</string>
     <string name="link_instagram" translatable="false">https://www.instagram.com/sharpeye.app</string>
     <string name="link_satisfaction_form" translatable="false">https://docs.google.com/forms/d/10_PiKWYYQGnaVJz_YWOO6Ylth_3CA_zROJNyEG1jjAE/edit?usp=sharing</string>
-    <string name="mail_contact" translatable="false">mailto:contact@sharpeye.ga</string>
-    <string name="link_website" translatable="false">https://sharpeye.ga</string>
+    <string name="mail_contact" translatable="false">mailto:sharpeye.common@gmail.com</string>
+    <string name="link_website" translatable="false">https://sharpeye.app</string>
     <string name="sharpeye_twitter" translatable="false">\@Sharpeye_app</string>
     <string name="sharpeye_facebook" translatable="false">sharpeye.app</string>
     <string name="sharpeye_instagram" translatable="false">sharpeye.app</string>
@@ -26,6 +26,8 @@
     <!--    Variable strings    -->
     <!--                        -->
 
+    <!--    In detectorActivity   -->
+    <string name="starting_popup">starting_popup_fr</string>
     <!--    In about.xml    -->
     <string name="about_social">Réseaux sociaux</string>
     <string name="follow_twitter">Suivez nous sur Twitter</string>

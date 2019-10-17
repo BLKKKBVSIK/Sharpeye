@@ -1,4 +1,4 @@
-package sharpeye.sharpeye
+package sharpeye.sharpeye.GPS
 
 import android.location.Location
 

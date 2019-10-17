@@ -1,0 +1,53 @@
+{
+    "starting_popup_en": [
+        {
+            "label": "beta1",
+            "title": "Bienvenue",
+            "message": "Bonjour et merci d'avoir téléchargé Sharp'Eye\n",
+            "positive": "Suivant",
+            "negative": ""
+        },
+        {
+            "label": "beta2",
+            "title": "Bienvenue",
+            "message": "Notre but est de vous assister au mieux lors de vos trajets routiers pour contruire ensemble une route plus sûre pour tous.",
+            "positive": "Suivant",
+            "negative": ""
+        },
+        {
+            "label": "beta3",
+            "title": "Bêta",
+            "message": "Veuillez prendre en compte que l'application est en Bêta, si vous rencontrez le moindre problème, n'hésitez pas à nous le faire parvenir depuis la rubrique \"faire un retour\"",
+            "positive": "Suivant",
+            "negative": ""
+        },
+        {
+            "label": "beta3",
+            "title": "Responsabilité",
+            "message": "Nous vous rappelons qu'utiliser Sharp'Eye ne vous dispense pas de votre responsabilité en tant que conducteur",
+            "positive": "Suivant",
+            "negative": ""
+        },
+        {
+            "label": "beta4",
+            "title": "RGPD",
+            "message": "Nous ne collectons aucune donnée personelle, cependant si un problème survient avec votre application, un rapport d'erreur anonyme sera envoyé à notre équipe pour améliorer l'application",
+            "positive": "Suivant",
+            "negative": ""
+        },
+        {
+            "label": "beta5",
+            "title": "Astuce",
+            "message": "Vous pouvez à n'importe quel moment, activer ou désactiver les fonctionnalités Sharp'Eye depuis le menu",
+            "positive": "Suivant",
+            "negative": ""
+        },
+        {
+            "label": "beta6",
+            "title": "Réseaux",
+            "message": "N'hésitez pas à rejoindre nos résaux sociaux depuis l'onglet \"à propos\"",
+            "positive": "Avec plaisir",
+            "negative": "je suis méchant"
+        }
+    ]
+}

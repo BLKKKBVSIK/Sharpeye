@@ -8,16 +8,13 @@ import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.preference.ListPreference
-import android.preference.Preference
-import android.preference.PreferenceActivity
-import android.preference.PreferenceFragment
-import android.preference.PreferenceManager
-import android.preference.RingtonePreference
+import android.preference.*
 import android.support.annotation.RequiresApi
 import android.text.TextUtils
 import android.view.MenuItem
 import android.support.v4.app.NavUtils
+import sharpeye.sharpeye.utils.App
+import sharpeye.sharpeye.utils.Phone
 
 
 /**
@@ -95,8 +92,10 @@ class SettingsActivity : AppCompatPreferenceActivity() {
             addPreferencesFromResource(R.xml.about)
             setHasOptionsMenu(true)
             activity.title = resources.getString(R.string.nav_about)
-            preferenceManager.findPreference("versionName").summary = BuildConfig.VERSION_NAME + "-" + BuildConfig.BUILD_TYPE
-            preferenceManager.findPreference("versionCode").summary = BuildConfig.VERSION_CODE.toString()
+            val prefVersionName = preferenceManager.findPreference("versionName")
+            if (prefVersionName != null) prefVersionName.summary = BuildConfig.VERSION_NAME + "-" + BuildConfig.BUILD_TYPE
+            val prefVersionCode = preferenceManager.findPreference("versionCode")
+            if (prefVersionCode != null) prefVersionCode.summary = BuildConfig.VERSION_CODE.toString()
         }
 
         @RequiresApi(Build.VERSION_CODES.M)
@@ -192,9 +191,17 @@ class SettingsActivity : AppCompatPreferenceActivity() {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             addPreferencesFromResource(R.xml.report)
+            var intent = composeEmail(Array(1){"sharpeye.common@gmail.com"}, "Manual Bug report",
+                "Phone Model: " + Phone.getDeviceName() + "\n" +
+                        "Build Number: " + App.BuildNumber() + "\n" +
+                        "App version: " + App.FullVersionName() + "\n\n" +
+                        "Décrivez votre problème:\n")
             setHasOptionsMenu(true)
             activity.title = resources.getString(R.string.nav_feedback)
+            val prefContact = preferenceManager.findPreference("contact")
+            if (prefContact != null) prefContact.intent = intent
         }
+
 
         override fun onOptionsItemSelected(item: MenuItem): Boolean {
             val id = item.itemId
@@ -203,6 +210,16 @@ class SettingsActivity : AppCompatPreferenceActivity() {
                 return true
             }
             return super.onOptionsItemSelected(item)
+        }
+
+        //create the mail intent that can only be sent with email app
+        private fun composeEmail(addresses: Array<String>, subject: String, text: String) : Intent{
+            return Intent(Intent.ACTION_SENDTO).apply {
+                data = Uri.parse("mailto:")
+                putExtra(Intent.EXTRA_EMAIL, addresses)
+                putExtra(Intent.EXTRA_SUBJECT, subject)
+                putExtra(Intent.EXTRA_TEXT, text)
+            }
         }
     }
 

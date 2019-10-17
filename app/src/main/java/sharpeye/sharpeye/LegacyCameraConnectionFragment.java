@@ -17,12 +17,15 @@ package sharpeye.sharpeye;
  */
 
 import android.app.Fragment;
+import android.graphics.Point;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.support.annotation.Nullable;
+import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
 import android.view.*;
@@ -39,6 +42,9 @@ public class LegacyCameraConnectionFragment extends Fragment {
   private Camera.PreviewCallback imageListener;
   private Size desiredSize;
 
+  private Size desiredPreviewSize;
+
+
   /**
    * The layout identifier to inflate for this Fragment.
    */
@@ -49,6 +55,17 @@ public class LegacyCameraConnectionFragment extends Fragment {
     this.imageListener = imageListener;
     this.layout = layout;
     this.desiredSize = desiredSize;
+  }
+
+  @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    Point size = new Point();
+    getActivity().getWindowManager().getDefaultDisplay().getSize(size);
+    int x = size.x;
+    int y = size.y;
+    Log.e("CameraActivity", "xy="+String.valueOf(x)+"x"+String.valueOf(y));
+    desiredPreviewSize = new Size(((x > y) ? x : y), ((x > y) ? y : x));
   }
 
   /**
@@ -95,7 +112,8 @@ public class LegacyCameraConnectionFragment extends Fragment {
     Camera.Size s = camera.getParameters().getPreviewSize();
     camera.addCallbackBuffer(new byte[ImageUtils.getYUVByteSize(s.height, s.width)]);
 
-    textureView.setAspectRatio(s.height, s.width);
+    textureView.setAspectRatio(desiredPreviewSize.getWidth(), desiredPreviewSize.getHeight());
+    //textureView.setAspectRatio(s.height, s.width);
 
     camera.startPreview();
   }
