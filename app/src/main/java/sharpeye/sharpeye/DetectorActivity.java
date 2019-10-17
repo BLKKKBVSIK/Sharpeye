@@ -320,7 +320,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         List<Classifier.Recognition> dangerResults = null;
         final List<Classifier.Recognition> fullResults = new ArrayList<>();
         boolean tracking = false;
-        if (!initializedTracking || (startTime - lastRecognition) >=2000) {
+        if (!initializedTracking || (startTime - lastRecognition) >=300) {
             results = new ArrayList<>();
             List<Classifier.Recognition> tmp = signClassifier.detectSign(rgbOrientedBitmap, MINIMUM_CONFIDENCE_TF_OD_API);
             for (Classifier.Recognition val: tmp) {
