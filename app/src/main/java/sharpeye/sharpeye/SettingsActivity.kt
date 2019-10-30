@@ -13,6 +13,7 @@ import android.support.annotation.RequiresApi
 import android.text.TextUtils
 import android.view.MenuItem
 import android.support.v4.app.NavUtils
+import sharpeye.sharpeye.utils.Android
 import sharpeye.sharpeye.utils.App
 import sharpeye.sharpeye.utils.Phone
 
@@ -193,6 +194,7 @@ class SettingsActivity : AppCompatPreferenceActivity() {
             addPreferencesFromResource(R.xml.report)
             var intent = composeEmail(Array(1){"sharpeye.common@gmail.com"}, "Manual Bug report",
                 "Phone Model: " + Phone.getDeviceName() + "\n" +
+                        "Android versions: " + Android.getAndroidVersion() + "\n" +
                         "Build Number: " + App.BuildNumber() + "\n" +
                         "App version: " + App.FullVersionName() + "\n\n" +
                         "Décrivez votre problème:\n")
