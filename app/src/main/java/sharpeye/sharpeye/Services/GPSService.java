@@ -95,6 +95,7 @@ public class GPSService extends Service implements GPSCallback {
 
     @Override
     public void onGPSUpdate(Location location) {
+
         double speed = location.getSpeed() * 3.6f;
         currentState.setSpeed(round(speed, 3, BigDecimal.ROUND_HALF_UP));
         if (currentState != null && currentState.getSpeedLimit() != 0) {

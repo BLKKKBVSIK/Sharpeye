@@ -24,6 +24,7 @@ import sharpeye.sharpeye.utils.CurrentState;
 import sharpeye.sharpeye.R;
 import sharpeye.sharpeye.Services.GPSService;
 import sharpeye.sharpeye.data.SharedPreferencesHelper;
+import sharpeye.sharpeye.utils.Font;
 import sharpeye.sharpeye.utils.ServiceTools;
 
 public class GPS {
@@ -46,6 +47,7 @@ public class GPS {
     public void create()
     {
         textview.setVisibility(View.VISIBLE);
+        Font.setForTextView(context.getApplicationContext(), Font.FontList.CHARACTERE, textview);
         locationManager = (LocationManager) context.getSystemService(context.LOCATION_SERVICE);
         if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(context,"speed_display",false)) {
             initializeGPS();
