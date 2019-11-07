@@ -125,4 +125,5 @@
     <string name="nav_feedback">Faire un retour</string>
 
     <string name="speed_counter">En attente d\'un signal GPS</string>
+    <string name="gps_settings">Options GPS</string>
 </resources>

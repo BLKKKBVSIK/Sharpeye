@@ -182,7 +182,7 @@ public class GPS {
     private void showSettingsAlert(){
         Log.d("showSettingsAlert", "start");
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
-        alertDialog.setTitle("GPS settings");//TODO internationaliser
+        alertDialog.setTitle(R.string.gps_settings);//TODO internationaliser
         alertDialog.setMessage("GPS is not enabled. Do you want to go to settings menu?");//TODO internationaliser
         alertDialog.setPositiveButton("Settings", (dialog, which) -> {
             Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
