@@ -2,52 +2,52 @@
     "starting_popup_en": [
         {
             "label": "beta1",
-            "title": "Bienvenue",
-            "message": "Bonjour et merci d'avoir téléchargé Sharp'Eye\n",
-            "positive": "Suivant",
+            "title": "Welcome",
+            "message": "Welcome and thank you for downloading Sharp'Eye.\n",
+            "positive": "Next",
             "negative": ""
         },
         {
             "label": "beta2",
-            "title": "Bienvenue",
-            "message": "Notre but est de vous assister au mieux lors de vos trajets routiers pour contruire ensemble une route plus sûre pour tous.",
-            "positive": "Suivant",
+            "title": "Welcome",
+            "message": "Our goal is to assist you during your daily road trip to make the road a safer place.",
+            "positive": "Next",
             "negative": ""
         },
         {
             "label": "beta3",
-            "title": "Bêta",
-            "message": "Veuillez prendre en compte que l'application est en Bêta, si vous rencontrez le moindre problème, n'hésitez pas à nous le faire parvenir depuis la rubrique \"faire un retour\"",
-            "positive": "Suivant",
+            "title": "Beta",
+            "message": "Please keep in mind that the app is currently in beta, if you encounter any problem, please send it to us by using the \"feedback\" section.",
+            "positive": "Next",
             "negative": ""
         },
         {
             "label": "beta3",
-            "title": "Responsabilité",
-            "message": "Nous vous rappelons qu'utiliser Sharp'Eye ne vous dispense pas de votre responsabilité en tant que conducteur",
-            "positive": "Suivant",
+            "title": "Responsability",
+            "message": "We remind you that using Sharp'Eye do not exempt you from your duties as a driver.",
+            "positive": "Next",
             "negative": ""
         },
         {
             "label": "beta4",
-            "title": "RGPD",
-            "message": "Nous ne collectons aucune donnée personelle, cependant si un problème survient avec votre application, un rapport d'erreur anonyme sera envoyé à notre équipe pour améliorer l'application",
-            "positive": "Suivant",
+            "title": "GDPR",
+            "message": "We don't collect any personal data, however if a problem occurs on your app, an error report will be sent to us, to improve Sharp'eye.",
+            "positive": "Next",
             "negative": ""
         },
         {
             "label": "beta5",
-            "title": "Astuce",
-            "message": "Vous pouvez à n'importe quel moment, activer ou désactiver les fonctionnalités Sharp'Eye depuis le menu",
-            "positive": "Suivant",
+            "title": "Tips",
+            "message": "You can at anytime, enable or disable the Sharp'Eye features from the menu.",
+            "positive": "Next",
             "negative": ""
         },
         {
             "label": "beta6",
-            "title": "Réseaux",
-            "message": "N'hésitez pas à rejoindre nos résaux sociaux depuis l'onglet \"à propos\"",
-            "positive": "Avec plaisir",
-            "negative": "je suis méchant"
+            "title": "Network",
+            "message": "Feel free to join our social networks from the tab \"about\".",
+            "positive": "Yes",
+            "negative": "No thanks"
         }
     ]
 }
