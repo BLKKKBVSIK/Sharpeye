@@ -17,7 +17,7 @@
         {
             "label": "beta3",
             "title": "Beta",
-            "message": "Please keep in mind that the app is currently in beta, if you encounter any problem, please send it to us by using the \"feedback\" section.",
+            "message": "Please keep in mind that the app is currently in beta, if you encounter any problem, please make a report by using the \"feedback\" section.",
             "positive": "Next",
             "negative": ""
         },
@@ -31,7 +31,7 @@
         {
             "label": "beta4",
             "title": "GDPR",
-            "message": "We don't collect any personal data, however if a problem occurs on your app, an error report will be sent to us, to improve Sharp'eye.",
+            "message": "We don't collect any personal data, however if a problem occurs on your app, an error report will be sent to us to improve Sharp'eye.",
             "positive": "Next",
             "negative": ""
         },
