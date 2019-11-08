@@ -43,7 +43,7 @@
     <string name="tos" translatable="false">CGU</string>
 
     <!--    In pref_dangers.xml     -->
-    <string name="active_danger_detection">Activer la detection de dangers</string>
+    <string name="active_danger_detection">Activer la détection de dangers</string>
     <string name="danger_detection_summary">Avertira le conducteur d\'un danger détecté</string>
 
     <!--    In pref_dashcam.xml     -->
@@ -125,4 +125,10 @@
     <string name="nav_feedback">Faire un retour</string>
 
     <string name="speed_counter">En attente d\'un signal GPS</string>
+    <string name="gps_settings">Options GPS</string>
+    <string name="settings">Options</string>
+    <string name="cancel">Annuler</string>
+    <string name="gps_go_settings">Le GPS n\'est pas activé. Voulez vous aller dans le menu d\'option ?</string>
+    <string name="disable_speed_features">Désactiver les options de vitesse</string>
+
 </resources>

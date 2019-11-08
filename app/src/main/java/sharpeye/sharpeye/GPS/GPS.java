@@ -182,16 +182,16 @@ public class GPS {
     private void showSettingsAlert(){
         Log.d("showSettingsAlert", "start");
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
-        alertDialog.setTitle("GPS settings");//TODO internationaliser
-        alertDialog.setMessage("GPS is not enabled. Do you want to go to settings menu?");//TODO internationaliser
-        alertDialog.setPositiveButton("Settings", (dialog, which) -> {
+        alertDialog.setTitle(R.string.gps_settings);
+        alertDialog.setMessage(R.string.gps_go_settings);
+        alertDialog.setPositiveButton(R.string.settings, (dialog, which) -> {
             Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
             context.startActivity(intent);
         });
-        alertDialog.setNegativeButton("Cancel", (dialog, which) -> {//TODO internationaliser
+        alertDialog.setNegativeButton(R.string.cancel, (dialog, which) -> {
             dialog.cancel();
             turnOffGpsPreferences();
-            CharSequence text = "turning off speed features";//TODO internationaliser
+            CharSequence text = context.getString(R.string.disable_speed_features);
             int duration = Toast.LENGTH_SHORT;
             Toast.makeText(context, text, duration).show();
         });
