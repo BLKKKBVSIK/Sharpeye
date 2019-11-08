@@ -10,7 +10,7 @@
         {
             "label": "beta2",
             "title": "Welcome",
-            "message": "Our goal is to assist you during your daily road trip to make the road a safer place.",
+            "message": "Our goal is to assist you during your daily road trips to make the road a safer place.",
             "positive": "Next",
             "negative": ""
         },
