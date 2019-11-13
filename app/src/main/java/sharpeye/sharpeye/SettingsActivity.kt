@@ -28,6 +28,7 @@ import sharpeye.sharpeye.utils.Phone
  * for design guidelines and the [Settings API Guide](http://developer.android.com/guide/topics/ui/settings.html)
  * for more information on developing a Settings UI.
  */
+@Suppress("DEPRECATION")
 class SettingsActivity : AppCompatPreferenceActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -192,7 +193,7 @@ class SettingsActivity : AppCompatPreferenceActivity() {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             addPreferencesFromResource(R.xml.report)
-            var intent = composeEmail(Array(1){"sharpeye.common@gmail.com"}, "Manual Bug report",
+            val intent = composeEmail(Array(1){"sharpeye.common@gmail.com"}, "Manual Bug report",
                 "Phone Model: " + Phone.getDeviceName() + "\n" +
                         "Android versions: " + Android.getAndroidVersion() + "\n" +
                         "Build Number: " + App.BuildNumber() + "\n" +
