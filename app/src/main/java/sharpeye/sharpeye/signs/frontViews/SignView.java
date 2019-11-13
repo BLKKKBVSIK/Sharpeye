@@ -2,7 +2,6 @@ package sharpeye.sharpeye.signs.frontViews;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Color;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -10,6 +9,10 @@ import android.widget.TextView;
 import sharpeye.sharpeye.R;
 import sharpeye.sharpeye.utils.Font;
 
+
+/**
+ * FrontView dealing with the sign for speed limits
+ */
 public class SignView implements IFrontViews {
     public TextView tvLimit;
     public ImageView emptySign;

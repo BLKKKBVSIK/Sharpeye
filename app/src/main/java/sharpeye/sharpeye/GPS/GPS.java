@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.IBinder;
@@ -21,14 +20,10 @@ import android.widget.Toast;
 import java.util.List;
 
 import sharpeye.sharpeye.signs.frontManagers.FrontElementManager;
-import sharpeye.sharpeye.signs.frontViews.IFrontViews;
-import sharpeye.sharpeye.signs.frontViews.SignView;
-import sharpeye.sharpeye.signs.frontViews.SpeedView;
 import sharpeye.sharpeye.utils.CurrentState;
 import sharpeye.sharpeye.R;
 import sharpeye.sharpeye.Services.GPSService;
 import sharpeye.sharpeye.data.SharedPreferencesHelper;
-import sharpeye.sharpeye.utils.Font;
 import sharpeye.sharpeye.utils.ServiceTools;
 
 public class GPS {
@@ -42,9 +37,6 @@ public class GPS {
     private boolean mBound = false;
     private LocationManager locationManager;
 
-    //private SignView signViews;
-    //private SpeedView speedView;
-    //private List<IFrontViews> views;
     private List<FrontElementManager> frontManagers;
 
     public GPS(Context _context, List<FrontElementManager> _frontManagers)
@@ -65,8 +57,6 @@ public class GPS {
     {
         Log.d("gpsresume", "start");
         if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(context,"speed_display",false)) {
-            //signViews.setSpeedVisible();
-            //signViews.tvSpeed.setText(context.getString(R.string.speed_counter));
             if (mBound) {
                 mService.setCurrentState(currentState);
                 currentState = mService.getCurrentState();
@@ -74,7 +64,6 @@ public class GPS {
             if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)  && GpsOnAlertAlreadyInflated) {
                 turnOffGpsPreferences();
                 stopService();
-                //signViews.setSpeedVisible();
                 Log.d("gpsresume", "gps not enabled");
             }
             else if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
@@ -82,16 +71,13 @@ public class GPS {
             {
                 turnOffGpsPreferences();
                 stopService();
-                //signViews.setInvisible();
                 Log.d("gpsresume", "unauthorized");
             } else if (!ServiceTools.isServiceRunning("GPSService", context)) {
                 startService();
-                //signViews.setSpeedVisible();
                 Log.d("gpsresume", "restart service");
             }
         }
         else {
-            //signViews.setInvisible();
             stopService();
         }
         Log.d("gpsresume", "end");
@@ -141,8 +127,6 @@ public class GPS {
     public void initializeGPS(){
         Log.d("gpsinitializeGPS", "start");
         startService();
-        //signViews.tvSpeed.setText(context.getString(R.string.speed_counter));
-        //signViews.setVisible();
         Log.d("gpsinitializeGPS", "end");
     }
 
@@ -184,22 +168,21 @@ public class GPS {
     {
         SharedPreferencesHelper.INSTANCE.setSharedPreferencesBoolean(context,"speed_display",false);
         SharedPreferencesHelper.INSTANCE.setSharedPreferencesBoolean(context,"speed_control",false);
-        //signViews.setInvisible();
     }
 
     private void showSettingsAlert(){
         Log.d("showSettingsAlert", "start");
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
-        alertDialog.setTitle("GPS settings");
-        alertDialog.setMessage("GPS is not enabled. Do you want to go to settings menu?");
-        alertDialog.setPositiveButton("Settings", (dialog, which) -> {
+        alertDialog.setTitle(R.string.gps_settings);
+        alertDialog.setMessage(R.string.gps_go_settings);
+        alertDialog.setPositiveButton(R.string.settings, (dialog, which) -> {
             Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
             context.startActivity(intent);
         });
-        alertDialog.setNegativeButton("Cancel", (dialog, which) -> {
+        alertDialog.setNegativeButton(R.string.cancel, (dialog, which) -> {
             dialog.cancel();
             turnOffGpsPreferences();
-            CharSequence text = "turning off speed features";
+            CharSequence text = context.getString(R.string.disable_speed_features);
             int duration = Toast.LENGTH_SHORT;
             Toast.makeText(context, text, duration).show();
         });

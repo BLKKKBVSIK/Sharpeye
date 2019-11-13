@@ -16,7 +16,6 @@
 
 package sharpeye.sharpeye;
 
-import android.app.Activity;
 import android.graphics.*;
 import android.graphics.Bitmap.Config;
 import android.graphics.Paint.Style;
@@ -24,8 +23,6 @@ import android.media.ImageReader.OnImageAvailableListener;
 import android.os.Bundle;
 import android.os.SystemClock;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.Size;
 import android.util.TypedValue;
@@ -38,7 +35,6 @@ import sharpeye.sharpeye.data.SharedPreferencesHelper;
 import sharpeye.sharpeye.objects_logic.ObjectsProcessing;
 import sharpeye.sharpeye.objects_logic.Speech;
 import sharpeye.sharpeye.signs.Sign;
-import sharpeye.sharpeye.signs.frontManagers.FrontElementManager;
 import sharpeye.sharpeye.signs.frontManagers.SignViewManager;
 import sharpeye.sharpeye.signs.frontManagers.SpeedViewManager;
 import sharpeye.sharpeye.signs.frontViews.SignView;
@@ -57,11 +53,8 @@ import sharpeye.sharpeye.tracking.Tracker;
 import java.io.IOException;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 
 
 /**
@@ -141,7 +134,6 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     private CurrentState currentState;
     private SignList signList;
     private GPS gps;
-//    private boolean alertCollision = false;
     private BooleanKeyValueDBHelper kvDatabase;
 
     @Override

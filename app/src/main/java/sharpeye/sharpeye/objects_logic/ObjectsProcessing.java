@@ -47,12 +47,12 @@ public class ObjectsProcessing {
     public void processDetectedObject(Classifier.Recognition object) {
         try {
             if (warningEvent != null && !objectsProcessed.contains(object.getOpencvID())) {
-                if (objectsFalsePositiveVerification.contains(object.getOpencvID())) {
+                //if (objectsFalsePositiveVerification.contains(object.getOpencvID())) {
                     warningEvent.triggerWarning(object.getTitle());
                     objectsProcessed.add(object.getOpencvID());
-                } else {
-                    objectsFalsePositiveVerification.add(object.getOpencvID());
-                }
+                //} else {
+                //    objectsFalsePositiveVerification.add(object.getOpencvID());
+                //}
             }
         } catch (NullPointerException ex) {
             Log.e("Detector", "WarningEvent already cleaned");

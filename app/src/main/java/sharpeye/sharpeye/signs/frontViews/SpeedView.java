@@ -9,6 +9,9 @@ import android.widget.TextView;
 import sharpeye.sharpeye.R;
 import sharpeye.sharpeye.utils.Font;
 
+/**
+ * FrontView dealing with the text for Speed counter
+ */
 public class SpeedView implements IFrontViews {
 
     public TextView tvSpeed;

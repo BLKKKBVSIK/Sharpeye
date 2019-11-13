@@ -23,9 +23,13 @@ public class SpeedViewManager extends FrontElementManager {
         frontViews.setFont(Font.FontList.CHARACTERE);
     }
 
+    /**
+     * called for updating the front element
+     * @param currentState instance of current state object
+     */
     @Override
     public void update(CurrentState currentState) {
-        boolean pref = getSharedPrefences();
+        boolean pref = getSharedPreferences();
         if (isVisible) {
             if (!pref) {
                 frontViews.setInvisible();
@@ -50,7 +54,10 @@ public class SpeedViewManager extends FrontElementManager {
         }
     }
 
-    private Boolean getSharedPrefences()
+    /**
+     * @return A boolean value if/not the feature is allowed
+     */
+    private Boolean getSharedPreferences()
     {
         return SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(context, "speed_display", false);
     }
