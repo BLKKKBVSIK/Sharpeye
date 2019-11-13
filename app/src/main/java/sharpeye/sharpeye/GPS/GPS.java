@@ -16,10 +16,14 @@ import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.List;
+
+import sharpeye.sharpeye.signs.frontManagers.FrontElementManager;
+import sharpeye.sharpeye.signs.frontViews.IFrontViews;
+import sharpeye.sharpeye.signs.frontViews.SignView;
+import sharpeye.sharpeye.signs.frontViews.SpeedView;
 import sharpeye.sharpeye.utils.CurrentState;
 import sharpeye.sharpeye.R;
 import sharpeye.sharpeye.Services.GPSService;
@@ -33,21 +37,24 @@ public class GPS {
     private boolean GPSPermissionAlreadyInflated = false;
     private Intent i;
     private Context context;
-    private TextView textview;
+
     private GPSService mService;
     private boolean mBound = false;
     private LocationManager locationManager;
 
-    public GPS(Context _context, TextView _textview)
+    //private SignView signViews;
+    //private SpeedView speedView;
+    //private List<IFrontViews> views;
+    private List<FrontElementManager> frontManagers;
+
+    public GPS(Context _context, List<FrontElementManager> _frontManagers)
     {
         context = _context;
-        textview = _textview;
+        frontManagers = _frontManagers;
     }
 
     public void create()
     {
-        textview.setVisibility(View.VISIBLE);
-        Font.setForTextView(context.getApplicationContext(), Font.FontList.CHARACTERE, textview);
         locationManager = (LocationManager) context.getSystemService(context.LOCATION_SERVICE);
         if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(context,"speed_display",false)) {
             initializeGPS();
@@ -58,8 +65,8 @@ public class GPS {
     {
         Log.d("gpsresume", "start");
         if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(context,"speed_display",false)) {
-            textview.setVisibility(View.VISIBLE);
-            textview.setText(context.getString(R.string.speed_counter));
+            //signViews.setSpeedVisible();
+            //signViews.tvSpeed.setText(context.getString(R.string.speed_counter));
             if (mBound) {
                 mService.setCurrentState(currentState);
                 currentState = mService.getCurrentState();
@@ -67,7 +74,7 @@ public class GPS {
             if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)  && GpsOnAlertAlreadyInflated) {
                 turnOffGpsPreferences();
                 stopService();
-                textview.setVisibility(View.INVISIBLE);
+                //signViews.setSpeedVisible();
                 Log.d("gpsresume", "gps not enabled");
             }
             else if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
@@ -75,16 +82,16 @@ public class GPS {
             {
                 turnOffGpsPreferences();
                 stopService();
-                textview.setVisibility(View.INVISIBLE);
+                //signViews.setInvisible();
                 Log.d("gpsresume", "unauthorized");
             } else if (!ServiceTools.isServiceRunning("GPSService", context)) {
                 startService();
-                textview.setVisibility(View.VISIBLE);
+                //signViews.setSpeedVisible();
                 Log.d("gpsresume", "restart service");
             }
         }
         else {
-            textview.setVisibility(View.INVISIBLE);//TODO check tous les droits.
+            //signViews.setInvisible();
             stopService();
         }
         Log.d("gpsresume", "end");
@@ -134,7 +141,8 @@ public class GPS {
     public void initializeGPS(){
         Log.d("gpsinitializeGPS", "start");
         startService();
-        textview.setText(context.getString(R.string.speed_counter));
+        //signViews.tvSpeed.setText(context.getString(R.string.speed_counter));
+        //signViews.setVisible();
         Log.d("gpsinitializeGPS", "end");
     }
 
@@ -144,9 +152,11 @@ public class GPS {
             mService.setCurrentState(currentState);
             currentState = mService.getCurrentState();
         }
-        CurrentState finalCurrentState = currentState;
+
         Log.d("GPS process", "gps enables: " + currentState.getGPSenabled() + " " + locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) +
                 "\nPermission: " + ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION));
+
+        CurrentState finalCurrentState = currentState;
         activity.runOnUiThread(() -> {
             if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) && !GpsOnAlertAlreadyInflated)
             {
@@ -160,17 +170,13 @@ public class GPS {
                 stopService();
                 ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 101);
                 GPSPermissionAlreadyInflated = true;
-            } else if (finalCurrentState.getGPSenabled() && finalCurrentState.getGPSPermission()) {
-                textview.setText(finalCurrentState.getSpeed() +"km/h");
-                if (finalCurrentState.getSpeed() > finalCurrentState.getSpeedLimit()) {
-                    textview.setTextColor(Color.rgb(255, 0, 0));
-                } else if (finalCurrentState.getSpeed() >= finalCurrentState.getSpeedLimit() * 0.95) {
-                    textview.setTextColor(Color.rgb(255, 165, 0));
-                } else {
-                    textview.setTextColor(Color.rgb(255, 255, 255));
-                }
+            }
+            for (FrontElementManager frontManager: frontManagers) {
+                frontManager.update(finalCurrentState);
             }
         });
+
+
         return currentState;
     }
 
@@ -178,22 +184,22 @@ public class GPS {
     {
         SharedPreferencesHelper.INSTANCE.setSharedPreferencesBoolean(context,"speed_display",false);
         SharedPreferencesHelper.INSTANCE.setSharedPreferencesBoolean(context,"speed_control",false);
-        textview.setVisibility(View.INVISIBLE);
+        //signViews.setInvisible();
     }
 
     private void showSettingsAlert(){
         Log.d("showSettingsAlert", "start");
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
-        alertDialog.setTitle("GPS settings");//TODO internationaliser
-        alertDialog.setMessage("GPS is not enabled. Do you want to go to settings menu?");//TODO internationaliser
+        alertDialog.setTitle("GPS settings");
+        alertDialog.setMessage("GPS is not enabled. Do you want to go to settings menu?");
         alertDialog.setPositiveButton("Settings", (dialog, which) -> {
             Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
             context.startActivity(intent);
         });
-        alertDialog.setNegativeButton("Cancel", (dialog, which) -> {//TODO internationaliser
+        alertDialog.setNegativeButton("Cancel", (dialog, which) -> {
             dialog.cancel();
             turnOffGpsPreferences();
-            CharSequence text = "turning off speed features";//TODO internationaliser
+            CharSequence text = "turning off speed features";
             int duration = Toast.LENGTH_SHORT;
             Toast.makeText(context, text, duration).show();
         });

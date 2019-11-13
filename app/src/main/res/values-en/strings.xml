@@ -85,4 +85,7 @@
     <string name="app_build">Build number</string>
     <string name="speed_counter">Waiting for GPS signal</string>
     <string name="starting_popup">starting_popup_en</string>
+    <string name="empty_sign">emtpy sign</string>
+    <string name="active_speed_display">Displays the speed</string>
+    <string name="speed_display_summary">Displays vehicle\'s current speed</string>
 </resources>

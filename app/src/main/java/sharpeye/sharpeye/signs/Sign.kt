@@ -15,6 +15,4 @@ class Sign(_name : String, _id : Int, _kind: SignKind, _speed : Int, _additional
         this.speed = _speed
         this.additionalInfos = _additionalInfo
     }
-
-
 }

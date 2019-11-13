@@ -16,6 +16,7 @@
 
 package sharpeye.sharpeye;
 
+import android.app.Activity;
 import android.graphics.*;
 import android.graphics.Bitmap.Config;
 import android.graphics.Paint.Style;
@@ -23,6 +24,8 @@ import android.media.ImageReader.OnImageAvailableListener;
 import android.os.Bundle;
 import android.os.SystemClock;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.Size;
 import android.util.TypedValue;
@@ -35,6 +38,11 @@ import sharpeye.sharpeye.data.SharedPreferencesHelper;
 import sharpeye.sharpeye.objects_logic.ObjectsProcessing;
 import sharpeye.sharpeye.objects_logic.Speech;
 import sharpeye.sharpeye.signs.Sign;
+import sharpeye.sharpeye.signs.frontManagers.FrontElementManager;
+import sharpeye.sharpeye.signs.frontManagers.SignViewManager;
+import sharpeye.sharpeye.signs.frontManagers.SpeedViewManager;
+import sharpeye.sharpeye.signs.frontViews.SignView;
+import sharpeye.sharpeye.signs.frontViews.SpeedView;
 import sharpeye.sharpeye.tflite.SignDetector;
 import sharpeye.sharpeye.utils.BorderedText;
 import sharpeye.sharpeye.utils.CurrentState;
@@ -49,8 +57,11 @@ import sharpeye.sharpeye.tracking.Tracker;
 import java.io.IOException;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 
 
 /**
@@ -148,7 +159,12 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             tracker.init();
         currentState = new CurrentState();
         signList = new SignList(this);
-        gps = new GPS(this, findViewById(R.id.speed));
+        Log.e("detrector activity", "avant array list");
+        ArrayList frontElementManagers = new ArrayList();
+        frontElementManagers.add(new SignViewManager(this, new SignView(this), false));
+        frontElementManagers.add(new SpeedViewManager(this, new SpeedView(this), false));
+        gps = new GPS(this,frontElementManagers);
+        Log.e("detrector activity", "après speedview");
         gps.create();
         kvDatabase = new BooleanKeyValueDBHelper(this);
         PopupHandler starting = new PopupHandler(this, "starting_popup_fr", kvDatabase);

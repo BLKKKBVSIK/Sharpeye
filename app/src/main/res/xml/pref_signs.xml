@@ -1,28 +1,41 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <SwitchPreference
+    <PreferenceCategory
+        android:key="speed_features"
+        android:title="@string/nav_speed_features">
+        <SwitchPreference
             android:key="signs_on"
             android:title="@string/active_sign_recognition"
             android:summary="@string/sign_recognition_summary"
             android:defaultValue="true"/>
+        <!--<SwitchPreference
+            android:key="api_speed_limit"
+            android:title="@string/active_api_speed_limit_retrieving"
+            android:summary="@string/api_speed_limit_retrieving_summary"
+            android:defaultValue="true"/>-->
+    </PreferenceCategory>
 
-    <SwitchPreference
+    <PreferenceCategory
+        android:key="speed_display_features"
+        android:title="@string/nav_speed_display_features">
+        <SwitchPreference
             android:key="speed_display"
             android:title="@string/active_speed_display"
             android:summary="@string/speed_display_summary"
             android:defaultValue="true"/>
-
-    <SwitchPreference
+        <SwitchPreference
+            android:key="sign_display"
+            android:title="@string/active_sign_display"
+            android:summary="@string/sign_display_summary"
+            android:defaultValue="true"
+            android:visibility="invisible"/>
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="speed_alert_features"
+        android:title="@string/nav_speed_alert_features">
+        <SwitchPreference
             android:key="speed_control"
             android:title="@string/active_speed_reminder"
             android:summary="@string/speed_reminder_summary"
             android:defaultValue="true"/>
-
-    <!--<RingtonePreference
-            android:dependency="notifications_new_message"
-            android:key="notifications_new_message_ringtone"
-            android:title="Son d'alerte"
-            android:ringtoneType="notification"
-            android:defaultValue="content://settings/system/notification_sound"/>-->
-
+    </PreferenceCategory>
 </PreferenceScreen>

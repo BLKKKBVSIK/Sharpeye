@@ -123,7 +123,6 @@ class BooleanKeyValueDBHelper(context: Context) : DBHelper<BooleanKeyValueModel>
 
         private val SQL_CREATE_ENTRIES =
             "CREATE TABLE " + DBBooleanKeyValueContract.BooleanEntry.TABLE_NAME + " ("+
-                    /*"id INT PRIMARY KEY AUTOINCREMENT " +*/
                     DBBooleanKeyValueContract.BooleanEntry.COLUMN_KEY + " TEXT PRIMARY KEY," +
                     DBBooleanKeyValueContract.BooleanEntry.COLUMN_VALUE + " INT)"
 
