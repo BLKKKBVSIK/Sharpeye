@@ -3,10 +3,11 @@ package sharpeye.sharpeye.utils
 import android.util.Log
 import sharpeye.sharpeye.signs.Sign
 import sharpeye.sharpeye.signs.SignKind
-import kotlin.math.E
 
-//Made to log all the current state of the user/vehicule
-public class CurrentState {
+/**
+ * Made to log all the current state of the user/vehicule
+ */
+class CurrentState {
     var speed : Double = 0.0
     var isSpeed : Boolean = false
     var speedLimit :Int = 1000
@@ -15,6 +16,10 @@ public class CurrentState {
     var GPSenabled : Boolean = true
     var GPSPermission : Boolean = true
 
+    /**
+     * Adds a sign for the previousSigns variable
+     * @param sign a Sign object to add to the list
+     */
     fun addSign(sign : Sign){
 
         if (sign.kind == SignKind.SPEEDLIMIT)

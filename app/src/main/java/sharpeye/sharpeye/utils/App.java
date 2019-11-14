@@ -9,7 +9,7 @@ public class App {
 
     /**
      * returns the build number of the app
-     * @return <Type>String</Type> The build number
+     * @return The build number
      */
     public static String BuildNumber()
     {
@@ -18,7 +18,7 @@ public class App {
 
     /**
      * returns the full version name format VersionName - Type of the build (debug/release...)
-     * @return <Type>String</Type> the version name
+     * @return the version name
      */
     public  static String FullVersionName()
     {
@@ -27,7 +27,7 @@ public class App {
 
     /**
      * returns the version name
-     * @return <Type>String</Type> the version name
+     * @return the version name
      */
     public static String VersionName()
     {

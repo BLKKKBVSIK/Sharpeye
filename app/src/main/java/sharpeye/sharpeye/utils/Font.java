@@ -7,13 +7,25 @@ import android.widget.TextView;
 
 import java.util.Locale;
 
+/**
+ * Adds functions to deal with fonts
+ */
 public class Font {
 
+    /**
+     * Enum of all the available fonts to change
+     */
     public enum FontList
     {
         CHARACTERE
     }
 
+    /**
+     * Changes the font of a given textView
+     * @param appContext context of the app
+     * @param font the desired font
+     * @param tx The textView you want to edit
+     */
     public static void setForTextView(Context appContext, FontList font, TextView tx)
     {
         String fontName;
