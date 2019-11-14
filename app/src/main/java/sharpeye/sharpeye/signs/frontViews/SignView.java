@@ -2,6 +2,7 @@ package sharpeye.sharpeye.signs.frontViews;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -52,6 +53,11 @@ public class SignView implements IFrontViews {
     @Override
     public final void setFont(Font.FontList font) {
         Font.setForTextView(context.getApplicationContext(), Font.FontList.CHARACTERE, tvLimit);
+    }
+
+    @Override
+    public void setFontSize(int unit, float fontSize) {
+        tvLimit.setTextSize(unit, fontSize);
     }
 
 }

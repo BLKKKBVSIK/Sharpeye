@@ -1,5 +1,7 @@
 package sharpeye.sharpeye.signs.frontViews;
 
+import android.util.TypedValue;
+
 import sharpeye.sharpeye.utils.Font;
 
 /**
@@ -34,4 +36,12 @@ public interface IFrontViews {
      * @param font
      */
     void setFont(Font.FontList font);
+
+    /**
+     * Sets the font size (if possible)
+     * @param unit
+     * @param fontSize
+     * @see TypedValue
+     */
+    void setFontSize(int unit, float fontSize);
 }

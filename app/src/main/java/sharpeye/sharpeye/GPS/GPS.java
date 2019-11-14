@@ -56,6 +56,7 @@ public class GPS {
     public void resume(CurrentState currentState)
     {
         Log.d("gpsresume", "start");
+        currentState.setSpeed(false);
         if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(context,"speed_display",false)) {
             if (mBound) {
                 mService.setCurrentState(currentState);

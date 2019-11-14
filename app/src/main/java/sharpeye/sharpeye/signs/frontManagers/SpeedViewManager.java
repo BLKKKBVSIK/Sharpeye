@@ -2,7 +2,10 @@ package sharpeye.sharpeye.signs.frontManagers;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
+import android.util.TypedValue;
 
+import sharpeye.sharpeye.R;
 import sharpeye.sharpeye.data.SharedPreferencesHelper;
 import sharpeye.sharpeye.signs.frontViews.IFrontViews;
 import sharpeye.sharpeye.utils.CurrentState;
@@ -42,8 +45,9 @@ public class SpeedViewManager extends FrontElementManager {
                 isVisible = true;
             }
         }
-        if (currentState.getGPSenabled() && currentState.getGPSPermission()) {
-            frontViews.setText(String.valueOf((int)currentState.getSpeed()) + "Km/H");
+        if (isVisible && currentState.getGPSenabled() && currentState.getGPSPermission() && currentState.isSpeed()) {
+            frontViews.setFontSize(TypedValue.COMPLEX_UNIT_SP, 25);
+            frontViews.setText(currentState.getSpeed() + "Km/H");
             if (currentState.getSpeed() > currentState.getSpeedLimit()) {
                 frontViews.setTextColor(Color.rgb(255, 0, 0));
             } else if (currentState.getSpeed() >= (currentState.getSpeedLimit() * 0.95)) {
@@ -51,6 +55,9 @@ public class SpeedViewManager extends FrontElementManager {
             } else {
                 frontViews.setTextColor(Color.rgb(255, 255, 255));
             }
+        } else {
+            frontViews.setFontSize(TypedValue.COMPLEX_UNIT_SP, 12);
+            frontViews.setText(context.getString(R.string.speed_counter));
         }
     }
 

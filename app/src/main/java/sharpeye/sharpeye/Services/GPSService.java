@@ -98,6 +98,7 @@ public class GPSService extends Service implements GPSCallback {
 
         double speed = location.getSpeed() * 3.6f;
         currentState.setSpeed(round(speed, 3, BigDecimal.ROUND_HALF_UP));
+        currentState.setSpeed(true);
         if (currentState != null && currentState.getSpeedLimit() != 0) {
             if (currentState.getSpeed() > currentState.getSpeedLimit())
             {

@@ -8,6 +8,7 @@ import kotlin.math.E
 //Made to log all the current state of the user/vehicule
 public class CurrentState {
     var speed : Double = 0.0
+    var isSpeed : Boolean = false
     var speedLimit :Int = 1000
     var isSpeedLimit : Boolean = false
     var previousSigns : MutableList<Sign> = mutableListOf()

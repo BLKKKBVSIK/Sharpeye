@@ -2,7 +2,7 @@ package sharpeye.sharpeye.signs.frontViews;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Color;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.TextView;
 
@@ -16,11 +16,13 @@ public class SpeedView implements IFrontViews {
 
     public TextView tvSpeed;
     private Context context;
+    private float _fontSize;
 
     public SpeedView(Context _context)
     {
         context = _context;
         tvSpeed = ((Activity) context).findViewById(R.id.speed);
+        _fontSize = tvSpeed.getTextSize();
     }
 
     @Override
@@ -46,5 +48,12 @@ public class SpeedView implements IFrontViews {
     @Override
     public final void setFont(Font.FontList font) {
         Font.setForTextView(context.getApplicationContext(), Font.FontList.CHARACTERE, tvSpeed);
+        tvSpeed.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
     }
+
+    @Override
+    public void setFontSize(int unit, float fontSize) {
+        if (_fontSize != fontSize) { tvSpeed.setTextSize(unit, fontSize);}
+    }
+
 }
