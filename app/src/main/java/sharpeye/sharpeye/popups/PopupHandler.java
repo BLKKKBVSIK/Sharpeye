@@ -1,4 +1,4 @@
-package sharpeye.sharpeye;
+package sharpeye.sharpeye.popups;
 
 import android.content.Context;
 import android.util.Log;
@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import sharpeye.BooleanKeyValueModel;
+import sharpeye.sharpeye.data.BooleanKeyValueModel;
 import sharpeye.sharpeye.data.DBHelper;
 import sharpeye.sharpeye.utils.Json;
 import sharpeye.sharpeye.utils.PopUpFactory;
@@ -22,9 +22,9 @@ public class PopupHandler {
     private Context context;
     private List<PopUpFactory> popups;
     private List<String> labels;
-    private DBHelper database;
+    private DBHelper<BooleanKeyValueModel> database;
 
-    PopupHandler (Context _context, String jsonFile, DBHelper _database)
+    public PopupHandler(Context _context, String jsonFile, DBHelper<BooleanKeyValueModel> _database)
     {
         context = _context;
         database = _database;
@@ -48,7 +48,7 @@ public class PopupHandler {
                     String label = tempPopup.getString("label");
                     ArrayList<BooleanKeyValueModel> kv = database.read(label);
                     Log.d("PopupHandler LoadJson", kv.toString());
-                    if (kv.isEmpty() || (!kv.isEmpty() && !kv.get(0).getValue()))
+                    if (kv.isEmpty() || !kv.get(0).getValue())
                     {
                         String title = tempPopup.getString("title");
                         if (!Str.IsNullOrEmpty(title))
@@ -93,6 +93,5 @@ public class PopupHandler {
             tmp.show();
         }
         Log.d("PopupHandler NextPopup", "end");
-        return;
     }
 }

@@ -2,7 +2,6 @@ package sharpeye.sharpeye.signs.frontManagers;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.util.Log;
 import android.util.TypedValue;
 
 import sharpeye.sharpeye.R;

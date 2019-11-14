@@ -28,12 +28,13 @@ import android.util.Size;
 import android.util.TypedValue;
 import android.widget.Toast;
 
-import sharpeye.BooleanKeyValueDBHelper;
+import sharpeye.sharpeye.data.BooleanKeyValueDBHelper;
 import sharpeye.sharpeye.GPS.GPS;
 import sharpeye.sharpeye.customview.OverlayView;
 import sharpeye.sharpeye.data.SharedPreferencesHelper;
 import sharpeye.sharpeye.objects_logic.ObjectsProcessing;
 import sharpeye.sharpeye.objects_logic.Speech;
+import sharpeye.sharpeye.popups.PopupHandler;
 import sharpeye.sharpeye.signs.Sign;
 import sharpeye.sharpeye.signs.frontManagers.SignViewManager;
 import sharpeye.sharpeye.signs.frontManagers.SpeedViewManager;
@@ -152,7 +153,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         currentState = new CurrentState();
         signList = new SignList(this);
         Log.e("detrector activity", "avant array list");
-        ArrayList frontElementManagers = new ArrayList();
+        ArrayList<sharpeye.sharpeye.signs.frontManagers.FrontElementManager> frontElementManagers = new ArrayList();
         frontElementManagers.add(new SignViewManager(this, new SignView(this), false));
         frontElementManagers.add(new SpeedViewManager(this, new SpeedView(this), false));
         gps = new GPS(this,frontElementManagers);
@@ -289,8 +290,6 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     OverlayView trackingOverlay;
 
-    private Speech speech;
-
     @Override
     protected void processImage() {
         //------------------service gps------------------
@@ -392,7 +391,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
 
         final List<Classifier.Recognition> mappedRecognitions =
-                new LinkedList<Classifier.Recognition>();
+                new LinkedList<>();
 
         for (final Classifier.Recognition result : results) {
             final RectF location = result.getLocation();
