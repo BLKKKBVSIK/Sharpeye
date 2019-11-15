@@ -140,4 +140,6 @@
     <string name="nav_speed_features">Vitesse et panneaux</string>
     <string name="nav_speed_display_features">Affichage</string>
     <string name="nav_speed_alert_features">Alertes</string>
+    <string name="battery_title">Batterie faible</string>
+    <string name="battery_message">Votre niveau de batterie est faible, assurez vous de brancher votre téléphone</string>
 </resources>

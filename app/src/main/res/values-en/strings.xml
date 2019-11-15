@@ -93,4 +93,13 @@
     <string name="gps_go_settings">GPS is not enabled. Do you want to go to settings menu?</string>
     <string name="cancel">Cancel</string>
     <string name="disable_speed_features">Disable speed features</string>
+    <string name="battery_title">Low Battery</string>
+    <string name="battery_message">Your battery is running low, make sure to plug in your phone.</string>
+    <string name="active_api_speed_limit_retrieving">precise speed limits</string>
+    <string name="active_sign_display">Display speed limits</string>
+    <string name="api_speed_limit_retrieving_summary">Uses OpenStreetMap to gather speed limits using mobile datas</string>
+    <string name="nav_speed_display_features">Display</string>
+    <string name="nav_speed_alert_features">Alerts</string>
+    <string name="nav_speed_features">Speed and road signs</string>
+    <string name="sign_display_summary">Displays current speed limit</string>
 </resources>

@@ -33,7 +33,7 @@ import sharpeye.sharpeye.GPS.GPS;
 import sharpeye.sharpeye.customview.OverlayView;
 import sharpeye.sharpeye.data.SharedPreferencesHelper;
 import sharpeye.sharpeye.objects_logic.ObjectsProcessing;
-import sharpeye.sharpeye.objects_logic.Speech;
+import sharpeye.sharpeye.popups.BatteryPopupHandler;
 import sharpeye.sharpeye.popups.PopupHandler;
 import sharpeye.sharpeye.signs.Sign;
 import sharpeye.sharpeye.signs.frontManagers.SignViewManager;
@@ -136,6 +136,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     private SignList signList;
     private GPS gps;
     private BooleanKeyValueDBHelper kvDatabase;
+    private BatteryPopupHandler batteryPopupHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -159,6 +160,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         gps = new GPS(this,frontElementManagers);
         Log.e("detrector activity", "après speedview");
         gps.create();
+        batteryPopupHandler = new BatteryPopupHandler(getApplicationContext(), this);
         kvDatabase = new BooleanKeyValueDBHelper(this);
         PopupHandler starting = new PopupHandler(this, "starting_popup_fr", kvDatabase);
         starting.NextPopup(0);
@@ -295,6 +297,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         //------------------service gps------------------
         currentState = gps.process(currentState, this);
         //-----------------------------------------------
+        batteryPopupHandler.update();
         ++timestamp;
         final long currTimestamp = timestamp;
         trackingOverlay.postInvalidate();
