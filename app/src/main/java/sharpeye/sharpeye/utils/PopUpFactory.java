@@ -16,7 +16,7 @@ import sharpeye.sharpeye.R;
 public class PopUpFactory {
 
     private AlertDialog.Builder dialogBuilder;
-    private CheckBox checkbox;
+    private View checkboxView;
 
     public interface OnClickListener {
         public void onClick();
@@ -29,8 +29,7 @@ public class PopUpFactory {
     public PopUpFactory(Context context) {
         dialogBuilder = new AlertDialog.Builder(context);
         dialogBuilder.setCancelable(false);
-        View view = View.inflate(context, R.layout.popup_checkbox, null);
-        checkbox = view.findViewById(R.id.popup_checkbox);
+        checkboxView = View.inflate(context, R.layout.popup_checkbox, null);
     }
 
     public PopUpFactory setTitle(String title) {
@@ -44,6 +43,7 @@ public class PopUpFactory {
     }
 
     public PopUpFactory setCheckbox(String message, OnCheckedChangeListener listener) {
+        CheckBox checkbox = checkboxView.findViewById(R.id.popup_checkbox);
         checkbox.setText(message);
         checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -51,6 +51,7 @@ public class PopUpFactory {
                 listener.onCheckedChanged(isChecked);
             }
         });
+        dialogBuilder.setView(checkboxView);
         return this;
     }
 
