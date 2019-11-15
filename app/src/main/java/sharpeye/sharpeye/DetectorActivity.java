@@ -28,13 +28,18 @@ import android.util.Size;
 import android.util.TypedValue;
 import android.widget.Toast;
 
-import sharpeye.BooleanKeyValueDBHelper;
+import sharpeye.sharpeye.data.BooleanKeyValueDBHelper;
 import sharpeye.sharpeye.GPS.GPS;
 import sharpeye.sharpeye.customview.OverlayView;
 import sharpeye.sharpeye.data.SharedPreferencesHelper;
 import sharpeye.sharpeye.objects_logic.ObjectsProcessing;
-import sharpeye.sharpeye.objects_logic.Speech;
+import sharpeye.sharpeye.popups.BatteryPopupHandler;
+import sharpeye.sharpeye.popups.PopupHandler;
 import sharpeye.sharpeye.signs.Sign;
+import sharpeye.sharpeye.signs.frontManagers.SignViewManager;
+import sharpeye.sharpeye.signs.frontManagers.SpeedViewManager;
+import sharpeye.sharpeye.signs.frontViews.SignView;
+import sharpeye.sharpeye.signs.frontViews.SpeedView;
 import sharpeye.sharpeye.tflite.SignDetector;
 import sharpeye.sharpeye.utils.BorderedText;
 import sharpeye.sharpeye.utils.CurrentState;
@@ -130,8 +135,8 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     private CurrentState currentState;
     private SignList signList;
     private GPS gps;
-//    private boolean alertCollision = false;
     private BooleanKeyValueDBHelper kvDatabase;
+    private BatteryPopupHandler batteryPopupHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -148,8 +153,14 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             tracker.init();
         currentState = new CurrentState();
         signList = new SignList(this);
-        gps = new GPS(this, findViewById(R.id.speed));
+        Log.e("detrector activity", "avant array list");
+        ArrayList<sharpeye.sharpeye.signs.frontManagers.FrontElementManager> frontElementManagers = new ArrayList();
+        frontElementManagers.add(new SignViewManager(this, new SignView(this), false));
+        frontElementManagers.add(new SpeedViewManager(this, new SpeedView(this), false));
+        gps = new GPS(this,frontElementManagers);
+        Log.e("detrector activity", "après speedview");
         gps.create();
+        batteryPopupHandler = new BatteryPopupHandler(getApplicationContext(), this);
         kvDatabase = new BooleanKeyValueDBHelper(this);
         PopupHandler starting = new PopupHandler(this, "starting_popup_fr", kvDatabase);
         starting.NextPopup(0);
@@ -281,13 +292,12 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     OverlayView trackingOverlay;
 
-    private Speech speech;
-
     @Override
     protected void processImage() {
         //------------------service gps------------------
         currentState = gps.process(currentState, this);
         //-----------------------------------------------
+        batteryPopupHandler.update();
         ++timestamp;
         final long currTimestamp = timestamp;
         trackingOverlay.postInvalidate();
@@ -384,7 +394,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
 
         final List<Classifier.Recognition> mappedRecognitions =
-                new LinkedList<Classifier.Recognition>();
+                new LinkedList<>();
 
         for (final Classifier.Recognition result : results) {
             final RectF location = result.getLocation();

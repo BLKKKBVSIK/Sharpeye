@@ -57,7 +57,6 @@ public class GPSService extends Service implements GPSCallback {
     public void onRebind (Intent intent)
     {
         super.onRebind(intent);
-        return;
     }
 
     @Override
@@ -81,7 +80,6 @@ public class GPSService extends Service implements GPSCallback {
         }
         currentState = new CurrentState();
         initializeGPS();
-        return;
     }
 
     @Override
@@ -89,14 +87,15 @@ public class GPSService extends Service implements GPSCallback {
     {
         super.onDestroy();
         Log.d("GPS Service", "onDestroy: GPS service stops");
-        cleanGPS();//TODO ask for permissions in the service
-        return;
+        cleanGPS();
     }
 
     @Override
     public void onGPSUpdate(Location location) {
+
         double speed = location.getSpeed() * 3.6f;
         currentState.setSpeed(round(speed, 3, BigDecimal.ROUND_HALF_UP));
+        currentState.setSpeed(true);
         if (currentState != null && currentState.getSpeedLimit() != 0) {
             if (currentState.getSpeed() > currentState.getSpeedLimit())
             {
@@ -126,7 +125,7 @@ public class GPSService extends Service implements GPSCallback {
                 currentState.setGPSenabled(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER));
                 if (currentState.getGPSenabled()) {
                     gpsManager.startListening(this);
-                    gpsManager.setGPSCallback((GPSCallback) this);
+                    gpsManager.setGPSCallback(this);
                 }
                 if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(getApplicationContext(), "speed_control", false)) {
                     bipGenerator = new BipGenerator();

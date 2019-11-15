@@ -12,6 +12,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+/**
+ * Adds functions to deal with Json
+ */
 public class Json {
 
     /**
