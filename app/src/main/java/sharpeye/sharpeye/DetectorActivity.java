@@ -153,14 +153,13 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             tracker.init();
         currentState = new CurrentState();
         signList = new SignList(this);
-        Log.e("detrector activity", "avant array list");
         ArrayList<sharpeye.sharpeye.signs.frontManagers.FrontElementManager> frontElementManagers = new ArrayList();
         frontElementManagers.add(new SignViewManager(this, new SignView(this), false));
         frontElementManagers.add(new SpeedViewManager(this, new SpeedView(this), false));
         gps = new GPS(this,frontElementManagers);
-        Log.e("detrector activity", "après speedview");
         gps.create();
         batteryPopupHandler = new BatteryPopupHandler(getApplicationContext(), this);
+        batteryPopupHandler.Start();
         kvDatabase = new BooleanKeyValueDBHelper(this);
         PopupHandler starting = new PopupHandler(this, "starting_popup_fr", kvDatabase);
         starting.NextPopup(0);
@@ -197,6 +196,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     public synchronized void onDestroy() {
         super.onDestroy();
         tracker.free();
+        batteryPopupHandler.Stop();
         gps.clean();
     }
 
@@ -297,7 +297,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         //------------------service gps------------------
         currentState = gps.process(currentState, this);
         //-----------------------------------------------
-        batteryPopupHandler.update();
+        /*batteryPopupHandler.update();*/
         ++timestamp;
         final long currTimestamp = timestamp;
         trackingOverlay.postInvalidate();

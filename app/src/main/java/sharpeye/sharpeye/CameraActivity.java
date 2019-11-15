@@ -683,6 +683,12 @@ public abstract class CameraActivity extends AppCompatActivity
               SettingsActivity.AboutFragment.class.getName());
       intent.putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true);
       startActivity(intent);
+    } else if (id == R.id.nav_parameters) {
+      Intent intent = new Intent(this, SettingsActivity.class);
+      intent.putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT,
+              SettingsActivity.SettingsPreferenceFragment.class.getName());
+      intent.putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true);
+      startActivity(intent);
     }
     return true;
   }

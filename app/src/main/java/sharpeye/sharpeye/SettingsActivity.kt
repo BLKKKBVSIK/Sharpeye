@@ -84,6 +84,7 @@ class SettingsActivity : AppCompatPreferenceActivity() {
                 || VocalPreferenceFragment::class.java.name == fragmentName
                 || TOSFragment::class.java.name == fragmentName
                 || ReportFragment::class.java.name == fragmentName
+                || SettingsPreferenceFragment::class.java.name == fragmentName
     }
 
     //about fragment
@@ -157,6 +158,25 @@ class SettingsActivity : AppCompatPreferenceActivity() {
             addPreferencesFromResource(R.xml.pref_signs)
             setHasOptionsMenu(true)
             activity.title = resources.getString(R.string.nav_signs)
+        }
+
+        override fun onOptionsItemSelected(item: MenuItem): Boolean {
+            val id = item.itemId
+            if (id == android.R.id.home) {
+                startActivity(Intent(activity, SettingsActivity::class.java))
+
+                return true
+            }
+            return super.onOptionsItemSelected(item)
+        }
+    }
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    class SettingsPreferenceFragment : PreferenceFragment() {
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            addPreferencesFromResource(R.xml.pref_settings)
+            setHasOptionsMenu(true)
+            activity.title = resources.getString(R.string.nav_parameters)
         }
 
         override fun onOptionsItemSelected(item: MenuItem): Boolean {

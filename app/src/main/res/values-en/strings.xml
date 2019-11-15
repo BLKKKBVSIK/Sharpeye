@@ -102,4 +102,7 @@
     <string name="nav_speed_alert_features">Alerts</string>
     <string name="nav_speed_features">Speed and road signs</string>
     <string name="sign_display_summary">Displays current speed limit</string>
+    <string name="nav_parameters">Parameters</string>
+    <string name="battery_popup_dont_show_again">Don\'t show again</string>
+    <string name="battery_popup_ok">Ok (but in english)</string>
 </resources>

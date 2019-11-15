@@ -123,6 +123,7 @@
     <string name="nav_dashcam">Camera embarquée</string>
     <string name="nav_about">A propos</string>
     <string name="nav_feedback">Faire un retour</string>
+    <string name="nav_parameters">Paramètres</string>
 
     <string name="speed_counter">En attente d\'un signal GPS</string>
     <string name="gps_settings">Options GPS</string>
@@ -140,6 +141,9 @@
     <string name="nav_speed_features">Vitesse et panneaux</string>
     <string name="nav_speed_display_features">Affichage</string>
     <string name="nav_speed_alert_features">Alertes</string>
+
     <string name="battery_title">Batterie faible</string>
     <string name="battery_message">Votre niveau de batterie est faible, assurez vous de brancher votre téléphone</string>
+    <string name="battery_popup_dont_show_again">Ne plus afficher</string>
+    <string name="battery_popup_ok">Ok</string>
 </resources>
