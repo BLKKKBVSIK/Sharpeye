@@ -2,8 +2,10 @@ package sharpeye.sharpeye.utils;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 
 import sharpeye.sharpeye.R;
 
@@ -14,7 +16,7 @@ import sharpeye.sharpeye.R;
 public class PopUpFactory {
 
     private AlertDialog.Builder dialogBuilder;
-    private CheckBox checkbox;
+    private View checkboxView;
 
     public interface OnClickListener {
         void onClick();
@@ -31,8 +33,7 @@ public class PopUpFactory {
     public PopUpFactory(Context context) {
         dialogBuilder = new AlertDialog.Builder(context);
         dialogBuilder.setCancelable(false);
-        View view = View.inflate(context, R.layout.popup_checkbox, null);
-        checkbox = view.findViewById(R.id.popup_checkbox);
+        checkboxView = View.inflate(context, R.layout.popup_checkbox, null);
     }
 
     /**
@@ -62,8 +63,15 @@ public class PopUpFactory {
      * @return The popup factory
      */
     public PopUpFactory setCheckbox(String message, OnCheckedChangeListener listener) {
+        CheckBox checkbox = checkboxView.findViewById(R.id.popup_checkbox);
         checkbox.setText(message);
-        checkbox.setOnCheckedChangeListener((buttonView, isChecked) -> listener.onCheckedChanged(isChecked));
+        checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                listener.onCheckedChanged(isChecked);
+            }
+        });
+        dialogBuilder.setView(checkboxView);
         return this;
     }
 
@@ -74,9 +82,12 @@ public class PopUpFactory {
      * @return The popup factory
      */
     public PopUpFactory setPositiveButton(String text, OnClickListener listener) {
-        dialogBuilder.setPositiveButton(text, (dialog, which) -> {
-            if (which == AlertDialog.BUTTON_POSITIVE) {
-                listener.onClick();
+        dialogBuilder.setPositiveButton(text, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (which == AlertDialog.BUTTON_POSITIVE) {
+                    listener.onClick();
+                }
             }
         });
         return this;
@@ -89,9 +100,12 @@ public class PopUpFactory {
      * @return The popup factory
      */
     public PopUpFactory setNegativeButton(String text, OnClickListener listener) {
-        dialogBuilder.setNegativeButton(text, (dialog, which) -> {
-            if (which == AlertDialog.BUTTON_NEGATIVE) {
-                listener.onClick();
+        dialogBuilder.setNegativeButton(text, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (which == AlertDialog.BUTTON_NEGATIVE) {
+                    listener.onClick();
+                }
             }
         });
         return this;

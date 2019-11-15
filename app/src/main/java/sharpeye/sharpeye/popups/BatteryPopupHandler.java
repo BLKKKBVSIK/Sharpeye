@@ -20,8 +20,6 @@ public class BatteryPopupHandler {
     private Context activity;
     private boolean alreadyInflated = false;
 
-    public int batteryLevel;
-
     private BroadcastReceiver mReceiver;
 
     /**
