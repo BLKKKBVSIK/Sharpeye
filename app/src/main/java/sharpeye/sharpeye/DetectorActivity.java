@@ -16,6 +16,7 @@
 
 package sharpeye.sharpeye;
 
+import android.content.res.Configuration;
 import android.graphics.*;
 import android.graphics.Bitmap.Config;
 import android.graphics.Paint.Style;
@@ -249,7 +250,6 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 	      finish();
 	    }
 
-
         previewWidth = size.getWidth();
         previewHeight = size.getHeight();
 
@@ -280,6 +280,12 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         frameToCropTransform.invert(cropToFrameTransform);
 
         trackingOverlay = findViewById(R.id.tracking_overlay);
+        final int orientation = getResources().getConfiguration().orientation;
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            trackingOverlay.setAspectRatio(previewWidth, previewHeight);
+        } else {
+            trackingOverlay.setAspectRatio(previewHeight, previewWidth);
+        }
         trackingOverlay.addCallback(
                 canvas -> {
                     multiBoxTracker.draw(canvas);

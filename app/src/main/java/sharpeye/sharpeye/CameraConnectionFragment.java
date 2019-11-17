@@ -21,6 +21,9 @@ import android.util.Size;
 import android.util.SparseIntArray;
 import android.view.*;
 import android.widget.Toast;
+
+import sharpeye.sharpeye.utils.CompareSizesByArea;
+
 import sharpeye.sharpeye.customview.AutoFitTextureView;
 import sharpeye.sharpeye.utils.Logger;
 
@@ -357,8 +360,8 @@ public class CameraConnectionFragment extends Fragment {
 
       previewSize =
           chooseOptimalSize(map.getOutputSizes(SurfaceTexture.class),
-              inputSize.getWidth(),
-              inputSize.getHeight());
+                  inputSize.getWidth(),
+                  inputSize.getHeight());
 
       // We fit the aspect ratio of TextureView to the size of preview we picked.
 
@@ -569,18 +572,6 @@ public class CameraConnectionFragment extends Fragment {
       matrix.postRotate(180, centerX, centerY);
     }
     textureView.setTransform(matrix);
-  }
-
-  /**
-   * Compares two {@code Size}s based on their areas.
-   */
-  static class CompareSizesByArea implements Comparator<Size> {
-    @Override
-    public int compare(final Size lhs, final Size rhs) {
-      // We cast here to ensure the multiplications won't overflow
-      return Long.signum(
-          (long) lhs.getWidth() * lhs.getHeight() - (long) rhs.getWidth() * rhs.getHeight());
-    }
   }
 
   /**
