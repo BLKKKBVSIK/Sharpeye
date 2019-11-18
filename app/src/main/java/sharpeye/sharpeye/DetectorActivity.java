@@ -352,33 +352,39 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             }
         } else if (!initializedTracking || (startTime - lastRecognition) >= 300) {
             results = new ArrayList<>();
-            List<Classifier.Recognition> tmp = signClassifier.detectSign(rgbOrientedBitmap, MINIMUM_CONFIDENCE_TF_OD_API);
-            for (Classifier.Recognition val: tmp) {
-                if (val.getLocation().right >= 0 &&
-                        val.getLocation().left >= 0 && val.getLocation().bottom >= 0 && val.getLocation().top >= 0 &&
-                        val.getLocation().right < 5000 && val.getLocation().left < 5000 && val.getLocation().bottom < 5000 &&
-                        val.getLocation().top < 5000) {
-                    results.add(val);
+            List<Classifier.Recognition> tmp = null;
+            if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(getApplicationContext(),"signs_on",false)) {
+                tmp = signClassifier.detectSign(rgbOrientedBitmap, MINIMUM_CONFIDENCE_TF_OD_API);
+                for (Classifier.Recognition val : tmp) {
+                    if (val.getLocation().right >= 0 &&
+                            val.getLocation().left >= 0 && val.getLocation().bottom >= 0 && val.getLocation().top >= 0 &&
+                            val.getLocation().right < 5000 && val.getLocation().left < 5000 && val.getLocation().bottom < 5000 &&
+                            val.getLocation().top < 5000) {
+                        results.add(val);
+                    }
                 }
-            }
-            for (Classifier.Recognition recog : results) {
-                Log.d("DETECTORACTIVITY", "OID="+recog.getOpencvID()+ " | ID="+recog.getId()+" | title="+recog.getTitle()+" | bottom="+recog.getLocation().bottom+" | top="+ recog.getLocation().top+" | left="+recog.getLocation().left+" | right="+recog.getLocation().right);
+                for (Classifier.Recognition recog : results) {
+                    Log.d("DETECTORACTIVITY", "OID=" + recog.getOpencvID() + " | ID=" + recog.getId() + " | title=" + recog.getTitle() + " | bottom=" + recog.getLocation().bottom + " | top=" + recog.getLocation().top + " | left=" + recog.getLocation().left + " | right=" + recog.getLocation().right);
+                }
             }
 
             dangerResults = new ArrayList<>();
-            tmp = dangerDetector.recognizeImage(croppedBitmap);
-            for (Classifier.Recognition val: tmp) {
-                if ((val.getTitle().equals("person") || val.getTitle().equals("car")) &&
-                        val.getConfidence() >= MINIMUM_CONFIDENCE_TF_OD_API && val.getLocation().right >= 0 &&
-                        val.getLocation().left >= 0 && val.getLocation().bottom >= 0 && val.getLocation().top >= 0 &&
-                        val.getLocation().right < 500 && val.getLocation().left < 500 && val.getLocation().bottom < 500 &&
-                        val.getLocation().top < 500) {
-                    dangerResults.add(val);
+            if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(getApplicationContext(),"danger_on",false)) {
+                tmp = dangerDetector.recognizeImage(croppedBitmap);
+                for (Classifier.Recognition val : tmp) {
+                    if ((val.getTitle().equals("person") || val.getTitle().equals("car")) &&
+                            val.getConfidence() >= MINIMUM_CONFIDENCE_TF_OD_API && val.getLocation().right >= 0 &&
+                            val.getLocation().left >= 0 && val.getLocation().bottom >= 0 && val.getLocation().top >= 0 &&
+                            val.getLocation().right < 500 && val.getLocation().left < 500 && val.getLocation().bottom < 500 &&
+                            val.getLocation().top < 500) {
+                        dangerResults.add(val);
+                    }
+                }
+                for (Classifier.Recognition recog : dangerResults) {
+                    Log.d("DETECTORACTIVITY", "OID=" + recog.getOpencvID() + " | ID=" + recog.getId() + " | title=" + recog.getTitle() + " | bottom=" + recog.getLocation().bottom + " | top=" + recog.getLocation().top + " | left=" + recog.getLocation().left + " | right=" + recog.getLocation().right);
                 }
             }
-            for (Classifier.Recognition recog : dangerResults) {
-                Log.d("DETECTORACTIVITY", "OID="+recog.getOpencvID()+ " | ID="+recog.getId()+" | title="+recog.getTitle()+" | bottom="+recog.getLocation().bottom+" | top="+ recog.getLocation().top+" | left="+recog.getLocation().left+" | right="+recog.getLocation().right);
-            }
+
             fullResults.addAll(results);
             fullResults.addAll(dangerResults);
             tracker.track(croppedBitmap, fullResults);
