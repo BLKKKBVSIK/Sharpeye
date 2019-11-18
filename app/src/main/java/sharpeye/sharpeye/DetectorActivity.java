@@ -195,7 +195,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         findViewById(R.id.speed_limit_sign).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                 startService(new Intent(DetectorActivity.this, HeadSignService.class));
+
                 finish();
             }
         });
@@ -238,14 +238,22 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             objectsProcessing.init(this);
         }
         gps.resume(currentState);
+        if (i != null) {
+            getApplicationContext().stopService(i);
+            i = null;
+        }
     }
 
+    Intent i = null;
     @Override
     public synchronized void onPause() {
         super.onPause();
         if (objectsProcessing != null) {
             objectsProcessing.release();
             objectsProcessing = null;
+        }
+        if (currentState.isSpeedLimit()) {
+            startService(i = new Intent(DetectorActivity.this, HeadSignService.class));
         }
     }
 
