@@ -33,7 +33,6 @@ import sharpeye.sharpeye.GPS.GPS;
 import sharpeye.sharpeye.customview.OverlayView;
 import sharpeye.sharpeye.data.SharedPreferencesHelper;
 import sharpeye.sharpeye.objects_logic.ObjectsProcessing;
-import sharpeye.sharpeye.objects_logic.Speech;
 import sharpeye.sharpeye.signs.Sign;
 import sharpeye.sharpeye.tflite.SignDetector;
 import sharpeye.sharpeye.utils.BorderedText;
@@ -130,7 +129,6 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     private CurrentState currentState;
     private SignList signList;
     private GPS gps;
-//    private boolean alertCollision = false;
     private BooleanKeyValueDBHelper kvDatabase;
 
     @Override
@@ -281,8 +279,6 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     OverlayView trackingOverlay;
 
-    private Speech speech;
-
     @Override
     protected void processImage() {
         //------------------service gps------------------
@@ -356,16 +352,10 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             lastRecognition = SystemClock.uptimeMillis();
         } else {
             results = tracker.update(croppedBitmap);
-//            alertCollision = tracker.isAlertCollision();
+            tracker.alertIfDangerous(currentState.getSpeed());
             tracking = true;
         }
-//        if (currentState.getSpeed() > 10 && alertCollision) {
-//            if (speech == null) {
-//                speech = new Speech(getApplicationContext());
-//            }
-//            speech.speak("Alerte collision");
-//            Log.e("Collision", "alerte collision");
-//        }
+
         lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime;
 
         cropCopyBitmap = Bitmap.createBitmap(croppedBitmap);

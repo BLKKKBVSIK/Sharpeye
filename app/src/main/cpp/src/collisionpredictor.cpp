@@ -5,10 +5,6 @@ CollisionPredictor::CollisionPredictor() = default;
 CollisionPredictor::~CollisionPredictor() = default;
 
 void CollisionPredictor::add_size_to_history(const int id, const double size) {
-	// if (this->objects_size_history.count(id) < 1) {
-	// 	std::vector<int> v;
-	// 	this->objects_size_history[id] = v;
-	// }
 	this->objects_size_history[id].push_back(size);
 }
 
@@ -19,11 +15,7 @@ bool CollisionPredictor::is_faster_than(const int id, cv::Rect2f box, cv::Mat fr
 	growth *= 100;
 	std::cout << "Average growth for object " << id << " is " << growth << "%" << std::endl;
 
-	std::string text = std::to_string(growth);
-	cv::Scalar color = cv::Scalar(0, 0, 255);
-	cv::putText(frame, text, cv::Point(box.x + (box.width / 2.0) - 60, box.y + (box.height / 2.0)), cv::FONT_HERSHEY_SIMPLEX, 1, color, 2);
-
-	return growth > this->GROWTH_THRESHOLD;
+    return true;
 }
 
 /*
@@ -32,12 +24,12 @@ bool CollisionPredictor::is_faster_than(const int id, cv::Rect2f box, cv::Mat fr
 bool CollisionPredictor::alert(const std::map<int, cv::Rect2f> &objects, cv::Mat frame) {
     int framewidth = frame.cols;
 	double apx_distance;
-	int mid_x, mid_y;
+	int mid_x;
 	for (auto &[objectID, box]: objects) {
 		if (box.width > (0.9 * framewidth))
 			continue;
-		mid_x = (double)(((box.x + box.width / 2) * 100) / framewidth);
-		apx_distance = (double)((box.width * 100.0) / framewidth);
+		mid_x = (int)(((box.x + box.width / 2) * 100) / framewidth);
+		apx_distance = ((box.width * 100.0) / framewidth);
 
 		this->add_size_to_history(objectID, apx_distance);
 
