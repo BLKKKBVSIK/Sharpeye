@@ -11,12 +11,25 @@ import java.util.*;
 
 import sharpeye.sharpeye.utils.Json;
 
+/**
+ * Creates a list of Sign object from Json file
+ * That allows to maps Tensoflow labels to Sign objects
+ * @see Sign
+ */
 public class SignList {
 
     private Map<String ,Sign> signList;
 
+    /**
+     * Instantiate Signlist object by loading traffic_signs.json
+     * @param context
+     */
     public SignList (Context context) { init(context);}
 
+    /**
+     * init of the object, holds the internal logic
+     * @param context
+     */
     private void init(Context context) {
         try {
             Log.d("SignList", "init: start loading");
@@ -40,6 +53,11 @@ public class SignList {
         }
     }
 
+    /**
+     * takes a tensorflow label and returns the corresponding Sign
+     * @param key
+     * @return the corresponding sign
+     */
     public Sign get(String key)
     {
         Sign ret = signList.get(key);

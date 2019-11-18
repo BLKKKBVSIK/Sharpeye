@@ -20,17 +20,17 @@
     <string name="active_danger_detection">Enable danger warnings</string>
     <string name="active_dashcam">Enable Dashcam</string>
     <string name="dashcam_summary">An automatic record of your driving will be created while driving</string>
-    <string name="record_on_impact">Automatic shocks recording</string>
+    <string name="record_on_impact">Automatic impact logging</string>
     <string name="danger_detection">Danger detection</string>
     <string name="sign_detection">Road signs detection</string>
-    <string name="vocal_assist">Vocal assistance</string>
+    <string name="vocal_assist">Vocal assistant</string>
     <string name="dashcam">Dashcam</string>
     <string name="active_sign_recognition">Enable road signs recognition</string>
     <string name="sign_recognition_summary">Detects important road signs</string>
     <string name="active_speed_reminder">Enable speed controller</string>
     <string name="speed_reminder_summary">Warns the driver when driving over the speed limit</string>
     <string name="active_vocal_recognition">Enable vocal recognition</string>
-    <string name="vocal_recognition_summary">Enable Sharp\'Eye vocal assist</string>
+    <string name="vocal_recognition_summary">Enable Sharp\'Eye vocal assistant</string>
     <string name="tos_body">"By downloading or using the app, these terms will automatically apply to you – you should
         make sure therefore that you read them carefully before using the app. You’re not allowed to copy, or modify the
         app, any part of the app, or our trademarks in any way. You’re not allowed to attempt to extract the source code
@@ -85,4 +85,24 @@
     <string name="app_build">Build number</string>
     <string name="speed_counter">Waiting for GPS signal</string>
     <string name="starting_popup">starting_popup_en</string>
+    <string name="empty_sign">emtpy sign</string>
+    <string name="active_speed_display">Displays the speed</string>
+    <string name="gps_settings">GPS settings</string>
+    <string name="speed_display_summary">Display the current vehicule\'s speed by using GPS signals</string>
+    <string name="settings">Settings</string>
+    <string name="gps_go_settings">GPS is not enabled. Do you want to go to settings menu?</string>
+    <string name="cancel">Cancel</string>
+    <string name="disable_speed_features">Disable speed features</string>
+    <string name="battery_title">Low Battery</string>
+    <string name="battery_message">Your battery is running low, make sure to plug in your phone.</string>
+    <string name="active_api_speed_limit_retrieving">precise speed limits</string>
+    <string name="active_sign_display">Display speed limits</string>
+    <string name="api_speed_limit_retrieving_summary">Uses OpenStreetMap to gather speed limits using mobile datas</string>
+    <string name="nav_speed_display_features">Display</string>
+    <string name="nav_speed_alert_features">Alerts</string>
+    <string name="nav_speed_features">Speed and road signs</string>
+    <string name="sign_display_summary">Displays current speed limit</string>
+    <string name="nav_parameters">Parameters</string>
+    <string name="battery_popup_dont_show_again">Don\'t show again</string>
+    <string name="battery_popup_ok">Ok (but in english)</string>
 </resources>

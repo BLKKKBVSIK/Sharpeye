@@ -56,8 +56,7 @@ import sharpeye.sharpeye.utils.Logger;
 import java.nio.ByteBuffer;
 
 public abstract class CameraActivity extends AppCompatActivity
-    implements OnImageAvailableListener, Camera.PreviewCallback, NavigationView.OnNavigationItemSelectedListener,
-        CompoundButton.OnCheckedChangeListener, View.OnClickListener {
+    implements OnImageAvailableListener, Camera.PreviewCallback, NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
   private static final Logger LOGGER = new Logger();
 
   private static final int PERMISSIONS_REQUEST = 1;
@@ -90,7 +89,6 @@ public abstract class CameraActivity extends AppCompatActivity
   protected TextView frameValueTextView, cropValueTextView, inferenceTimeTextView;
   protected ImageView bottomSheetArrowImageView;
   private ImageView plusImageView, minusImageView;
-  private SwitchCompat apiSwitchCompat;
   private TextView threadsTextView;
 
     public static void setWindowFlag(Activity activity, final int bits, boolean on) {
@@ -134,7 +132,6 @@ public abstract class CameraActivity extends AppCompatActivity
     threadsTextView = findViewById(R.id.threads);
     plusImageView = findViewById(R.id.plus);
     minusImageView = findViewById(R.id.minus);
-    apiSwitchCompat = findViewById(R.id.api_info_switch);
     bottomSheetLayout = findViewById(R.id.bottom_sheet_layout);
     gestureLayout = findViewById(R.id.gesture_layout);
     sheetBehavior = BottomSheetBehavior.from(bottomSheetLayout);
@@ -188,12 +185,11 @@ public abstract class CameraActivity extends AppCompatActivity
     cropValueTextView = findViewById(R.id.crop_info);
     inferenceTimeTextView = findViewById(R.id.inference_info);
 
-    apiSwitchCompat.setOnCheckedChangeListener(this);
-
     plusImageView.setOnClickListener(this);
     minusImageView.setOnClickListener(this);
     bottomSheetLayout.setVisibility(((debug) ? View.VISIBLE : View.INVISIBLE));
   }
+
 
   private byte[] lastPreviewFrame;
 
@@ -535,13 +531,6 @@ public abstract class CameraActivity extends AppCompatActivity
     }
   }
 
-  public void addCallback(final OverlayView.DrawCallback callback) {
-    final OverlayView overlay = (OverlayView) findViewById(R.id.debug_overlay);
-    if (overlay != null) {
-      overlay.addCallback(callback);
-    }
-  }
-
   public void onSetDebug(final boolean debug) {}
 
   @Override
@@ -573,13 +562,6 @@ public abstract class CameraActivity extends AppCompatActivity
       default:
         return 0;
     }
-  }
-
-  @Override
-  public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-    setUseNNAPI(isChecked);
-    if (isChecked) apiSwitchCompat.setText("NNAPI");
-    else apiSwitchCompat.setText("TFLITE");
   }
 
   @Override
@@ -681,6 +663,12 @@ public abstract class CameraActivity extends AppCompatActivity
       Intent intent = new Intent(this, SettingsActivity.class);
       intent.putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT,
               SettingsActivity.AboutFragment.class.getName());
+      intent.putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true);
+      startActivity(intent);
+    } else if (id == R.id.nav_parameters) {
+      Intent intent = new Intent(this, SettingsActivity.class);
+      intent.putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT,
+              SettingsActivity.SettingsPreferenceFragment.class.getName());
       intent.putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true);
       startActivity(intent);
     }

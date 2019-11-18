@@ -22,7 +22,7 @@ private:
 	const int 							APX_THRESHOLD = 19;
 	const int 							GROWTH_THRESHOLD = 1;
 	const int 							MIN_X = 21;
-	const int 							MAX_X = 78;
+	const int 							MAX_X = 82;
 };
 
 #endif // COLLISIONPREDICTOR_HPP

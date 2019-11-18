@@ -16,6 +16,7 @@
 
 package sharpeye.sharpeye;
 
+import android.content.res.Configuration;
 import android.graphics.*;
 import android.graphics.Bitmap.Config;
 import android.graphics.Paint.Style;
@@ -28,12 +29,18 @@ import android.util.Size;
 import android.util.TypedValue;
 import android.widget.Toast;
 
-import sharpeye.BooleanKeyValueDBHelper;
+import sharpeye.sharpeye.data.BooleanKeyValueDBHelper;
 import sharpeye.sharpeye.GPS.GPS;
 import sharpeye.sharpeye.customview.OverlayView;
 import sharpeye.sharpeye.data.SharedPreferencesHelper;
 import sharpeye.sharpeye.objects_logic.ObjectsProcessing;
+import sharpeye.sharpeye.popups.BatteryPopupHandler;
+import sharpeye.sharpeye.popups.PopupHandler;
 import sharpeye.sharpeye.signs.Sign;
+import sharpeye.sharpeye.signs.frontManagers.SignViewManager;
+import sharpeye.sharpeye.signs.frontManagers.SpeedViewManager;
+import sharpeye.sharpeye.signs.frontViews.SignView;
+import sharpeye.sharpeye.signs.frontViews.SpeedView;
 import sharpeye.sharpeye.tflite.SignDetector;
 import sharpeye.sharpeye.utils.BorderedText;
 import sharpeye.sharpeye.utils.CurrentState;
@@ -130,6 +137,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     private SignList signList;
     private GPS gps;
     private BooleanKeyValueDBHelper kvDatabase;
+    private BatteryPopupHandler batteryPopupHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,8 +154,13 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             tracker.init();
         currentState = new CurrentState();
         signList = new SignList(this);
-        gps = new GPS(this, findViewById(R.id.speed));
+        ArrayList<sharpeye.sharpeye.signs.frontManagers.FrontElementManager> frontElementManagers = new ArrayList();
+        frontElementManagers.add(new SignViewManager(this, new SignView(this), false));
+        frontElementManagers.add(new SpeedViewManager(this, new SpeedView(this), false));
+        gps = new GPS(this,frontElementManagers);
         gps.create();
+        batteryPopupHandler = new BatteryPopupHandler(getApplicationContext(), this);
+        batteryPopupHandler.Start();
         kvDatabase = new BooleanKeyValueDBHelper(this);
         PopupHandler starting = new PopupHandler(this, "starting_popup_fr", kvDatabase);
         starting.NextPopup(0);
@@ -184,6 +197,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     public synchronized void onDestroy() {
         super.onDestroy();
         tracker.free();
+        batteryPopupHandler.Stop();
         gps.clean();
     }
 
@@ -236,7 +250,6 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 	      finish();
 	    }
 
-
         previewWidth = size.getWidth();
         previewHeight = size.getHeight();
 
@@ -267,6 +280,12 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         frameToCropTransform.invert(cropToFrameTransform);
 
         trackingOverlay = findViewById(R.id.tracking_overlay);
+        final int orientation = getResources().getConfiguration().orientation;
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            trackingOverlay.setAspectRatio(previewWidth, previewHeight);
+        } else {
+            trackingOverlay.setAspectRatio(previewHeight, previewWidth);
+        }
         trackingOverlay.addCallback(
                 canvas -> {
                     multiBoxTracker.draw(canvas);
@@ -284,6 +303,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         //------------------service gps------------------
         currentState = gps.process(currentState, this);
         //-----------------------------------------------
+        /*batteryPopupHandler.update();*/
         ++timestamp;
         final long currTimestamp = timestamp;
         trackingOverlay.postInvalidate();
@@ -316,9 +336,9 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         List<Classifier.Recognition> dangerResults = null;
         final List<Classifier.Recognition> fullResults = new ArrayList<>();
         boolean tracking = false;
-        if (!initializedTracking || (startTime - lastRecognition) >=300) {
+        if (signClassifier.isDetectingSign()) {
             results = new ArrayList<>();
-            List<Classifier.Recognition> tmp = signClassifier.detectSign(rgbOrientedBitmap, MINIMUM_CONFIDENCE_TF_OD_API);
+            List<Classifier.Recognition> tmp = signClassifier.verifySign(rgbOrientedBitmap, MINIMUM_CONFIDENCE_TF_OD_API);
             for (Classifier.Recognition val: tmp) {
                 if (val.getLocation().right >= 0 &&
                         val.getLocation().left >= 0 && val.getLocation().bottom >= 0 && val.getLocation().top >= 0 &&
@@ -330,21 +350,41 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             for (Classifier.Recognition recog : results) {
                 Log.d("DETECTORACTIVITY", "OID="+recog.getOpencvID()+ " | ID="+recog.getId()+" | title="+recog.getTitle()+" | bottom="+recog.getLocation().bottom+" | top="+ recog.getLocation().top+" | left="+recog.getLocation().left+" | right="+recog.getLocation().right);
             }
-
-            dangerResults = new ArrayList<>();
-            tmp = dangerDetector.recognizeImage(croppedBitmap);
-            for (Classifier.Recognition val: tmp) {
-                if ((val.getTitle().equals("person") || val.getTitle().equals("car")) &&
-                        val.getConfidence() >= MINIMUM_CONFIDENCE_TF_OD_API && val.getLocation().right >= 0 &&
-                        val.getLocation().left >= 0 && val.getLocation().bottom >= 0 && val.getLocation().top >= 0 &&
-                        val.getLocation().right < 500 && val.getLocation().left < 500 && val.getLocation().bottom < 500 &&
-                        val.getLocation().top < 500) {
-                    dangerResults.add(val);
+        } else if (!initializedTracking || (startTime - lastRecognition) >= 300) {
+            results = new ArrayList<>();
+            List<Classifier.Recognition> tmp = null;
+            if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(getApplicationContext(),"signs_on",false)) {
+                tmp = signClassifier.detectSign(rgbOrientedBitmap, MINIMUM_CONFIDENCE_TF_OD_API);
+                for (Classifier.Recognition val : tmp) {
+                    if (val.getLocation().right >= 0 &&
+                            val.getLocation().left >= 0 && val.getLocation().bottom >= 0 && val.getLocation().top >= 0 &&
+                            val.getLocation().right < 5000 && val.getLocation().left < 5000 && val.getLocation().bottom < 5000 &&
+                            val.getLocation().top < 5000) {
+                        results.add(val);
+                    }
+                }
+                for (Classifier.Recognition recog : results) {
+                    Log.d("DETECTORACTIVITY", "OID=" + recog.getOpencvID() + " | ID=" + recog.getId() + " | title=" + recog.getTitle() + " | bottom=" + recog.getLocation().bottom + " | top=" + recog.getLocation().top + " | left=" + recog.getLocation().left + " | right=" + recog.getLocation().right);
                 }
             }
-            for (Classifier.Recognition recog : dangerResults) {
-                Log.d("DETECTORACTIVITY", "OID="+recog.getOpencvID()+ " | ID="+recog.getId()+" | title="+recog.getTitle()+" | bottom="+recog.getLocation().bottom+" | top="+ recog.getLocation().top+" | left="+recog.getLocation().left+" | right="+recog.getLocation().right);
+
+            dangerResults = new ArrayList<>();
+            if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(getApplicationContext(),"danger_on",false)) {
+                tmp = dangerDetector.recognizeImage(croppedBitmap);
+                for (Classifier.Recognition val : tmp) {
+                    if ((val.getTitle().equals("person") || val.getTitle().equals("car")) &&
+                            val.getConfidence() >= MINIMUM_CONFIDENCE_TF_OD_API && val.getLocation().right >= 0 &&
+                            val.getLocation().left >= 0 && val.getLocation().bottom >= 0 && val.getLocation().top >= 0 &&
+                            val.getLocation().right < 500 && val.getLocation().left < 500 && val.getLocation().bottom < 500 &&
+                            val.getLocation().top < 500) {
+                        dangerResults.add(val);
+                    }
+                }
+                for (Classifier.Recognition recog : dangerResults) {
+                    Log.d("DETECTORACTIVITY", "OID=" + recog.getOpencvID() + " | ID=" + recog.getId() + " | title=" + recog.getTitle() + " | bottom=" + recog.getLocation().bottom + " | top=" + recog.getLocation().top + " | left=" + recog.getLocation().left + " | right=" + recog.getLocation().right);
+                }
             }
+
             fullResults.addAll(results);
             fullResults.addAll(dangerResults);
             tracker.track(croppedBitmap, fullResults);
@@ -374,7 +414,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
 
         final List<Classifier.Recognition> mappedRecognitions =
-                new LinkedList<Classifier.Recognition>();
+                new LinkedList<>();
 
         for (final Classifier.Recognition result : results) {
             final RectF location = result.getLocation();

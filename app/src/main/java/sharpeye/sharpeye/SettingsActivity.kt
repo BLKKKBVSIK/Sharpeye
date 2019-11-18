@@ -28,6 +28,7 @@ import sharpeye.sharpeye.utils.Phone
  * for design guidelines and the [Settings API Guide](http://developer.android.com/guide/topics/ui/settings.html)
  * for more information on developing a Settings UI.
  */
+@Suppress("DEPRECATION")
 class SettingsActivity : AppCompatPreferenceActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -83,6 +84,7 @@ class SettingsActivity : AppCompatPreferenceActivity() {
                 || VocalPreferenceFragment::class.java.name == fragmentName
                 || TOSFragment::class.java.name == fragmentName
                 || ReportFragment::class.java.name == fragmentName
+                || SettingsPreferenceFragment::class.java.name == fragmentName
     }
 
     //about fragment
@@ -169,6 +171,25 @@ class SettingsActivity : AppCompatPreferenceActivity() {
         }
     }
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    class SettingsPreferenceFragment : PreferenceFragment() {
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            addPreferencesFromResource(R.xml.pref_settings)
+            setHasOptionsMenu(true)
+            activity.title = resources.getString(R.string.nav_parameters)
+        }
+
+        override fun onOptionsItemSelected(item: MenuItem): Boolean {
+            val id = item.itemId
+            if (id == android.R.id.home) {
+                startActivity(Intent(activity, SettingsActivity::class.java))
+
+                return true
+            }
+            return super.onOptionsItemSelected(item)
+        }
+    }
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     class VocalPreferenceFragment : PreferenceFragment() {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
@@ -192,7 +213,7 @@ class SettingsActivity : AppCompatPreferenceActivity() {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             addPreferencesFromResource(R.xml.report)
-            var intent = composeEmail(Array(1){"sharpeye.common@gmail.com"}, "Manual Bug report",
+            val intent = composeEmail(Array(1){"sharpeye.common@gmail.com"}, "Manual Bug report",
                 "Phone Model: " + Phone.getDeviceName() + "\n" +
                         "Android versions: " + Android.getAndroidVersion() + "\n" +
                         "Build Number: " + App.BuildNumber() + "\n" +

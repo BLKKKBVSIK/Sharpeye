@@ -1,19 +1,3 @@
-/*
- * Copyright 2016 The TensorFlow Authors. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package sharpeye.sharpeye;
 
 import android.app.*;
@@ -22,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
-import android.graphics.Point;
 import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.*;
@@ -32,14 +15,15 @@ import android.media.ImageReader.OnImageAvailableListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
 import android.view.*;
-import android.widget.FrameLayout;
 import android.widget.Toast;
+
+import sharpeye.sharpeye.utils.CompareSizesByArea;
+
 import sharpeye.sharpeye.customview.AutoFitTextureView;
 import sharpeye.sharpeye.utils.Logger;
 
@@ -212,8 +196,6 @@ public class CameraConnectionFragment extends Fragment {
 
   private final ConnectionCallback cameraConnectionCallback;
 
-  private Size desiredPreviewSize;
-
   private CameraConnectionFragment(
       final ConnectionCallback connectionCallback,
       final OnImageAvailableListener imageListener,
@@ -223,17 +205,6 @@ public class CameraConnectionFragment extends Fragment {
     this.imageListener = imageListener;
     this.layout = layout;
     this.inputSize = inputSize;
-  }
-
-  @Override
-  public void onCreate(@Nullable Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    Point size = new Point();
-    getActivity().getWindowManager().getDefaultDisplay().getSize(size);
-    int x = size.x;
-    int y = size.y;
-    Log.e("CameraActivity", "sxsy="+String.valueOf(x)+"x"+String.valueOf(y));
-    desiredPreviewSize = new Size(((x > y) ? x : y), ((x > y) ? y : x));
   }
 
   /**
@@ -389,19 +360,16 @@ public class CameraConnectionFragment extends Fragment {
 
       previewSize =
           chooseOptimalSize(map.getOutputSizes(SurfaceTexture.class),
-              inputSize.getWidth(),
-              inputSize.getHeight());
+                  inputSize.getWidth(),
+                  inputSize.getHeight());
 
       // We fit the aspect ratio of TextureView to the size of preview we picked.
 
       final int orientation = getResources().getConfiguration().orientation;
       if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-        //textureView.setAspectRatio(previewSize.getWidth(), previewSize.getHeight());
-        textureView.setAspectRatio(desiredPreviewSize.getWidth(), desiredPreviewSize.getHeight());
-
+        textureView.setAspectRatio(previewSize.getWidth(), previewSize.getHeight());
       } else {
-        //textureView.setAspectRatio(previewSize.getHeight(), previewSize.getWidth());
-        textureView.setAspectRatio(desiredPreviewSize.getHeight(), desiredPreviewSize.getWidth());
+        textureView.setAspectRatio(previewSize.getHeight(), previewSize.getWidth());
       }
     } catch (final CameraAccessException e) {
       LOGGER.e(e, "Exception!");
@@ -604,18 +572,6 @@ public class CameraConnectionFragment extends Fragment {
       matrix.postRotate(180, centerX, centerY);
     }
     textureView.setTransform(matrix);
-  }
-
-  /**
-   * Compares two {@code Size}s based on their areas.
-   */
-  static class CompareSizesByArea implements Comparator<Size> {
-    @Override
-    public int compare(final Size lhs, final Size rhs) {
-      // We cast here to ensure the multiplications won't overflow
-      return Long.signum(
-          (long) lhs.getWidth() * lhs.getHeight() - (long) rhs.getWidth() * rhs.getHeight());
-    }
   }
 
   /**
