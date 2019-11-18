@@ -7,6 +7,7 @@ import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Environment;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.io.File;
@@ -26,7 +27,9 @@ public class SignDetector {
 
     private Classifier generalDetector;
     private Classifier signDifferentiator;
-    private Classifier digitReader;
+    private CropTracker cropTracker = null;
+    private boolean signVerification = false;
+    private String lastDetection;
 
 
     private static final int TF_OD_API_INPUT_SIZE = 300;
@@ -44,6 +47,7 @@ public class SignDetector {
     private List<Classifier.Recognition> resultsFinal;
 
     private final boolean quantized = true;
+    int i = 0;
 
 
     public SignDetector(Context context) throws IOException {
@@ -81,7 +85,8 @@ public class SignDetector {
         myDir.mkdirs();
 
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String fname = "Shuttab_" + timeStamp + ".jpg";
+        String fname = "Shuttab_" + timeStamp + "_" + i + ".jpg";
+        ++i;
 
         File file = new File(myDir, fname);
         if (file.exists()) file.delete();
@@ -121,75 +126,131 @@ public class SignDetector {
 
     private Bitmap processImage(Bitmap original) {
         Bitmap processedImage;
-        int width = original.getWidth();
+        /*int width = original.getWidth();
         int height = original.getHeight();
+        int cropSize = TF_OD_API_INPUT_SIZE;
         int left;
         int right;
         int top;
         int bottom;
 
-        if (width < height) {
-            left = 0;
-            right = width;
-            top = (int)((height / 2.0f) - (width / 2.0f));
-            bottom = top + width;
-            processedImage = cropBitmap(original, left, right, top, bottom);
-        } else if (height < width) {
-            top = 0;
-            bottom = height;
-            left = (int)((width / 2.0f) - (height / 2.0f));
-            right = left + height;
-            processedImage = cropBitmap(original, left, right, top, bottom);
-        } else
-            processedImage = original;
+        right = original.getWidth();
+        left = right - cropSize;
+        top = (int)((height / 2.0f) - (cropSize / 2.0f));
+        bottom = top + cropSize;*/
+
+        RectF crop = cropTracker.getCropRect();
+        System.out.println("crop debug " + crop);
+        processedImage = cropBitmap(original, crop.left, crop.right, crop.top, crop.bottom);
 
         return (processedImage);
     }
 
-    private RectF getSignRect(RectF box, Bitmap ref, Bitmap target) {
+    private RectF getSignRect(RectF box) {
         RectF newBox = new RectF();
 
-        newBox.left = box.left * target.getWidth() / ref.getWidth();
-        newBox.right = box.right * target.getWidth() / ref.getWidth();
-        newBox.bottom = box.bottom * target.getHeight() / ref.getHeight();
-        newBox.top = box.top * target.getHeight() / ref.getHeight();
+        newBox.left = box.left;
+        newBox.right = box.right;
+        newBox.bottom = box.bottom;
+        newBox.top = box.top;
+
+        if (newBox.right - newBox.left > newBox.bottom - newBox.top) {
+            float diff = (newBox.right - newBox.left) - (newBox.bottom - newBox.top);
+            newBox.bottom += diff * 0.5;
+            newBox.top -= diff * 0.5;
+        } else if (newBox.right - newBox.left < newBox.bottom - newBox.top) {
+            float diff = (newBox.bottom - newBox.top) - (newBox.right - newBox.left);
+            newBox.right += diff * 0.5;
+            newBox.left -= diff * 0.5;
+        }
 
         return (newBox);
     }
 
-    public List<Classifier.Recognition> detectSign(Bitmap original, float confidence) {
+    private List<Classifier.Recognition> detectOnCrop(float confidence, Bitmap original, boolean verification) {
         Bitmap signProcessedFrame;
         signProcessedFrame = processImage(original);
-        Bitmap frameResized = getResizedBitmap(signProcessedFrame.copy(signProcessedFrame.getConfig(), signProcessedFrame.isMutable()), TF_OD_API_INPUT_SIZE, TF_OD_API_INPUT_SIZE);
 
-        List<Classifier.Recognition> results = generalDetector.recognizeImage(frameResized);
+        List<Classifier.Recognition> results = generalDetector.recognizeImage(signProcessedFrame);
         List<Classifier.Recognition> signs = new ArrayList<>();
-        List<Classifier.Recognition> differentiator = new ArrayList<>();
+        List<Classifier.Recognition> differentiator;
+
+        float yoffset = cropTracker.getOffsetSaved();
+        float xoffset = cropTracker.getCropRect().left;
 
         for (Classifier.Recognition result : results) {
             if (result.getConfidence() >= confidence) {
-                RectF rect = getSignRect(result.getLocation(), frameResized, signProcessedFrame);
-                //saveImage(signProcessedFrame);
+                RectF rect = getSignRect(result.getLocation());
                 Bitmap cropped = cropBitmap(signProcessedFrame, rect.left, rect.right, rect.top, rect.bottom);
-                //saveImage(cropped);
-                Bitmap processedCropped = getResizedBitmap(processImage(cropped), TF_OD_API_INPUT_SIZE, TF_OD_API_INPUT_SIZE);
-                saveImage(processedCropped);
+                Bitmap processedCropped = getResizedBitmap(cropped, TF_OD_API_INPUT_SIZE, TF_OD_API_INPUT_SIZE);
                 differentiator = signDifferentiator.recognizeImage(processedCropped);
-                float offset = (original.getHeight() - signProcessedFrame.getHeight()) / 2.0f;
                 RectF originalRect = new RectF(result.getLocation().left, result.getLocation().top, result.getLocation().right, result.getLocation().bottom);
-                adaptLocationsToCropSize(signProcessedFrame.getHeight(), signProcessedFrame.getWidth(), originalRect, 300, 300);
-                originalRect.top += offset;
-                originalRect.bottom += offset;
+                originalRect.top += yoffset;
+                originalRect.bottom += yoffset;
+                originalRect.left += xoffset;
+                originalRect.right += xoffset;
+                RectF tmpRect = new RectF(originalRect);
                 adaptLocationsToCropSize(300, 300, originalRect, original.getHeight(), original.getWidth());
                 for (Classifier.Recognition diffResult : differentiator) {
                     if (diffResult.getConfidence() > confidence) {
-                        diffResult.setLocation(originalRect);
-                        signs.add(diffResult);
+                        if (!verification) {
+                            cropTracker.updateTarget(diffResult.getTitle(), tmpRect);
+                            lastDetection = diffResult.getTitle();
+                            diffResult.setLocation(originalRect);
+                            signs.add(diffResult);
+                        } else {
+                            signVerification = false;
+                            diffResult.setLocation(originalRect);
+                            signs.add(diffResult);
+                        }
                     }
                 }
             }
         }
 
+        RectF cropTrackerDebug = cropTracker.getCropRect();
+
+        adaptLocationsToCropSize(300, 300, cropTrackerDebug, original.getHeight(), original.getWidth());
+        Classifier.Recognition debug = new Classifier.Recognition("-1", "Debug", 1.0f, cropTrackerDebug);
+
+        signs.add(debug);
+
+        return (signs);
+    }
+
+    private boolean signDetected(List<Classifier.Recognition> signs) {
+        for (Classifier.Recognition sign : signs) {
+            if (!sign.getTitle().equals("Debug")) {
+                return (true);
+            }
+        }
+        return (false);
+    }
+
+    public boolean isDetectingSign() {
+        return (signVerification);
+    }
+
+    public List<Classifier.Recognition> verifySign(Bitmap original, float confidence) {
+        cropTracker.updateTrack();
+        signVerification = false;
+        return (detectOnCrop(confidence, original, true));
+    }
+
+    public List<Classifier.Recognition> detectSign(Bitmap original, float confidence) {
+        if (cropTracker == null) {
+            cropTracker = new CropTracker(CropTracker.Direction.Vertical, original.getWidth(), original.getHeight(), TF_OD_API_INPUT_SIZE, (int)(TF_OD_API_INPUT_SIZE * 0.8f), true, (int)(TF_OD_API_INPUT_SIZE * 0.8f) + TF_OD_API_INPUT_SIZE + 2);
+            cropTracker.setOffPos(original.getWidth() - TF_OD_API_INPUT_SIZE);
+        }
+
+        List<Classifier.Recognition> signs = new ArrayList<>();
+
+        while (!signDetected(signs) && cropTracker.hasNextOffset()) {
+            cropTracker.updateTrack();
+            signs.addAll(detectOnCrop(confidence, original, false));
+        }
+
+        cropTracker.resetOffset();
         return (signs);
     }
 

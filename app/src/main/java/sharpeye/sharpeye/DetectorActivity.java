@@ -313,7 +313,21 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         List<Classifier.Recognition> dangerResults = null;
         final List<Classifier.Recognition> fullResults = new ArrayList<>();
         boolean tracking = false;
-        if (!initializedTracking || (startTime - lastRecognition) >= 300) {
+        if (signClassifier.isDetectingSign()) {
+            results = new ArrayList<>();
+            List<Classifier.Recognition> tmp = signClassifier.verifySign(rgbOrientedBitmap, MINIMUM_CONFIDENCE_TF_OD_API);
+            for (Classifier.Recognition val: tmp) {
+                if (val.getLocation().right >= 0 &&
+                        val.getLocation().left >= 0 && val.getLocation().bottom >= 0 && val.getLocation().top >= 0 &&
+                        val.getLocation().right < 5000 && val.getLocation().left < 5000 && val.getLocation().bottom < 5000 &&
+                        val.getLocation().top < 5000) {
+                    results.add(val);
+                }
+            }
+            for (Classifier.Recognition recog : results) {
+                Log.d("DETECTORACTIVITY", "OID="+recog.getOpencvID()+ " | ID="+recog.getId()+" | title="+recog.getTitle()+" | bottom="+recog.getLocation().bottom+" | top="+ recog.getLocation().top+" | left="+recog.getLocation().left+" | right="+recog.getLocation().right);
+            }
+        } else if (!initializedTracking || (startTime - lastRecognition) >= 300) {
             results = new ArrayList<>();
             List<Classifier.Recognition> tmp = signClassifier.detectSign(rgbOrientedBitmap, MINIMUM_CONFIDENCE_TF_OD_API);
             for (Classifier.Recognition val: tmp) {
