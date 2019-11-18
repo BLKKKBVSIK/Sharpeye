@@ -141,6 +141,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(R.style.AppTheme_NoActionBar);
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null && savedInstanceState.containsKey("TRACKER")) {
             tracker = savedInstanceState.getParcelable("TRACKER");
