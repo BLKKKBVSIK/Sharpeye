@@ -29,7 +29,10 @@ public class SignDetector {
     private Classifier signDifferentiator;
     private CropTracker cropTracker = null;
     private boolean signVerification = false;
-    private String lastDetection;
+    private boolean debugMode = false;
+
+    private static final int VERIFICATION_NBR = 1;
+    private int currentVerificationNbr = 0;
 
 
     private static final int TF_OD_API_INPUT_SIZE = 300;
@@ -76,6 +79,10 @@ public class SignDetector {
         }else{
             //prompt the user or do something
         }
+    }
+
+    public void SetDebugMode(boolean value) {
+        debugMode = value;
     }
 
     private void saveImage(Bitmap finalBitmap) {
@@ -170,6 +177,7 @@ public class SignDetector {
     private List<Classifier.Recognition> detectOnCrop(float confidence, Bitmap original, boolean verification) {
         Bitmap signProcessedFrame;
         signProcessedFrame = processImage(original);
+        boolean requeueVerification = false;
 
         List<Classifier.Recognition> results = generalDetector.recognizeImage(signProcessedFrame);
         List<Classifier.Recognition> signs = new ArrayList<>();
@@ -195,25 +203,39 @@ public class SignDetector {
                     if (diffResult.getConfidence() > confidence) {
                         if (!verification) {
                             cropTracker.updateTarget(diffResult.getTitle(), tmpRect);
-                            lastDetection = diffResult.getTitle();
                             diffResult.setLocation(originalRect);
                             signs.add(diffResult);
                         } else {
-                            signVerification = false;
                             diffResult.setLocation(originalRect);
-                            signs.add(diffResult);
+                            Log.e("SignDetect", "Original: " + cropTracker.getTarget() + " - Verification: " + diffResult.getTitle());
+                            if (cropTracker.getTarget() != null && diffResult.getTitle().equals(cropTracker.getTarget()) && !requeueVerification) {
+                                if (currentVerificationNbr < VERIFICATION_NBR) {
+                                    currentVerificationNbr++;
+                                    requeueVerification = true;
+                                }
+                                else {
+                                    Log.e("SignDetect", "Sign confirmation: " + diffResult.getTitle());
+                                    signs.add(diffResult);
+                                }
+                            }
+                            signVerification = false;
                         }
                     }
                 }
             }
         }
 
-        RectF cropTrackerDebug = cropTracker.getCropRect();
+        if (requeueVerification)
+            signVerification = true;
 
-        adaptLocationsToCropSize(300, 300, cropTrackerDebug, original.getHeight(), original.getWidth());
-        Classifier.Recognition debug = new Classifier.Recognition("-1", "Debug", 1.0f, cropTrackerDebug);
+        if (debugMode) {
+            RectF cropTrackerDebug = cropTracker.getCropRect();
 
-        signs.add(debug);
+            adaptLocationsToCropSize(300, 300, cropTrackerDebug, original.getHeight(), original.getWidth());
+            Classifier.Recognition debug = new Classifier.Recognition("-1", "Debug", 1.0f, cropTrackerDebug);
+
+            signs.add(debug);
+        }
 
         return (signs);
     }
@@ -221,6 +243,7 @@ public class SignDetector {
     private boolean signDetected(List<Classifier.Recognition> signs) {
         for (Classifier.Recognition sign : signs) {
             if (!sign.getTitle().equals("Debug")) {
+                signVerification = true;
                 return (true);
             }
         }
@@ -232,6 +255,8 @@ public class SignDetector {
     }
 
     public List<Classifier.Recognition> verifySign(Bitmap original, float confidence) {
+        Log.e("SignDetect", "Sign verification: " + currentVerificationNbr + "/" + VERIFICATION_NBR);
+        cropTracker.trackTarget();
         cropTracker.updateTrack();
         signVerification = false;
         return (detectOnCrop(confidence, original, true));
@@ -243,14 +268,22 @@ public class SignDetector {
             cropTracker.setOffPos(original.getWidth() - TF_OD_API_INPUT_SIZE);
         }
 
+        currentVerificationNbr = 1;
         List<Classifier.Recognition> signs = new ArrayList<>();
+        cropTracker.cancelTarget();
 
         while (!signDetected(signs) && cropTracker.hasNextOffset()) {
             cropTracker.updateTrack();
             signs.addAll(detectOnCrop(confidence, original, false));
         }
 
+        if (signVerification)
+            Log.e("SignDetect", "Found sign, starting fast verification");
+
         cropTracker.resetOffset();
+
+        if (!debugMode)
+            signs.clear();
         return (signs);
     }
 

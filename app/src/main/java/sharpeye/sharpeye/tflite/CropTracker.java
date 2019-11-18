@@ -11,13 +11,13 @@ public class CropTracker {
         Vertical
     };
 
-    private class Target {
+    public class Target {
         String name;
         RectF rect;
         long lastSeen;
     }
 
-    private final static long TIME_LIMIT = 500;
+    private final static long TIME_LIMIT = 2000;
 
     int width;
     int height;
@@ -28,6 +28,7 @@ public class CropTracker {
     boolean tracking = false;
     boolean idle = true;
     Target target = null;
+    String lastDetected;
 
     private int offset = 1;
     private int offDirPos = 1;
@@ -53,6 +54,10 @@ public class CropTracker {
             limit = height;
     }
 
+    public String getTarget() {
+        return (lastDetected);
+    }
+
     public void setOffPos(int pos) {
         offDirPos = pos;
         if (idleDirection == Direction.Horizontal) {
@@ -66,6 +71,7 @@ public class CropTracker {
 
     public void updateTarget(String targetName, RectF pos) {
         if (target == null || (target.name.equals(targetName))) {
+            lastDetected = targetName;
             target = new Target();
             target.lastSeen = System.currentTimeMillis();
             target.name = targetName;
@@ -74,13 +80,19 @@ public class CropTracker {
             target.rect.right = (int)target.rect.right;
             target.rect.top = (int)target.rect.top;
             target.rect.bottom = (int)target.rect.bottom;
-            idle = false;
         }
     }
 
-    private void cropOnTarget() {
+    public void trackTarget() {
+        idle = false;
+    }
 
-        System.out.println("Focusing crop on target which is at pos: " + target.rect);
+    public void cancelTarget() {
+        target = null;
+        idle = true;
+    }
+
+    private void cropOnTarget() {
 
         cropRect.left = (((int)(target.rect.right - target.rect.left) * 0.5f)) + target.rect.left - (cropSize / 2.0f);
         if (cropRect.left <= 1) {
@@ -108,15 +120,12 @@ public class CropTracker {
         }
 
         offsetSaved = (int)cropRect.top;
-        idle = true;
-        target = null;
     }
 
     public boolean hasNextOffset() {
         float nextOffset;
 
         nextOffset = offset;
-        Log.e("Croptracker", "limit: " + limit + " - nextOfffset: " + offset);
         if ((nextOffset + cropSize >= limit && idleDirection == Direction.Horizontal) || (nextOffset + cropSize >= limit && idleDirection == Direction.Vertical)) {
             return (false);
         }
