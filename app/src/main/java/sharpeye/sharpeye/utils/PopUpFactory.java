@@ -28,7 +28,7 @@ public class PopUpFactory {
 
     /**
      * Create a PopUpFactory to generate a popup
-     * @param context context of the app
+     * @param context context of your activity
      */
     public PopUpFactory(Context context) {
         dialogBuilder = new AlertDialog.Builder(context);

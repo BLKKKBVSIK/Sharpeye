@@ -56,8 +56,7 @@ import sharpeye.sharpeye.utils.Logger;
 import java.nio.ByteBuffer;
 
 public abstract class CameraActivity extends AppCompatActivity
-    implements OnImageAvailableListener, Camera.PreviewCallback, NavigationView.OnNavigationItemSelectedListener,
-        CompoundButton.OnCheckedChangeListener, View.OnClickListener {
+    implements OnImageAvailableListener, Camera.PreviewCallback, NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
   private static final Logger LOGGER = new Logger();
 
   private static final int PERMISSIONS_REQUEST = 1;
@@ -90,7 +89,6 @@ public abstract class CameraActivity extends AppCompatActivity
   protected TextView frameValueTextView, cropValueTextView, inferenceTimeTextView;
   protected ImageView bottomSheetArrowImageView;
   private ImageView plusImageView, minusImageView;
-  private SwitchCompat apiSwitchCompat;
   private TextView threadsTextView;
 
     public static void setWindowFlag(Activity activity, final int bits, boolean on) {
@@ -114,15 +112,15 @@ public abstract class CameraActivity extends AppCompatActivity
 
     setContentView(R.layout.activity_camera);
 
-    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+    Toolbar toolbar = findViewById(R.id.toolbar);
 
-    DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+    DrawerLayout drawer = findViewById(R.id.drawer_layout);
     ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
             this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
     drawer.addDrawerListener(toggle);
     toggle.syncState();
 
-    NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+    NavigationView navigationView = findViewById(R.id.nav_view);
     navigationView.setNavigationItemSelectedListener(this);
     navigationView.setItemIconTintList(null);
 
@@ -134,7 +132,6 @@ public abstract class CameraActivity extends AppCompatActivity
     threadsTextView = findViewById(R.id.threads);
     plusImageView = findViewById(R.id.plus);
     minusImageView = findViewById(R.id.minus);
-    apiSwitchCompat = findViewById(R.id.api_info_switch);
     bottomSheetLayout = findViewById(R.id.bottom_sheet_layout);
     gestureLayout = findViewById(R.id.gesture_layout);
     sheetBehavior = BottomSheetBehavior.from(bottomSheetLayout);
@@ -188,12 +185,11 @@ public abstract class CameraActivity extends AppCompatActivity
     cropValueTextView = findViewById(R.id.crop_info);
     inferenceTimeTextView = findViewById(R.id.inference_info);
 
-    apiSwitchCompat.setOnCheckedChangeListener(this);
-
     plusImageView.setOnClickListener(this);
     minusImageView.setOnClickListener(this);
     bottomSheetLayout.setVisibility(((debug) ? View.VISIBLE : View.INVISIBLE));
   }
+
 
   private byte[] lastPreviewFrame;
 
@@ -489,7 +485,7 @@ public abstract class CameraActivity extends AppCompatActivity
                 public void onPreviewSizeChosen(final Size size, final int rotation) {
                   previewHeight = size.getHeight();
                   previewWidth = size.getWidth();
-                  Log.e("CameraActivity", "PreviewTextureSize="+String.valueOf(size.getWidth())+"x"+String.valueOf(size.getHeight()));
+                  Log.e("CameraActivity", "PreviewTextureSize="+ size.getWidth() +"x"+ size.getHeight());
                   CameraActivity.this.onPreviewSizeChosen(size, rotation);
                 }
               },
@@ -535,13 +531,6 @@ public abstract class CameraActivity extends AppCompatActivity
     }
   }
 
-  public void addCallback(final OverlayView.DrawCallback callback) {
-    final OverlayView overlay = (OverlayView) findViewById(R.id.debug_overlay);
-    if (overlay != null) {
-      overlay.addCallback(callback);
-    }
-  }
-
   public void onSetDebug(final boolean debug) {}
 
   @Override
@@ -573,13 +562,6 @@ public abstract class CameraActivity extends AppCompatActivity
       default:
         return 0;
     }
-  }
-
-  @Override
-  public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-    setUseNNAPI(isChecked);
-    if (isChecked) apiSwitchCompat.setText("NNAPI");
-    else apiSwitchCompat.setText("TFLITE");
   }
 
   @Override
@@ -617,7 +599,7 @@ public abstract class CameraActivity extends AppCompatActivity
 
   @Override
   public void onBackPressed() {
-    DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+    DrawerLayout drawer = findViewById(R.id.drawer_layout);
     if (drawer.isDrawerOpen(GravityCompat.START)) {
       drawer.closeDrawer(GravityCompat.START);
     } else {

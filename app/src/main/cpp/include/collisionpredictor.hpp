@@ -18,11 +18,11 @@ private:
 	bool is_faster_than(const int id, cv::Rect2f box, cv::Mat frame);
 
 	std::map<int, std::vector<double>>	objects_size_history;
-	const int 							SAMPLE_SIZE = 30;
-	const int 							APX_THRESHOLD = 18;
+	const int 							SAMPLE_SIZE = 5;
+	const int 							APX_THRESHOLD = 19;
 	const int 							GROWTH_THRESHOLD = 1;
-	const int 							MIN_X = 20;
-	const int 							MAX_X = 80;
+	const int 							MIN_X = 21;
+	const int 							MAX_X = 82;
 };
 
 #endif // COLLISIONPREDICTOR_HPP

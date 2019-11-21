@@ -4,10 +4,13 @@ import android.graphics.Bitmap;
 import android.graphics.RectF;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.os.SystemClock;
 import android.util.Log;
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
+
+import sharpeye.sharpeye.signs.BipGenerator;
 import sharpeye.sharpeye.tflite.Classifier;
 
 import java.util.ArrayList;
@@ -24,11 +27,15 @@ public class Tracker implements Parcelable {
     private long trackerAddress;
     private HashMap<Integer, Classifier.Recognition> trackedObjects;
     private boolean alertCollision;
+    private BipGenerator bipGenerator;
+    private long lastBip;
 
     public Tracker() {
         trackerAddress = -1;
         trackedObjects = new HashMap<>();
         alertCollision = false;
+        bipGenerator = new BipGenerator();
+        lastBip = SystemClock.uptimeMillis();
     }
 
     public  boolean needInit() {
@@ -160,6 +167,19 @@ public class Tracker implements Parcelable {
 
     public boolean isAlertCollision() {
         return alertCollision;
+    }
+
+    public void alertIfDangerous(double speed) {
+        if (speed > 10 && alertCollision) {
+            if (bipGenerator == null) {
+                bipGenerator = new BipGenerator();
+            }
+            if (SystemClock.uptimeMillis() - lastBip > 300) {
+                bipGenerator.bip(150, 100);
+                lastBip = SystemClock.uptimeMillis();
+            }
+            Log.i("Collision", "Situation is dangerous");
+        }
     }
 
     public static class Rect2f {

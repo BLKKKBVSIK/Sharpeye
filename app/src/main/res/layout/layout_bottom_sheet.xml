@@ -158,30 +158,4 @@
         android:layout_marginTop="10dp"
         android:layout_marginBottom="40dp"
         android:background="@android:color/darker_gray" />
-
-    <!-- TODO(b/112541284): Unhide when new NNAPI delegate is used. -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:visibility="gone">
-
-        <TextView
-            android:id="@+id/api"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="API"
-            android:textColor="@android:color/black" />
-
-        <android.support.v7.widget.SwitchCompat
-            android:id="@+id/api_info_switch"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:checked="false"
-            android:gravity="right"
-            android:text="TFLITE"
-            android:textColor="@android:color/black" />
-    </LinearLayout>
 </LinearLayout>

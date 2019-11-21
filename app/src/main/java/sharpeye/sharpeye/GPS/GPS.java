@@ -47,7 +47,7 @@ public class GPS {
 
     public void create()
     {
-        locationManager = (LocationManager) context.getSystemService(context.LOCATION_SERVICE);
+        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(context,"speed_display",false)) {
             initializeGPS();
         }
