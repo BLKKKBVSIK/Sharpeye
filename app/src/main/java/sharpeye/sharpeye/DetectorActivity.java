@@ -22,7 +22,6 @@ import android.graphics.*;
 import android.graphics.Bitmap.Config;
 import android.graphics.Paint.Style;
 import android.media.ImageReader.OnImageAvailableListener;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -32,10 +31,8 @@ import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.util.Size;
 import android.util.TypedValue;
-import android.view.View;
 import android.widget.Toast;
 
-import sharpeye.sharpeye.Services.HeadSignService;
 import sharpeye.sharpeye.data.BooleanKeyValueDBHelper;
 import sharpeye.sharpeye.GPS.GPS;
 import sharpeye.sharpeye.customview.OverlayView;
@@ -43,6 +40,8 @@ import sharpeye.sharpeye.data.SharedPreferencesHelper;
 import sharpeye.sharpeye.objects_logic.ObjectsProcessing;
 import sharpeye.sharpeye.popups.BatteryPopupHandler;
 import sharpeye.sharpeye.popups.PopupHandler;
+import sharpeye.sharpeye.processors.HeadUpSignProcessor;
+import sharpeye.sharpeye.processors.ProcessorsManager;
 import sharpeye.sharpeye.signs.Sign;
 import sharpeye.sharpeye.signs.frontManagers.SignViewManager;
 import sharpeye.sharpeye.signs.frontManagers.SpeedViewManager;
@@ -58,7 +57,6 @@ import sharpeye.sharpeye.tflite.TFLiteObjectDetectionAPIModel;
 import sharpeye.sharpeye.signs.SignList;
 import sharpeye.sharpeye.tracking.MultiBoxTracker;
 import sharpeye.sharpeye.tracking.Tracker;
-import sharpeye.sharpeye.utils.PopUpFactory;
 
 import java.io.IOException;
 
@@ -147,7 +145,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     private BooleanKeyValueDBHelper kvDatabase;
     private BatteryPopupHandler batteryPopupHandler;
 
-
+    private ProcessorsManager processorsManager;
     private static final int CODE_DRAW_OVER_OTHER_APP_PERMISSION = 2084;
 
     @Override
@@ -169,7 +167,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         ArrayList<sharpeye.sharpeye.signs.frontManagers.FrontElementManager> frontElementManagers = new ArrayList();
         frontElementManagers.add(new SignViewManager(this, new SignView(this), false));
         frontElementManagers.add(new SpeedViewManager(this, new SpeedView(this), false));
-        gps = new GPS(this,frontElementManagers);
+        gps = new GPS(this, frontElementManagers);
         gps.create();
         batteryPopupHandler = new BatteryPopupHandler(getApplicationContext(), this);
         batteryPopupHandler.Start();
@@ -177,48 +175,22 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         PopupHandler starting = new PopupHandler(this,
                 getApplicationContext().getString(R.string.starting_popup), kvDatabase);
         starting.NextPopup(0);
-        //----------------------------------------------------//
-        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
-
-            //If the draw over permission is not available open the settings screen
-            //to grant the permission.
-            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    Uri.parse("package:" + getPackageName()));
-            startActivityForResult(intent, CODE_DRAW_OVER_OTHER_APP_PERMISSION);
-        } else {
-            initializeView();
-        }*/
-        //----------------------------------------------------//
-    }
-
-    /**
-     * Set and initialize the view elements.
-     */
-    private void initializeView() {
-        findViewById(R.id.speed_limit_sign).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                finish();
-            }
-        });
+        processorsManager = new ProcessorsManager();
+        processorsManager
+                .add(new HeadUpSignProcessor(getApplicationContext(), this))
+                .add(new HeadUpSignProcessor(getApplicationContext(), this))
+                .create();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == CODE_DRAW_OVER_OTHER_APP_PERMISSION) {
-
-            //Check if the permission is granted or not.
-            // Settings activity never returns proper value so instead check with following method
-            if (Settings.canDrawOverlays(this)) {
-                initializeView();
-            } else { //Permission is not available
+            if (!Settings.canDrawOverlays(this)) {
+                SharedPreferencesHelper.INSTANCE.setSharedPreferencesBoolean(getApplicationContext(),"sign_bubble",false);
                 Toast.makeText(this,
-                        "Draw over other app permission not available. Closing the application",
+                        "Draw over other app permission not available. Switching off preferences",
                         Toast.LENGTH_SHORT).show();
-
-                finish();
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data);
@@ -241,31 +213,9 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             objectsProcessing.init(this);
         }
         gps.resume(currentState);
-        if (i != null) {
-            getApplicationContext().stopService(i);
-            i = null;
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-                SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(getApplicationContext(),"sign_bubble",false) &&
-                !Settings.canDrawOverlays(this)) {
-
-            new PopUpFactory(this)
-                    .setTitle("Permissions")
-                    .setMessage("Pour activer cette fonctionnalité vous devez autoriser Sharpeye à afficher par dessus d'autres applications.")
-                    .setNegativeButton("Retour", () -> {
-                        SharedPreferencesHelper.INSTANCE.setSharedPreferencesBoolean(getApplicationContext(),"sign_bubble",false);
-                        Toast.makeText(getApplicationContext(), "Fonctionnalité désactivée", Toast.LENGTH_SHORT).show();
-                    })
-                    .setPositiveButton( "Aller dans les paramètres", () -> {
-                        Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                                Uri.parse("package:" + getPackageName()));
-                        startActivityForResult(intent, CODE_DRAW_OVER_OTHER_APP_PERMISSION);
-                    })
-                    .show();
-        }
+        processorsManager.resume(currentState);
     }
 
-    Intent i = null;
     @Override
     public synchronized void onPause() {
         super.onPause();
@@ -273,9 +223,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             objectsProcessing.release();
             objectsProcessing = null;
         }
-        if (currentState.isSpeedLimit() && SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(getApplicationContext(),"sign_bubble",false)) {
-            startService(i = new Intent(DetectorActivity.this, HeadSignService.class));
-        } //TODO: add preferences
+        processorsManager.pause(currentState);
     }
 
     @Override
@@ -284,6 +232,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         tracker.free();
         batteryPopupHandler.Stop();
         gps.clean();
+        processorsManager.clean();
     }
 
     @Override
@@ -387,6 +336,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     protected void processImage() {
         //------------------service gps------------------
         currentState = gps.process(currentState, this);
+        currentState = processorsManager.process(currentState);
         //-----------------------------------------------
         ++timestamp;
         final long currTimestamp = timestamp;

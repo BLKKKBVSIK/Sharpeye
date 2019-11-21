@@ -126,4 +126,9 @@
     <string name="battery_popup_ok">Ok (but in english)</string>
     <string name="active_sign_bubble">Activate pop-out sign</string>
     <string name="sign_bubble_summary">Allows you to see speed limit out of the app</string>
+    <string name="sign_popout_message">To activate this feature you must allow Sharpeye to display over other apps</string>
+    <string name="sign_popout_negative">Back</string>
+    <string name="sign_popout_negative_toast">Feature disabled</string>
+    <string name="sign_popout_positive">Go to settings</string>
+    <string name="sign_popout_title">Display permissions</string>
 </resources>

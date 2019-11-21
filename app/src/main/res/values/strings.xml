@@ -150,7 +150,12 @@
     <string name="battery_title">Batterie faible</string>
     <string name="battery_message">Votre niveau de batterie est faible, assurez vous de brancher votre téléphone</string>
     <string name="battery_popup_dont_show_again">Ne plus afficher</string>
-    <string name="battery_popup_ok">Ok</string>
+    <string name="battery_popup_ok">OK</string>
     <string name="active_sign_bubble">Activer le panneau détachable</string>
     <string name="sign_bubble_summary">Vous permet de connaitre la limite de vitesse même en dehors de l\'application</string>
+    <string name="sign_popout_title">Permissions d\'affichage</string>
+    <string name="sign_popout_message">Pour activer cette fonctionnalité vous devez autoriser Sharpeye à afficher par dessus d\'autres applications.</string>
+    <string name="sign_popout_negative">Retour</string>
+    <string name="sign_popout_negative_toast">Fonctionnalité désactivée</string>
+    <string name="sign_popout_positive">Aller dans les paramètres</string>
 </resources>
