@@ -34,19 +34,15 @@ import android.util.TypedValue;
 import android.widget.Toast;
 
 import sharpeye.sharpeye.data.BooleanKeyValueDBHelper;
-import sharpeye.sharpeye.GPS.GPS;
 import sharpeye.sharpeye.customview.OverlayView;
 import sharpeye.sharpeye.data.SharedPreferencesHelper;
 import sharpeye.sharpeye.objects_logic.ObjectsProcessing;
 import sharpeye.sharpeye.popups.BatteryPopupHandler;
 import sharpeye.sharpeye.popups.PopupHandler;
+import sharpeye.sharpeye.processors.GPSProcessor;
 import sharpeye.sharpeye.processors.HeadUpSignProcessor;
 import sharpeye.sharpeye.processors.ProcessorsManager;
 import sharpeye.sharpeye.signs.Sign;
-import sharpeye.sharpeye.signs.frontManagers.SignViewManager;
-import sharpeye.sharpeye.signs.frontManagers.SpeedViewManager;
-import sharpeye.sharpeye.signs.frontViews.SignView;
-import sharpeye.sharpeye.signs.frontViews.SpeedView;
 import sharpeye.sharpeye.tflite.SignDetector;
 import sharpeye.sharpeye.utils.BorderedText;
 import sharpeye.sharpeye.utils.CurrentState;
@@ -141,7 +137,6 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     private CurrentState currentState;
     private SignList signList;
-    private GPS gps;
     private BooleanKeyValueDBHelper kvDatabase;
     private BatteryPopupHandler batteryPopupHandler;
 
@@ -164,11 +159,6 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             tracker.init();
         currentState = new CurrentState();
         signList = new SignList(this);
-        ArrayList<sharpeye.sharpeye.signs.frontManagers.FrontElementManager> frontElementManagers = new ArrayList();
-        frontElementManagers.add(new SignViewManager(this, new SignView(this), false));
-        frontElementManagers.add(new SpeedViewManager(this, new SpeedView(this), false));
-        gps = new GPS(this, frontElementManagers);
-        gps.create();
         batteryPopupHandler = new BatteryPopupHandler(getApplicationContext(), this);
         batteryPopupHandler.Start();
         kvDatabase = new BooleanKeyValueDBHelper(this);
@@ -177,7 +167,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         starting.NextPopup(0);
         processorsManager = new ProcessorsManager();
         processorsManager
-                .add(new HeadUpSignProcessor(getApplicationContext(), this))
+                .add(new GPSProcessor(getApplicationContext(), this))
                 .add(new HeadUpSignProcessor(getApplicationContext(), this))
                 .create();
     }
@@ -212,7 +202,6 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             }
             objectsProcessing.init(this);
         }
-        gps.resume(currentState);
         processorsManager.resume(currentState);
     }
 
@@ -231,7 +220,6 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         super.onDestroy();
         tracker.free();
         batteryPopupHandler.Stop();
-        gps.clean();
         processorsManager.clean();
     }
 
@@ -334,8 +322,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     @Override
     protected void processImage() {
-        //------------------service gps------------------
-        currentState = gps.process(currentState, this);
+        //------------------processorsManager------------------
         currentState = processorsManager.process(currentState);
         //-----------------------------------------------
         ++timestamp;

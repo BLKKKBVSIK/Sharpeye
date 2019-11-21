@@ -1,4 +1,4 @@
-package sharpeye.sharpeye.GPS;
+package sharpeye.sharpeye.processors;
 
 import android.Manifest;
 import android.app.Activity;
@@ -17,21 +17,25 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import sharpeye.sharpeye.signs.frontManagers.FrontElementManager;
-import sharpeye.sharpeye.utils.CurrentState;
 import sharpeye.sharpeye.R;
 import sharpeye.sharpeye.Services.GPSService;
 import sharpeye.sharpeye.data.SharedPreferencesHelper;
+import sharpeye.sharpeye.signs.frontManagers.FrontElementManager;
+import sharpeye.sharpeye.signs.frontManagers.SignViewManager;
+import sharpeye.sharpeye.signs.frontManagers.SpeedViewManager;
+import sharpeye.sharpeye.signs.frontViews.SignView;
+import sharpeye.sharpeye.signs.frontViews.SpeedView;
+import sharpeye.sharpeye.utils.CurrentState;
 import sharpeye.sharpeye.utils.ServiceTools;
 
-public class GPS {
+public class GPSProcessor extends DataProcessor{
 
     private boolean GpsOnAlertAlreadyInflated = false;
     private boolean GPSPermissionAlreadyInflated = false;
     private Intent i;
-    private Context context;
 
     private GPSService mService;
     private boolean mBound = false;
@@ -39,25 +43,29 @@ public class GPS {
 
     private List<FrontElementManager> frontManagers;
 
-    public GPS(Context _context, List<FrontElementManager> _frontManagers)
+    public GPSProcessor(Context _appContext, Activity _activityContext)
     {
-        context = _context;
-        frontManagers = _frontManagers;
+        super(_appContext, _activityContext);
+        frontManagers = new ArrayList<>();
+        frontManagers.add(new SignViewManager(activityContext, new SignView(activityContext), false));
+        frontManagers.add(new SpeedViewManager(activityContext, new SpeedView(activityContext), false));
     }
 
+    @Override
     public void create()
     {
-        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(context,"speed_display",false)) {
+        locationManager = (LocationManager) appContext.getSystemService(Context.LOCATION_SERVICE);
+        if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(appContext,"speed_display",false)) {
             initializeGPS();
         }
     }
 
+    @Override
     public void resume(CurrentState currentState)
     {
         Log.d("gpsresume", "start");
         currentState.setSpeed(false);
-        if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(context,"speed_display",false)) {
+        if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(appContext,"speed_display",false)) {
             if (mBound) {
                 mService.setCurrentState(currentState);
                 currentState = mService.getCurrentState();
@@ -67,13 +75,13 @@ public class GPS {
                 stopService();
                 Log.d("gpsresume", "gps not enabled");
             }
-            else if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+            else if (ContextCompat.checkSelfPermission(appContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                     && GPSPermissionAlreadyInflated)
             {
                 turnOffGpsPreferences();
                 stopService();
                 Log.d("gpsresume", "unauthorized");
-            } else if (!ServiceTools.isServiceRunning("GPSService", context)) {
+            } else if (!ServiceTools.isServiceRunning("GPSService", appContext)) {
                 startService();
                 Log.d("gpsresume", "restart service");
             }
@@ -82,6 +90,11 @@ public class GPS {
             stopService();
         }
         Log.d("gpsresume", "end");
+    }
+
+    @Override
+    public void pause(CurrentState currentState) {
+
     }
 
     private ServiceConnection connection = new ServiceConnection() {
@@ -103,14 +116,14 @@ public class GPS {
     private void startService()
     {
         Log.d("gpsstartService", "start");
-        i= new Intent(context, GPSService.class);
+        i= new Intent(appContext, GPSService.class);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(i);
+            appContext.startForegroundService(i);
         } else {
-            context.startService(i);
+            appContext.startService(i);
         }
-        Intent intent = new Intent(context, GPSService.class);
-        context.bindService(intent, connection, Context.BIND_AUTO_CREATE);
+        Intent intent = new Intent(appContext, GPSService.class);
+        appContext.bindService(intent, connection, Context.BIND_AUTO_CREATE);
         Log.d("gpsstartService", "stop");
     }
 
@@ -118,9 +131,9 @@ public class GPS {
     {
         Log.d("gpsstopService", "start");
         if (mService != null && mBound) {
-            context.unbindService(connection);
+            appContext.unbindService(connection);
             mBound = false;
-            context.stopService(i);
+            appContext.stopService(i);
         }
         Log.d("gpsstopService", "stop");
     }
@@ -131,7 +144,8 @@ public class GPS {
         Log.d("gpsinitializeGPS", "end");
     }
 
-    public CurrentState process(CurrentState currentState, Activity activity)
+    @Override
+    public CurrentState process(CurrentState currentState)
     {
         if (mBound) {
             mService.setCurrentState(currentState);
@@ -139,21 +153,21 @@ public class GPS {
         }
 
         Log.d("GPS process", "gps enables: " + currentState.getGPSenabled() + " " + locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) +
-                "\nPermission: " + ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION));
+                "\nPermission: " + ContextCompat.checkSelfPermission(appContext, Manifest.permission.ACCESS_FINE_LOCATION));
 
         CurrentState finalCurrentState = currentState;
-        activity.runOnUiThread(() -> {
+        activityContext.runOnUiThread(() -> {
             if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) && !GpsOnAlertAlreadyInflated)
             {
                 stopService();
                 showSettingsAlert();
                 GpsOnAlertAlreadyInflated = true;
             }
-            if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+            if (ContextCompat.checkSelfPermission(appContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                     && !GPSPermissionAlreadyInflated)
             {
                 stopService();
-                ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 101);
+                ActivityCompat.requestPermissions(activityContext, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 101);
                 GPSPermissionAlreadyInflated = true;
             }
             for (FrontElementManager frontManager: frontManagers) {
@@ -167,25 +181,25 @@ public class GPS {
 
     private void turnOffGpsPreferences()
     {
-        SharedPreferencesHelper.INSTANCE.setSharedPreferencesBoolean(context,"speed_display",false);
-        SharedPreferencesHelper.INSTANCE.setSharedPreferencesBoolean(context,"speed_control",false);
+        SharedPreferencesHelper.INSTANCE.setSharedPreferencesBoolean(appContext,"speed_display",false);
+        SharedPreferencesHelper.INSTANCE.setSharedPreferencesBoolean(appContext,"speed_control",false);
     }
 
     private void showSettingsAlert(){
         Log.d("showSettingsAlert", "start");
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(appContext);
         alertDialog.setTitle(R.string.gps_settings);
         alertDialog.setMessage(R.string.gps_go_settings);
         alertDialog.setPositiveButton(R.string.settings, (dialog, which) -> {
             Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-            context.startActivity(intent);
+            appContext.startActivity(intent);
         });
         alertDialog.setNegativeButton(R.string.cancel, (dialog, which) -> {
             dialog.cancel();
             turnOffGpsPreferences();
-            CharSequence text = context.getString(R.string.disable_speed_features);
+            CharSequence text = appContext.getString(R.string.disable_speed_features);
             int duration = Toast.LENGTH_SHORT;
-            Toast.makeText(context, text, duration).show();
+            Toast.makeText(appContext, text, duration).show();
         });
         alertDialog.show();
         Log.d("showSettingsAlert", "end");

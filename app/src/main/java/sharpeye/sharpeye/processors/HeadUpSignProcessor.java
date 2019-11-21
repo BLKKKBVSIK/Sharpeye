@@ -1,6 +1,7 @@
 package sharpeye.sharpeye.processors;
 
 import android.app.Activity;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -14,6 +15,7 @@ import sharpeye.sharpeye.Services.HeadSignService;
 import sharpeye.sharpeye.data.SharedPreferencesHelper;
 import sharpeye.sharpeye.utils.CurrentState;
 import sharpeye.sharpeye.utils.PopUpFactory;
+import sharpeye.sharpeye.utils.ServiceTools;
 
 public class HeadUpSignProcessor extends DataProcessor {
 
@@ -49,7 +51,7 @@ public class HeadUpSignProcessor extends DataProcessor {
                     })
                     .show();
         }
-        if (i != null) {
+        if (i != null && ServiceTools.isServiceRunning("HeadSignService", appContext)) {
             appContext.stopService(i);
             i = null;
         }
@@ -68,6 +70,10 @@ public class HeadUpSignProcessor extends DataProcessor {
     }
 
     public void clean() {
+        if (i != null && ServiceTools.isServiceRunning("HeadSignService", appContext)) {
+            appContext.stopService(i);
+            i = null;
+        }
         Log.d("HeadUpSign", "start");
     }
 }
