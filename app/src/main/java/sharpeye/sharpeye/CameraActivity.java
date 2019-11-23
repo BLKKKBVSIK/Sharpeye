@@ -112,15 +112,15 @@ public abstract class CameraActivity extends AppCompatActivity
 
     setContentView(R.layout.activity_camera);
 
-    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+    Toolbar toolbar = findViewById(R.id.toolbar);
 
-    DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+    DrawerLayout drawer = findViewById(R.id.drawer_layout);
     ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
             this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
     drawer.addDrawerListener(toggle);
     toggle.syncState();
 
-    NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+    NavigationView navigationView = findViewById(R.id.nav_view);
     navigationView.setNavigationItemSelectedListener(this);
     navigationView.setItemIconTintList(null);
 
@@ -161,18 +161,18 @@ public abstract class CameraActivity extends AppCompatActivity
                 break;
               case BottomSheetBehavior.STATE_EXPANDED:
                 {
-                  bottomSheetArrowImageView.setImageResource(R.drawable.icn_chevron_down);
+                  bottomSheetArrowImageView.setImageResource(R.drawable.ic_chevron_down);
                 }
                 break;
               case BottomSheetBehavior.STATE_COLLAPSED:
                 {
-                  bottomSheetArrowImageView.setImageResource(R.drawable.icn_chevron_up);
+                  bottomSheetArrowImageView.setImageResource(R.drawable.ic_chevron_up);
                 }
                 break;
               case BottomSheetBehavior.STATE_DRAGGING:
                 break;
               case BottomSheetBehavior.STATE_SETTLING:
-                bottomSheetArrowImageView.setImageResource(R.drawable.icn_chevron_up);
+                bottomSheetArrowImageView.setImageResource(R.drawable.ic_chevron_up);
                 break;
             }
           }
@@ -485,7 +485,7 @@ public abstract class CameraActivity extends AppCompatActivity
                 public void onPreviewSizeChosen(final Size size, final int rotation) {
                   previewHeight = size.getHeight();
                   previewWidth = size.getWidth();
-                  Log.e("CameraActivity", "PreviewTextureSize="+String.valueOf(size.getWidth())+"x"+String.valueOf(size.getHeight()));
+                  Log.e("CameraActivity", "PreviewTextureSize="+ size.getWidth() +"x"+ size.getHeight());
                   CameraActivity.this.onPreviewSizeChosen(size, rotation);
                 }
               },
@@ -599,7 +599,7 @@ public abstract class CameraActivity extends AppCompatActivity
 
   @Override
   public void onBackPressed() {
-    DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+    DrawerLayout drawer = findViewById(R.id.drawer_layout);
     if (drawer.isDrawerOpen(GravityCompat.START)) {
       drawer.closeDrawer(GravityCompat.START);
     } else {

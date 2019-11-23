@@ -49,7 +49,7 @@ public class GPSService extends Service implements GPSCallback {
     }
 
     @Override
-    public IBinder onBind(Intent intent) {
+    public IBinder onBind (Intent intent) {
         return binder;
     }
 
