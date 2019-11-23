@@ -1,7 +1,3 @@
-//
-// Created by Midori on 29/04/2019.
-//
-
 #ifndef MYAPPLICATION2_TRACKER_HPP
 #define MYAPPLICATION2_TRACKER_HPP
 

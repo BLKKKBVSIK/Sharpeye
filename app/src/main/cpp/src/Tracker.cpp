@@ -1,7 +1,3 @@
-//
-// Created by Midori on 29/04/2019.
-//
-
 #include <Tracker.hpp>
 
 #include "Tracker.hpp"

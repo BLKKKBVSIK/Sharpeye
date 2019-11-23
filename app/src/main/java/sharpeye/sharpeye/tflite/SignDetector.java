@@ -4,11 +4,9 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Environment;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -17,10 +15,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import sharpeye.sharpeye.tflite.Classifier;
-import sharpeye.sharpeye.tflite.TFLiteObjectDetectionAPIModel;
-
 
 public class SignDetector {
     List<Classifier.Recognition> lastResults;

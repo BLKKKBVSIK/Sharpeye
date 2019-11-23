@@ -21,9 +21,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import sharpeye.sharpeye.DetectorActivity;
 import sharpeye.sharpeye.R;
-import sharpeye.sharpeye.SharpeyeApplication;
 import sharpeye.sharpeye.utils.CurrentState;
 import sharpeye.sharpeye.utils.Font;
 
