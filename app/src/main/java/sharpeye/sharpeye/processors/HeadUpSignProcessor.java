@@ -18,7 +18,7 @@ import sharpeye.sharpeye.utils.ServiceTools;
 
 public class HeadUpSignProcessor extends DataProcessor {
 
-    private static final int CODE_DRAW_OVER_OTHER_APP_PERMISSION = 2084;
+    public static final int CODE_DRAW_OVER_OTHER_APP_PERMISSION = 2084;
     private static Intent i = null;
 
     public HeadUpSignProcessor(Context _appContext, Activity _activityContext) {

@@ -23,8 +23,7 @@ import org.tensorflow.lite.Interpreter;
 import sharpeye.sharpeye.utils.Logger;
 
 /**
- * Wrapper for frozen detection models trained using the Tensorflow Object Detection API:
- * github.com/tensorflow/models/tree/master/research/object_detection
+ * Wrapper for frozen detection models trained using the Tensorflow Object Detection API
  */
 public class TFLiteObjectDetectionAPIModel implements Classifier {
     private static final Logger LOGGER = new Logger();

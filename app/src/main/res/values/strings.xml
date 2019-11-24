@@ -158,4 +158,5 @@
     <string name="sign_popout_negative">Retour</string>
     <string name="sign_popout_negative_toast">Fonctionnalité désactivée</string>
     <string name="sign_popout_positive">Aller dans les paramètres</string>
+    <string name="sign_bubble_toast">Draw over other app permission not available. Switching off preferences</string>
 </resources>

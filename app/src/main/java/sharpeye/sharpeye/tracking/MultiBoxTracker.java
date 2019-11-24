@@ -26,18 +26,7 @@ public class MultiBoxTracker {
 
     private static final float TEXT_SIZE_DIP = 18;
 
-    // Maximum percentage of a box that can be overlapped by another box at detection time. Otherwise
-    // the lower scored box (new or old) will be removed.
-    private static final float MAX_OVERLAP = 0.2f;
-
     private static final float MIN_SIZE = 16.0f;
-
-    // Allow replacement of the tracked box with new results if
-    // correlation has dropped below this level.
-    private static final float MARGINAL_CORRELATION = 0.75f;
-
-    // Consider object to be lost if correlation falls below this threshold.
-    private static final float MIN_CORRELATION = 0.3f;
 
     private static final int[] COLORS = {
             Color.BLUE,
@@ -57,9 +46,7 @@ public class MultiBoxTracker {
             Color.parseColor("#0D0068")
     };
 
-    private final Queue<Integer> availableColors = new LinkedList<Integer>();
-
-    final List<Pair<Float, RectF>> screenRects = new LinkedList<Pair<Float, RectF>>();
+    private final List<Pair<Float, RectF>> screenRects = new LinkedList<Pair<Float, RectF>>();
 
     private static class TrackedRecognition {
         RectF location;
@@ -73,7 +60,6 @@ public class MultiBoxTracker {
 
     private final Paint boxPaint = new Paint();
 
-    private final float textSizePx;
     private final BorderedText borderedText;
 
     private Matrix frameToCanvasMatrix;
@@ -82,13 +68,8 @@ public class MultiBoxTracker {
     private int frameHeight;
 
     private int sensorOrientation;
-    private Context context;
 
     public MultiBoxTracker(final Context context) {
-        this.context = context;
-        for (final int color : COLORS) {
-            availableColors.add(color);
-        }
 
         boxPaint.setColor(Color.RED);
         boxPaint.setStyle(Style.STROKE);
@@ -97,9 +78,8 @@ public class MultiBoxTracker {
         boxPaint.setStrokeJoin(Join.ROUND);
         boxPaint.setStrokeMiter(100);
 
-        textSizePx =
-                TypedValue.applyDimension(
-                        TypedValue.COMPLEX_UNIT_DIP, TEXT_SIZE_DIP, context.getResources().getDisplayMetrics());
+        float textSizePx = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, TEXT_SIZE_DIP, context.getResources().getDisplayMetrics());
         borderedText = new BorderedText(textSizePx);
     }
 
@@ -149,7 +129,7 @@ public class MultiBoxTracker {
                         (int) (multiplier * (rotated ? frameHeight : frameWidth)),
                         (int) (multiplier * (rotated ? frameWidth : frameHeight)),
                         sensorOrientation,
-                        false, false);
+                        false);
         for (final TrackedRecognition recognition : trackedObjects) {
             final RectF trackedPos = new RectF(recognition.location);
 
@@ -165,7 +145,6 @@ public class MultiBoxTracker {
                     !TextUtils.isEmpty(recognition.title)
                             ? String.format("%s %.2f", recognition.title, (100 * recognition.detectionConfidence))
                             : String.format("%.2f", (100 * recognition.detectionConfidence));
-            // borderedText.drawText(canvas, trackedPos.left + cornerSize, trackedPos.bottom, labelString);
             borderedText.drawText(
                     canvas, trackedPos.left + cornerSize, trackedPos.top, labelString + "%" + idString, boxPaint);
         }
