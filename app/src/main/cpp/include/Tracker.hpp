@@ -22,7 +22,7 @@ public:
 
     std::map<int, cv::Rect2f>     addBoxes(cv::Mat const &frame, std::vector<cv::Rect2f> const &boxes);
 
-    std::map<int, cv::Rect2f>     updateBoxes(cv::Mat const &frame);
+    std::map<int, cv::Rect2f>     updateBoxes(cv::Mat const &frame, double speed);
 
     bool                          isDangerous() const;
 

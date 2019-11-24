@@ -18,6 +18,7 @@
     <string name="terms_of_services">Terms of service</string>
     <string name="tos" translatable="false">TOS</string>
     <string name="active_danger_detection">Enable danger warnings</string>
+    <string name="active_collision_prediction">Enable collision warnings</string>
     <string name="active_dashcam">Enable Dashcam</string>
     <string name="dashcam_summary">An automatic record of your driving will be created while driving</string>
     <string name="record_on_impact">Automatic impact logging</string>
@@ -98,7 +99,8 @@
     <string name="bug_description">Bug description:</string>
     <string name="error_report">Bug report</string>
     <string name="satisfaction_form">Satisfaction form</string>
-    <string name="danger_detection_summary">Warns the driver about dectected dangers</string>
+    <string name="danger_detection_summary">Warns the driver about detected dangers</string>
+    <string name="collision_prevention_summary">Warns the driver about possible collisions</string>
     <string name="record_impact_summary">When detecting brutal movements, archives the video</string>
     <string name="app_about">About the app</string>
     <string name="app_build">Build number</string>

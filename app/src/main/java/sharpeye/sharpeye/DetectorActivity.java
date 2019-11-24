@@ -396,8 +396,12 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             initializedTracking = true;
             lastRecognition = SystemClock.uptimeMillis();
         } else {
-            results = tracker.update(croppedBitmap);
-            tracker.alertIfDangerous(currentState.getSpeed());
+            double speed = currentState.isSpeed() ? currentState.getSpeed() : 0;
+            results = tracker.update(croppedBitmap, speed);
+            Log.e("TrackingDebug", results.toString());
+            if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(getApplicationContext(),"collision_on",false)) {
+                tracker.alertIfDangerous(speed);
+            }
             tracking = true;
         }
 
