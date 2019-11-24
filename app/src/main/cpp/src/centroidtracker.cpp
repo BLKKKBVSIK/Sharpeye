@@ -111,15 +111,7 @@ void CentroidTracker::correlatePositions(
 	int objectID;
 	auto limit = std::min(rows.size(), cols.size());
 
-	// for (unsigned int i = 0; i < this->dists.size(); i++) {
-	// 	for (unsigned int j = 0; j < this->dists[i].size(); j++) {
-	// 		std::cout << this->dists[i][j] << " ";
-	// 	}
-	// 	std::cout << std::endl;
-	// }
-	// std::cout << std::endl;
 	for (unsigned int i = 0; i < limit; i++) {
-		// std::cout << "row = " << rows[i] << " / col = " << cols[i] << " / result = " << this->dists[rows[i]][cols[i]] << std::endl;
 		if (std::find(usedRows.begin(), usedRows.end(), rows[i]) != usedRows.end() ||
 			std::find(usedCols.begin(), usedCols.end(), cols[i]) != usedCols.end()) {
 			continue;
@@ -127,7 +119,6 @@ void CentroidTracker::correlatePositions(
 		objectID = objectIDs[rows[i]];
 		this->objects[objectID] = inputCentroids[cols[i]];
 		this->lastBoxes[objectID] = boxes[cols[i]];
-//        __android_log_print(ANDROID_LOG_INFO, "JNIBoxDebug", "Add box ID=%d, x=%f, y=%f, width=%f, height=%f", objectID, this->lastBoxes[objectID].x, this->lastBoxes[objectID].y, this->lastBoxes[objectID].width, this->lastBoxes[objectID].height);
 		this->disappeared[objectID] = 0;
 		usedRows.push_back(rows[i]);
 		usedCols.push_back(cols[i]);
@@ -145,7 +136,6 @@ std::map<int, cv::Rect2f> CentroidTracker::update(const std::vector<cv::Rect2f> 
 	std::map<int, cv::Rect2f> res;
 	if (boxes.empty()) {
 		this->allObjectsDisappeared(boxes);
-		// return this->lastBoxes;
 		return res;
 	}
 
@@ -166,7 +156,6 @@ std::map<int, cv::Rect2f> CentroidTracker::update(const std::vector<cv::Rect2f> 
 		for (auto &object: this->objects) {
 			objectIDs.push_back(object.first);
 			objectCentroids.push_back(object.second);
-//            __android_log_print(ANDROID_LOG_INFO, "JNIObjects", "Add box ID=%d", object.first);
 		}
 
 		this->compute_distances(objectCentroids, inputCentroids);
@@ -175,42 +164,23 @@ std::map<int, cv::Rect2f> CentroidTracker::update(const std::vector<cv::Rect2f> 
 		this->correlatePositions(objectIDs, objectCentroids, inputCentroids, unusedRows, unusedCols, boxes);
 
 		int objectID;
-		// if (this->dists.size() >= this->dists[0].size()) {
-		// 	for (auto &row: unusedRows) {
-		// 		std::cout << "unused row" << std::endl;
-		// 		objectID = objectIDs[row];
-		// 		++(this->disappeared[objectID]);
-		// 		if (this->disappeared[objectID] > this->maxDisappeared) this->deregister_object(objectID);
-		// 	}
-		// } else {
-		// 	for (auto &col: unusedCols) {
-		// 		std::cout << "unused col" << std::endl;
-		// 		this->register_object(inputCentroids[col], boxes[col]);
-		// 	}
-		// }
 		for (auto &row: unusedRows) {
             objectID = objectIDs[row];
             ++(this->disappeared[objectID]);
-//            __android_log_print(ANDROID_LOG_INFO, "JNIDebug", "Object disappearing with ID %d", objectID);
             if (this->disappeared[objectID] > this->maxDisappeared) {
-//                __android_log_print(ANDROID_LOG_INFO, "JNIDebug", "Object removed with ID %d", objectID);
                 this->deregister_object(objectID);
             }
 		}
 		for (auto &col: unusedCols) {
-//            __android_log_print(ANDROID_LOG_INFO, "JNIDebug", "unused col added");
             this->register_object(inputCentroids[col], boxes[col]);
         }
 
 	}
 
 	for (auto &[objectID, box]: this->lastBoxes) {
-//        __android_log_print(ANDROID_LOG_INFO, "JNIDebug", "ObjectID %d in lastboxes", objectID);
 		if (this->disappeared[objectID] == 0) {
-//            __android_log_print(ANDROID_LOG_INFO, "JNIBoxResult", "Box ID=%d, x=%f, y=%f, width=%f, height=%f", objectID, box.x, box.y, box.width, box.height);
 			res.insert(std::make_pair(objectID, box));
 		}
 	}
-	// return this->lastBoxes;
 	return res;
 }

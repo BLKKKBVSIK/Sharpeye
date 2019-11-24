@@ -45,6 +45,8 @@
     <!--    In pref_dangers.xml     -->
     <string name="active_danger_detection">Activer la détection de dangers</string>
     <string name="danger_detection_summary">Avertira le conducteur d\'un danger détecté</string>
+    <string name="active_collision_prediction">Activer la prévention de collisions</string>
+    <string name="collision_prevention_summary">Avertira le conducteur d\'un danger de collision imminent</string>
 
     <!--    In pref_dashcam.xml     -->
     <string name="active_dashcam">Activer la dashcam</string>
