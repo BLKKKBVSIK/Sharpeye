@@ -398,7 +398,6 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         } else {
             double speed = currentState.isSpeed() ? currentState.getSpeed() : 0;
             results = tracker.update(croppedBitmap, speed);
-            Log.e("TrackingDebug", results.toString());
             if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(getApplicationContext(),"collision_on",false)) {
                 tracker.alertIfDangerous(speed);
             }
