@@ -187,12 +187,12 @@ public class GPSProcessor extends DataProcessor{
 
     private void showSettingsAlert(){
         Log.d("showSettingsAlert", "start");
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(appContext);
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(activityContext);
         alertDialog.setTitle(R.string.gps_settings);
         alertDialog.setMessage(R.string.gps_go_settings);
         alertDialog.setPositiveButton(R.string.settings, (dialog, which) -> {
             Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-            appContext.startActivity(intent);
+            activityContext.startActivity(intent);
         });
         alertDialog.setNegativeButton(R.string.cancel, (dialog, which) -> {
             dialog.cancel();
