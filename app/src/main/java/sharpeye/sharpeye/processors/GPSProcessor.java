@@ -89,7 +89,7 @@ public class GPSProcessor extends DataProcessor{
                 turnOffGpsPreferences();
                 stopService();
                 Log.d("gpsresume", "unauthorized");
-            } else if (!ServiceTools.isServiceRunning("GPSService", appContext)) {
+            } else if (!ServiceTools.isServiceRunning("sharpeye.sharpeye.Services.GPSService", appContext)) {
                 startService();
                 Log.d("gpsresume", "restart service");
             }

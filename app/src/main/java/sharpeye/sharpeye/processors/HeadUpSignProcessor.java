@@ -21,6 +21,11 @@ public class HeadUpSignProcessor extends DataProcessor {
     public static final int CODE_DRAW_OVER_OTHER_APP_PERMISSION = 2084;
     private static Intent i = null;
 
+    /**
+     * Constructor
+     * @param _appContext context of the app
+     * @param _activityContext context of the activity
+     */
     public HeadUpSignProcessor(Context _appContext, Activity _activityContext) {
         super(_appContext, _activityContext);
     }
@@ -69,10 +74,9 @@ public class HeadUpSignProcessor extends DataProcessor {
     }
 
     public void clean() {
-        if (i != null && ServiceTools.isServiceRunning("HeadSignService", appContext)) {
+        if (i != null && ServiceTools.isServiceRunning("sharpeye.sharpeye.Services.HeadSignService", appContext)) {
             appContext.stopService(i);
             i = null;
         }
-        Log.d("HeadUpSign", "start");
     }
 }
