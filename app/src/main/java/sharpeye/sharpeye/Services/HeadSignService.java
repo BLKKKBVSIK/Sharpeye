@@ -24,6 +24,7 @@ import android.widget.TextView;
 import sharpeye.sharpeye.R;
 import sharpeye.sharpeye.utils.CurrentState;
 import sharpeye.sharpeye.utils.Font;
+import sharpeye.sharpeye.utils.ServiceTools;
 
 /**
  * Service that handles HeadSign
@@ -49,10 +50,16 @@ public class HeadSignService extends Service {
             @Override
             public void onServiceConnected(ComponentName className,
                                            IBinder service) {
-                GPSService.GPSBinder binder = (GPSService.GPSBinder) service;
-                mService = binder.getService();
-                mBound = true;
-                currentState = mService.getCurrentState();
+                if (ServiceTools.isServiceRunning("sharpeye.sharpeye.Services.GPSService", getApplicationContext()))
+                {
+                    GPSService.GPSBinder binder = (GPSService.GPSBinder) service;
+                    mService = binder.getService();
+                    mBound = true;
+                    currentState = mService.getCurrentState();
+                } else {
+                    if (mChatHeadView != null) mWindowManager.removeView(mChatHeadView);
+                    stopSelf();
+                }
             }
 
             @Override
