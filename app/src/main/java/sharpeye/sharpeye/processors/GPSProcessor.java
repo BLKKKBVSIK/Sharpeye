@@ -31,6 +31,9 @@ import sharpeye.sharpeye.signs.frontViews.SpeedView;
 import sharpeye.sharpeye.utils.CurrentState;
 import sharpeye.sharpeye.utils.ServiceTools;
 
+/**
+ * Gps processor extends from DataProcessor
+ */
 public class GPSProcessor extends DataProcessor{
 
     private boolean GpsOnAlertAlreadyInflated = false;
@@ -43,6 +46,11 @@ public class GPSProcessor extends DataProcessor{
 
     private List<FrontElementManager> frontManagers;
 
+    /**
+     * Constructor
+     * @param _appContext context of the app
+     * @param _activityContext context of the activity
+     */
     public GPSProcessor(Context _appContext, Activity _activityContext)
     {
         super(_appContext, _activityContext);

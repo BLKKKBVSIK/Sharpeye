@@ -17,6 +17,9 @@ import sharpeye.sharpeye.utils.Json;
 import sharpeye.sharpeye.utils.PopUpFactory;
 import sharpeye.sharpeye.utils.Str;
 
+/**
+ * Creates a Chain of Popups from Json file
+ */
 public class PopupHandler {
 
     private Context context;
@@ -24,6 +27,12 @@ public class PopupHandler {
     private List<String> labels;
     private DBHelper<BooleanKeyValueModel> database;
 
+    /**
+     * Constructor
+     * @param _context the context of the app
+     * @param jsonFile the jsonFile to load
+     * @param _database the KeyValue Database to set as already read
+     */
     public PopupHandler(Context _context, String jsonFile, DBHelper<BooleanKeyValueModel> _database)
     {
         context = _context;

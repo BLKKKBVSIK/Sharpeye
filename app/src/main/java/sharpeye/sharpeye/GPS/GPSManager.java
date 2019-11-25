@@ -17,9 +17,15 @@ public class GPSManager implements android.location.GpsStatus.Listener
     private static LocationManager locationManager = null;
     private static LocationListener locationListener = null;
     private static GPSCallback gpsCallback = null;
-    Context mcontext;
-    public GPSManager(Context context) {
-        mcontext=context;
+    private Context context;
+
+
+    /**
+     * Constructor
+     * @param _context  context of the app
+     */
+    public GPSManager(Context _context) {
+        context = _context;
         GPSManager.locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(final Location location) {
@@ -60,7 +66,6 @@ public class GPSManager implements android.location.GpsStatus.Listener
         final String bestProvider = GPSManager.locationManager.getBestProvider(criteria, true);
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            //ActivityCompat.requestPermissions((Activity) context, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 101);
             if (bestProvider != null && bestProvider.length() > 0) {
                 GPSManager.locationManager.requestLocationUpdates(bestProvider, GPSManager.gpsMinTime,
                         GPSManager.gpsMinDistance, GPSManager.locationListener);
@@ -93,8 +98,8 @@ public class GPSManager implements android.location.GpsStatus.Listener
     public void onGpsStatusChanged(int event) {
         int Satellites = 0;
         int SatellitesInFix = 0;
-        if (ActivityCompat.checkSelfPermission(mcontext, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(mcontext, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             int timeToFix = locationManager.getGpsStatus(null).getTimeToFirstFix();
             Log.i("GPS Manager onGpsStatusChanged", "Time to first fix = "+ timeToFix);
             for (GpsSatellite sat : locationManager.getGpsStatus(null).getSatellites()) {

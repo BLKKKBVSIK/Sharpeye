@@ -10,14 +10,14 @@ import sharpeye.sharpeye.utils.CurrentState;
  */
 public abstract class FrontElementManager {
 
-    protected IFrontViews frontViews = null;
-    protected boolean isVisible = false;
+    protected IFrontViews frontViews;
+    protected boolean isVisible;
     protected Context context;
 
     /**
      * called at the object creation
      */
-    public FrontElementManager(Context _context, IFrontViews _frontViews, Boolean _isVisible)
+    protected FrontElementManager(Context _context, IFrontViews _frontViews, Boolean _isVisible)
     {
         frontViews = _frontViews;
         isVisible = _isVisible;
