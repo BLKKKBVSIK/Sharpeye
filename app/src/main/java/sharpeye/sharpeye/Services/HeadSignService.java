@@ -24,7 +24,11 @@ import android.widget.TextView;
 import sharpeye.sharpeye.R;
 import sharpeye.sharpeye.utils.CurrentState;
 import sharpeye.sharpeye.utils.Font;
+import sharpeye.sharpeye.utils.ServiceTools;
 
+/**
+ * Service that handles HeadSign
+ */
 public class HeadSignService extends Service {
 
     private final IBinder binder = new HeadSignService.HeadSignBinder();
@@ -35,38 +39,58 @@ public class HeadSignService extends Service {
     public Handler handler = null;
     public static Runnable runnable = null;
     private CurrentState currentState;
+    private ServiceConnection connection;
 
+    /**
+     * constructor
+     */
     public HeadSignService() {
+        connection = new ServiceConnection() {
+
+            @Override
+            public void onServiceConnected(ComponentName className,
+                                           IBinder service) {
+                if (ServiceTools.isServiceRunning("sharpeye.sharpeye.Services.GPSService", getApplicationContext()))
+                {
+                    GPSService.GPSBinder binder = (GPSService.GPSBinder) service;
+                    mService = binder.getService();
+                    mBound = true;
+                    currentState = mService.getCurrentState();
+                } else {
+                    if (mChatHeadView != null) mWindowManager.removeView(mChatHeadView);
+                    stopSelf();
+                }
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName arg0) {
+                mBound = false;
+            }
+        };
     }
 
-    private ServiceConnection connection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-            GPSService.GPSBinder binder = (GPSService.GPSBinder) service;
-            mService = binder.getService();
-            mBound = true;
-            currentState = mService.getCurrentState();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mBound = false;
-        }
-    };
-
+    /**
+     * Service OnBind overridden method
+     * @param intent
+     * @return IBinder
+     */
     @Override
     public IBinder onBind(Intent intent) {
         return binder;
     }
 
+    /**
+     * Binder
+     */
     public class HeadSignBinder extends Binder {
         public HeadSignService getService() {
             return HeadSignService.this;
         }
     }
 
+    /**
+     * Service overridden OnCreate
+     */
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onCreate() {
@@ -106,12 +130,9 @@ public class HeadSignService extends Service {
         Intent intent = new Intent(getApplicationContext(), GPSService.class);
         getApplicationContext().bindService(intent, connection, Context.BIND_AUTO_CREATE);
 
-        closeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //close the service and remove the chat head from the window
-                stopSelf();
-            }
+        closeButton.setOnClickListener(v -> {
+            //close the service and remove the chat head from the window
+            stopSelf();
         });
 
         rl.setOnTouchListener(new View.OnTouchListener() {
@@ -125,11 +146,6 @@ public class HeadSignService extends Service {
             public boolean onTouch(View v, MotionEvent event) {
 
                 if (gestureDetector.onTouchEvent(event)) {
-                    /*Intent intent = new Intent(ChatHeadService.this, SharpeyeApplication.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    value += 1;
-                    chatHeadText.setText(String.valueOf(value));
-                    startActivity(intent);*/
                     return true;
                 } else {
                     switch (event.getAction()) {
@@ -181,7 +197,10 @@ public class HeadSignService extends Service {
         handler.postDelayed(runnable, 1000);
     }
 
-    private class SingleTapConfirm extends GestureDetector.SimpleOnGestureListener {
+    /**
+     * Class that extends GestureDetector
+     */
+    private static class SingleTapConfirm extends GestureDetector.SimpleOnGestureListener {
 
         @Override
         public boolean onSingleTapUp(MotionEvent event) {
@@ -199,6 +218,9 @@ public class HeadSignService extends Service {
         Log.d("gpsstopService", "stop");
     }
 
+    /**
+     * Service overridden OnDestroy
+     */
     @Override
     public void onDestroy() {
         super.onDestroy();

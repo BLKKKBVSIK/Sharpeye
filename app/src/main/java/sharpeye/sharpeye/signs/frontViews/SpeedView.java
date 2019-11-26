@@ -14,7 +14,7 @@ import sharpeye.sharpeye.utils.Font;
  */
 public class SpeedView implements IFrontViews {
 
-    public TextView tvSpeed;
+    private TextView tvSpeed;
     private Context context;
     private float _fontSize;
 

@@ -26,6 +26,9 @@ import sharpeye.sharpeye.GPS.GPSManager;
 import sharpeye.sharpeye.data.SharedPreferencesHelper;
 import sharpeye.sharpeye.signs.BipGenerator;
 
+/**
+ * Service that handles GPS
+ */
 public class GPSService extends Service implements GPSCallback {
 
     private final IBinder binder = new GPSBinder();

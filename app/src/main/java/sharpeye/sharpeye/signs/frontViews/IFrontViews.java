@@ -21,26 +21,26 @@ public interface IFrontViews {
 
     /**
      * Sets the Color (if possible)
-     * @param color
+     * @param color the color
      */
     void setTextColor(int color);
 
     /**
      * Sets the text (if there is some)
-     * @param text
+     * @param text the text
      */
     void setText(String text);
 
     /**
      * Sets the font (if there is some)
-     * @param font
+     * @param font the font
      */
     void setFont(Font.FontList font);
 
     /**
      * Sets the font size (if possible)
-     * @param unit
-     * @param fontSize
+     * @param unit the unit
+     * @param fontSize the fontSize
      * @see TypedValue
      */
     void setFontSize(int unit, float fontSize);
