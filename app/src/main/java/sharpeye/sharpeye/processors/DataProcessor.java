@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 
 import sharpeye.sharpeye.utils.CurrentState;
+import sharpeye.sharpeye.utils.Logger;
 
 /**
  * Abstract to create a Processor
@@ -12,16 +13,18 @@ public abstract class DataProcessor {
 
     protected Context appContext;
     protected Activity activityContext;
+    protected Logger logger;
 
     /**
      * Constructor to be overwritten
      * @param _appContext context of the app
      * @param _activityContext context of the activity
      */
-    public DataProcessor(Context _appContext, Activity _activityContext)
+    public DataProcessor(Context _appContext, Activity _activityContext, Logger _logger)
     {
         appContext = _appContext;
         activityContext = _activityContext;
+        logger = _logger;
     }
 
     /**

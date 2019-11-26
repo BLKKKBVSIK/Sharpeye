@@ -79,10 +79,10 @@ public class Detector {
 
     public Detector(Context context) {
         currentState = new CurrentState();
-        processorsManager = new ProcessorsManager();
+        processorsManager = new ProcessorsManager(new Logger(ProcessorsManager.class));
         processorsManager
-                .add(new GPSProcessor(context, (Activity)context))
-                .add(new HeadUpSignProcessor(context, (Activity)context))
+                .add(new GPSProcessor(context, (Activity)context, new Logger(GPSProcessor.class)))
+                .add(new HeadUpSignProcessor(context, (Activity)context, new Logger(HeadUpSignProcessor.class)))
                 .create();
     }
 

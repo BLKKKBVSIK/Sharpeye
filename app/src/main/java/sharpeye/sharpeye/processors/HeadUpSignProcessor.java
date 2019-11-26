@@ -13,6 +13,7 @@ import sharpeye.sharpeye.R;
 import sharpeye.sharpeye.Services.HeadSignService;
 import sharpeye.sharpeye.data.SharedPreferencesHelper;
 import sharpeye.sharpeye.utils.CurrentState;
+import sharpeye.sharpeye.utils.Logger;
 import sharpeye.sharpeye.utils.PopUpFactory;
 import sharpeye.sharpeye.utils.ServiceTools;
 
@@ -26,8 +27,8 @@ public class HeadUpSignProcessor extends DataProcessor {
      * @param _appContext context of the app
      * @param _activityContext context of the activity
      */
-    public HeadUpSignProcessor(Context _appContext, Activity _activityContext) {
-        super(_appContext, _activityContext);
+    public HeadUpSignProcessor(Context _appContext, Activity _activityContext, Logger _logger) {
+        super(_appContext, _activityContext, _logger);
     }
 
     public void create()
@@ -37,6 +38,7 @@ public class HeadUpSignProcessor extends DataProcessor {
 
     public void resume(CurrentState currentState)
     {
+        logger.d("resume");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
                 SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(appContext,"sign_bubble",false) &&
                 !Settings.canDrawOverlays(activityContext)) {
@@ -63,6 +65,7 @@ public class HeadUpSignProcessor extends DataProcessor {
 
     public void pause(CurrentState currentState)
     {
+        logger.d("pause");
         if (currentState.isSpeedLimit() && SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(appContext,"sign_bubble",false)) {
             appContext.startService(i = new Intent(activityContext, HeadSignService.class));
         }
@@ -74,6 +77,7 @@ public class HeadUpSignProcessor extends DataProcessor {
     }
 
     public void clean() {
+        logger.d("clean");
         if (i != null && ServiceTools.isServiceRunning("sharpeye.sharpeye.Services.HeadSignService", appContext)) {
             appContext.stopService(i);
             i = null;

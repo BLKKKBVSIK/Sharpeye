@@ -47,7 +47,6 @@ public class SignViewManager extends FrontElementManager {
         if (currentState.isSpeedLimit()) {
             frontViews.setVisible();
             frontViews.setText(String.valueOf(currentState.getSpeedLimit()));
-            Log.d("gps currentstate process", String.valueOf(currentState.getSpeedLimit()));
         } else {
             frontViews.setInvisible();
         }
