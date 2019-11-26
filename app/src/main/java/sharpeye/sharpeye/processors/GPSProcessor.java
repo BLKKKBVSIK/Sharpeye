@@ -10,6 +10,7 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Build;
+import android.os.Debug;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
@@ -29,6 +30,7 @@ import sharpeye.sharpeye.signs.frontManagers.SpeedViewManager;
 import sharpeye.sharpeye.signs.frontViews.SignView;
 import sharpeye.sharpeye.signs.frontViews.SpeedView;
 import sharpeye.sharpeye.utils.CurrentState;
+import sharpeye.sharpeye.utils.Logger;
 import sharpeye.sharpeye.utils.ServiceTools;
 
 /**
@@ -51,9 +53,9 @@ public class GPSProcessor extends DataProcessor{
      * @param _appContext context of the app
      * @param _activityContext context of the activity
      */
-    public GPSProcessor(Context _appContext, Activity _activityContext)
+    public GPSProcessor(Context _appContext, Activity _activityContext, Logger _logger)
     {
-        super(_appContext, _activityContext);
+        super(_appContext, _activityContext, _logger);
         frontManagers = new ArrayList<>();
         frontManagers.add(new SignViewManager(activityContext, new SignView(activityContext), false));
         frontManagers.add(new SpeedViewManager(activityContext, new SpeedView(activityContext), false));
@@ -71,7 +73,7 @@ public class GPSProcessor extends DataProcessor{
     @Override
     public void resume(CurrentState currentState)
     {
-        Log.d("gpsresume", "start");
+        logger.d("Gps resume start");
         currentState.setSpeed(false);
         if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(appContext,"speed_display",false)) {
             if (mBound) {
@@ -81,23 +83,22 @@ public class GPSProcessor extends DataProcessor{
             if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)  && GpsOnAlertAlreadyInflated) {
                 turnOffGpsPreferences();
                 stopService();
-                Log.d("gpsresume", "gps not enabled");
+                logger.d("gps not enabled");
             }
             else if (ContextCompat.checkSelfPermission(appContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                     && GPSPermissionAlreadyInflated)
             {
                 turnOffGpsPreferences();
                 stopService();
-                Log.d("gpsresume", "unauthorized");
+                logger.d("unauthorized");
             } else if (!ServiceTools.isServiceRunning("sharpeye.sharpeye.Services.GPSService", appContext)) {
                 startService();
-                Log.d("gpsresume", "restart service");
+                logger.d("restart service");
             }
         }
         else {
             stopService();
         }
-        Log.d("gpsresume", "end");
     }
 
     @Override
@@ -110,6 +111,7 @@ public class GPSProcessor extends DataProcessor{
         @Override
         public void onServiceConnected(ComponentName className,
                                        IBinder service) {
+            logger.d("onServiceConnected");
             GPSService.GPSBinder binder = (GPSService.GPSBinder) service;
             mService = binder.getService();
             mBound = true;
@@ -123,7 +125,7 @@ public class GPSProcessor extends DataProcessor{
 
     private void startService()
     {
-        Log.d("gpsstartService", "start");
+        logger.d("startService start");
         i= new Intent(appContext, GPSService.class);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             appContext.startForegroundService(i);
@@ -132,24 +134,20 @@ public class GPSProcessor extends DataProcessor{
         }
         Intent intent = new Intent(appContext, GPSService.class);
         appContext.bindService(intent, connection, Context.BIND_AUTO_CREATE);
-        Log.d("gpsstartService", "stop");
     }
 
     private void stopService()
     {
-        Log.d("gpsstopService", "start");
+        logger.d("stopService start");
         if (mService != null && mBound) {
             appContext.unbindService(connection);
             mBound = false;
             appContext.stopService(i);
         }
-        Log.d("gpsstopService", "stop");
     }
 
     public void initializeGPS(){
-        Log.d("gpsinitializeGPS", "start");
         startService();
-        Log.d("gpsinitializeGPS", "end");
     }
 
     @Override
@@ -159,10 +157,6 @@ public class GPSProcessor extends DataProcessor{
             mService.setCurrentState(currentState);
             currentState = mService.getCurrentState();
         }
-
-        Log.d("GPS process", "gps enables: " + currentState.getGPSenabled() + " " + locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) +
-                "\nPermission: " + ContextCompat.checkSelfPermission(appContext, Manifest.permission.ACCESS_FINE_LOCATION));
-
         CurrentState finalCurrentState = currentState;
         activityContext.runOnUiThread(() -> {
             if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) && !GpsOnAlertAlreadyInflated)
@@ -182,19 +176,18 @@ public class GPSProcessor extends DataProcessor{
                 frontManager.update(finalCurrentState);
             }
         });
-
-
         return currentState;
     }
 
     private void turnOffGpsPreferences()
     {
+        logger.d("turnOffGpsPreferences start");
         SharedPreferencesHelper.INSTANCE.setSharedPreferencesBoolean(appContext,"speed_display",false);
         SharedPreferencesHelper.INSTANCE.setSharedPreferencesBoolean(appContext,"speed_control",false);
     }
 
     private void showSettingsAlert(){
-        Log.d("showSettingsAlert", "start");
+        logger.d("showSettingsAlert start");
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(activityContext);
         alertDialog.setTitle(R.string.gps_settings);
         alertDialog.setMessage(R.string.gps_go_settings);
@@ -210,12 +203,10 @@ public class GPSProcessor extends DataProcessor{
             Toast.makeText(appContext, text, duration).show();
         });
         alertDialog.show();
-        Log.d("showSettingsAlert", "end");
     }
 
     public void clean() {
-        Log.d("cleanGPS", "start");
+        logger.d("clean start");
         stopService();
-        Log.d("cleanGPS", "end");
     }
 }

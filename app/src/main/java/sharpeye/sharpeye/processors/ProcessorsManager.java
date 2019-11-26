@@ -3,6 +3,7 @@ package sharpeye.sharpeye.processors;
 import java.util.ArrayList;
 
 import sharpeye.sharpeye.utils.CurrentState;
+import sharpeye.sharpeye.utils.Logger;
 
 /**
  * Handles multiple processors
@@ -10,12 +11,14 @@ import sharpeye.sharpeye.utils.CurrentState;
 public class ProcessorsManager {
 
     private ArrayList<DataProcessor> dataProcessors;
+    private Logger logger;
 
     /**
      * Constructor
      */
-    public ProcessorsManager()
+    public ProcessorsManager(Logger _logger)
     {
+        logger = _logger;
         dataProcessors = new ArrayList<>();
     }
 
@@ -30,6 +33,7 @@ public class ProcessorsManager {
     public ProcessorsManager add(DataProcessor processor)
     {
         dataProcessors.add(processor);
+        logger.i("processor added");
         return this;
     }
 
@@ -38,6 +42,7 @@ public class ProcessorsManager {
      */
     public void create()
     {
+        logger.i("create");
         for (DataProcessor processor :
              dataProcessors) {
             processor.create();
@@ -50,6 +55,7 @@ public class ProcessorsManager {
      */
     public void resume(CurrentState currentState)
     {
+        logger.i("resume");
         for (DataProcessor processor :
              dataProcessors) {
             processor.resume(currentState);
@@ -62,6 +68,7 @@ public class ProcessorsManager {
      */
     public void pause(CurrentState currentState)
     {
+        logger.i("pause");
         for (DataProcessor processor :
                 dataProcessors) {
             processor.pause(currentState);
@@ -87,6 +94,7 @@ public class ProcessorsManager {
      */
     public void clean()
     {
+        logger.i("clean");
         for (DataProcessor processor :
                 dataProcessors) {
             processor.clean();

@@ -5,12 +5,15 @@ import android.util.Log;
 import java.util.HashSet;
 import java.util.Set;
 
+import sharpeye.sharpeye.BuildConfig;
+
 /**
  * Wrapper for the platform log function, allows convenient message prefixing and log disabling.
  */
 public final class Logger {
     private static final String DEFAULT_TAG = "Sharpeye";
     private static final int DEFAULT_MIN_LOG_LEVEL = Log.DEBUG;
+    private static final boolean LOG = BuildConfig.DEBUG;
 
     // Classes to be ignored when examining the stack trace
     private static final Set<String> IGNORED_CLASS_NAMES;
@@ -29,10 +32,10 @@ public final class Logger {
     /**
      * Creates a Logger using the class name as the message prefix.
      *
-     * @param clazz the simple name of this class is used as the message prefix.
+     * @param _class the simple name of this class is used as the message prefix.
      */
-    public Logger(final Class<?> clazz) {
-        this(clazz.getSimpleName());
+    public Logger(final Class<?> _class) {
+        this(_class.getSimpleName());
     }
 
     /**
@@ -115,61 +118,61 @@ public final class Logger {
     }
 
     public void v(final String format, final Object... args) {
-        if (isLoggable(Log.VERBOSE)) {
+        if (LOG && isLoggable(Log.VERBOSE)) {
             Log.v(tag, toMessage(format, args));
         }
     }
 
     public void v(final Throwable t, final String format, final Object... args) {
-        if (isLoggable(Log.VERBOSE)) {
+        if (LOG && isLoggable(Log.VERBOSE)) {
             Log.v(tag, toMessage(format, args), t);
         }
     }
 
     public void d(final String format, final Object... args) {
-        if (isLoggable(Log.DEBUG)) {
+        if (LOG && isLoggable(Log.DEBUG)) {
             Log.d(tag, toMessage(format, args));
         }
     }
 
     public void d(final Throwable t, final String format, final Object... args) {
-        if (isLoggable(Log.DEBUG)) {
+        if (LOG && isLoggable(Log.DEBUG)) {
             Log.d(tag, toMessage(format, args), t);
         }
     }
 
     public void i(final String format, final Object... args) {
-        if (isLoggable(Log.INFO)) {
+        if (LOG && isLoggable(Log.INFO)) {
             Log.i(tag, toMessage(format, args));
         }
     }
 
     public void i(final Throwable t, final String format, final Object... args) {
-        if (isLoggable(Log.INFO)) {
+        if (LOG && isLoggable(Log.INFO)) {
             Log.i(tag, toMessage(format, args), t);
         }
     }
 
     public void w(final String format, final Object... args) {
-        if (isLoggable(Log.WARN)) {
+        if (LOG && isLoggable(Log.WARN)) {
             Log.w(tag, toMessage(format, args));
         }
     }
 
     public void w(final Throwable t, final String format, final Object... args) {
-        if (isLoggable(Log.WARN)) {
+        if (LOG && isLoggable(Log.WARN)) {
             Log.w(tag, toMessage(format, args), t);
         }
     }
 
     public void e(final String format, final Object... args) {
-        if (isLoggable(Log.ERROR)) {
+        if (LOG && isLoggable(Log.ERROR)) {
             Log.e(tag, toMessage(format, args));
         }
     }
 
     public void e(final Throwable t, final String format, final Object... args) {
-        if (isLoggable(Log.ERROR)) {
+        if (LOG && isLoggable(Log.ERROR)) {
             Log.e(tag, toMessage(format, args), t);
         }
     }
