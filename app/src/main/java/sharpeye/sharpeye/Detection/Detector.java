@@ -2,7 +2,6 @@ package sharpeye.sharpeye.Detection;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;

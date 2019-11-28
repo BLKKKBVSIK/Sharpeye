@@ -18,8 +18,7 @@ import java.util.List;
 import java.util.Queue;
 
 /**
- * A tracker wrapping ObjectTracker that also handles non-max suppression and matching existing
- * objects to new detections.
+ * A tracker that handles the display of the detected objects boxes
  */
 public class MultiBoxTracker {
     private final Logger logger = new Logger();

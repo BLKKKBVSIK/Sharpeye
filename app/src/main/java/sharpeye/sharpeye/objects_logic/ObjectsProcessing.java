@@ -13,7 +13,6 @@ public class ObjectsProcessing {
 
     private WarningEvent warningEvent;
     private ArrayList<Integer> objectsProcessed = new ArrayList<>();
-    private ArrayList<Integer> objectsFalsePositiveVerification = new ArrayList<>();
     private AudioPlayer dangerSound = new AudioPlayer();
     private ToneGenerator toneGenerator;
 
@@ -35,11 +34,9 @@ public class ObjectsProcessing {
     public void processDangerousObject(boolean isDangerous) {
         int volume = 100;
         if (isDangerous) {
-            //TODO start sound
             toneGenerator = new ToneGenerator(AudioManager.STREAM_MUSIC, volume);
             toneGenerator.startTone(ToneGenerator.TONE_CDMA_PIP);
         } else {
-            //TODO stop sound
             toneGenerator.stopTone();
         }
     }
@@ -47,12 +44,8 @@ public class ObjectsProcessing {
     public void processDetectedObject(Classifier.Recognition object) {
         try {
             if (warningEvent != null && !objectsProcessed.contains(object.getOpencvID())) {
-                //if (objectsFalsePositiveVerification.contains(object.getOpencvID())) {
-                    warningEvent.triggerWarning(object.getTitle());
-                    objectsProcessed.add(object.getOpencvID());
-                //} else {
-                //    objectsFalsePositiveVerification.add(object.getOpencvID());
-                //}
+                warningEvent.triggerWarning(object.getTitle());
+                objectsProcessed.add(object.getOpencvID());
             }
         } catch (NullPointerException ex) {
             Log.e("Detector", "WarningEvent already cleaned");

@@ -3,53 +3,29 @@ package sharpeye.sharpeye;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.*;
-import android.graphics.Bitmap.Config;
-import android.graphics.Paint.Style;
 import android.media.ImageReader.OnImageAvailableListener;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.SystemClock;
 
 import android.provider.Settings;
 import android.support.annotation.RequiresApi;
-import android.util.Log;
 import android.util.Size;
-import android.util.TypedValue;
 import android.widget.Toast;
 
 import sharpeye.sharpeye.Detection.Detector;
 import sharpeye.sharpeye.data.BooleanKeyValueDBHelper;
 import sharpeye.sharpeye.customview.OverlayView;
 import sharpeye.sharpeye.data.SharedPreferencesHelper;
-import sharpeye.sharpeye.objects_logic.ObjectsProcessing;
 import sharpeye.sharpeye.popups.BatteryPopupHandler;
 import sharpeye.sharpeye.popups.PopupHandler;
-import sharpeye.sharpeye.processors.GPSProcessor;
 import sharpeye.sharpeye.processors.HeadUpSignProcessor;
-import sharpeye.sharpeye.processors.ProcessorsManager;
-import sharpeye.sharpeye.signs.Sign;
-import sharpeye.sharpeye.tflite.SignDetector;
-import sharpeye.sharpeye.utils.BorderedText;
-import sharpeye.sharpeye.utils.CurrentState;
-import sharpeye.sharpeye.utils.ImageUtils;
 import sharpeye.sharpeye.utils.Logger;
 import sharpeye.sharpeye.tflite.Classifier;
-import sharpeye.sharpeye.tflite.TFLiteObjectDetectionAPIModel;
-import sharpeye.sharpeye.signs.SignList;
 import sharpeye.sharpeye.tracking.MultiBoxTracker;
-import sharpeye.sharpeye.tracking.Tracker;
 
-import java.io.IOException;
-
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 
-/**
- * An activity that uses a TensorFlowMultiBoxDetector and ObjectTracker to detect and then track
- * objects.
- */
 public class DetectorActivity extends CameraActivity implements OnImageAvailableListener {
     private static final Logger LOGGER = new Logger();
 
