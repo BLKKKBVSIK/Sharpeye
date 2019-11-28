@@ -8,16 +8,15 @@ import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.preference.ListPreference
-import android.preference.Preference
-import android.preference.PreferenceActivity
-import android.preference.PreferenceFragment
-import android.preference.PreferenceManager
-import android.preference.RingtonePreference
+import android.preference.*
 import android.support.annotation.RequiresApi
 import android.text.TextUtils
 import android.view.MenuItem
 import android.support.v4.app.NavUtils
+import sharpeye.sharpeye.data.SharedPreferencesHelper
+import sharpeye.sharpeye.utils.Android
+import sharpeye.sharpeye.utils.App
+import sharpeye.sharpeye.utils.Phone
 
 /**
  * A [PreferenceActivity] that presents a set of application settings. On
@@ -29,9 +28,14 @@ import android.support.v4.app.NavUtils
  * for design guidelines and the [Settings API Guide](http://developer.android.com/guide/topics/ui/settings.html)
  * for more information on developing a Settings UI.
  */
+@Suppress("DEPRECATION")
 class SettingsActivity : AppCompatPreferenceActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        if (SharedPreferencesHelper.getSharedPreferencesBoolean(this, "dark_theme_on", false))
+            setTheme(R.style.SettingThemeDark)
+        else
+            setTheme(R.style.SettingTheme)
         super.onCreate(savedInstanceState)
         setupActionBar()
     }
@@ -68,7 +72,7 @@ class SettingsActivity : AppCompatPreferenceActivity() {
      * {@inheritDoc}
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    override fun onBuildHeaders(target: List<PreferenceActivity.Header>) {
+    override fun onBuildHeaders(target: List<Header>) {
         loadHeadersFromResource(R.xml.pref_headers, target)
     }
 
@@ -84,6 +88,7 @@ class SettingsActivity : AppCompatPreferenceActivity() {
                 || VocalPreferenceFragment::class.java.name == fragmentName
                 || TOSFragment::class.java.name == fragmentName
                 || ReportFragment::class.java.name == fragmentName
+                || SettingsPreferenceFragment::class.java.name == fragmentName
     }
 
     //about fragment
@@ -94,13 +99,16 @@ class SettingsActivity : AppCompatPreferenceActivity() {
             addPreferencesFromResource(R.xml.about)
             setHasOptionsMenu(true)
             activity.title = resources.getString(R.string.nav_about)
-            preferenceManager.findPreference("versionName").summary = BuildConfig.VERSION_NAME + "-" + BuildConfig.BUILD_TYPE
-            preferenceManager.findPreference("versionCode").summary = BuildConfig.VERSION_CODE.toString()
+            val prefVersionName = preferenceManager.findPreference("versionName")
+            if (prefVersionName != null) prefVersionName.summary = BuildConfig.VERSION_NAME + "-" + BuildConfig.BUILD_TYPE
+            val prefVersionCode = preferenceManager.findPreference("versionCode")
+            if (prefVersionCode != null) prefVersionCode.summary = BuildConfig.VERSION_CODE.toString()
         }
 
         @RequiresApi(Build.VERSION_CODES.M)
         override fun onOptionsItemSelected(item: MenuItem): Boolean {
             val id = item.itemId
+
             if (id == android.R.id.home) {
                 startActivity(Intent(activity, SettingsActivity::class.java))
                 return true
@@ -160,7 +168,33 @@ class SettingsActivity : AppCompatPreferenceActivity() {
             val id = item.itemId
             if (id == android.R.id.home) {
                 startActivity(Intent(activity, SettingsActivity::class.java))
+                return true
+            }
+            return super.onOptionsItemSelected(item)
+        }
+    }
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    class SettingsPreferenceFragment : PreferenceFragment() {
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            addPreferencesFromResource(R.xml.pref_settings)
+            setHasOptionsMenu(true)
+            activity.title = resources.getString(R.string.nav_parameters)
+            val switchPreference = findPreference("dark_theme_on")
+            switchPreference.setOnPreferenceChangeListener { preference, newValue ->
+                if (newValue == true)
+                    context.setTheme(R.style.SettingThemeDark)
+                else
+                    context.setTheme(R.style.SettingTheme)
+                activity.recreate()
+                true
+            }
+        }
 
+        override fun onOptionsItemSelected(item: MenuItem): Boolean {
+            val id = item.itemId
+            if (id == android.R.id.home) {
+                startActivity(Intent(activity, SettingsActivity::class.java))
                 return true
             }
             return super.onOptionsItemSelected(item)
@@ -190,9 +224,18 @@ class SettingsActivity : AppCompatPreferenceActivity() {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             addPreferencesFromResource(R.xml.report)
+            val intent = composeEmail(Array(1){"sharpeye.common@gmail.com"}, "Manual Bug report",
+                "Phone Model: " + Phone.getDeviceName() + "\n" +
+                        "Android versions: " + Android.getAndroidVersion() + "\n" +
+                        "Build Number: " + App.BuildNumber() + "\n" +
+                        "App version: " + App.FullVersionName() + "\n\n" +
+                        "Décrivez votre problème:\n")
             setHasOptionsMenu(true)
             activity.title = resources.getString(R.string.nav_feedback)
+            val prefContact = preferenceManager.findPreference("contact")
+            if (prefContact != null) prefContact.intent = intent
         }
+
 
         override fun onOptionsItemSelected(item: MenuItem): Boolean {
             val id = item.itemId
@@ -201,6 +244,16 @@ class SettingsActivity : AppCompatPreferenceActivity() {
                 return true
             }
             return super.onOptionsItemSelected(item)
+        }
+
+        //create the mail intent that can only be sent with email app
+        private fun composeEmail(addresses: Array<String>, subject: String, text: String) : Intent{
+            return Intent(Intent.ACTION_SENDTO).apply {
+                data = Uri.parse("mailto:")
+                putExtra(Intent.EXTRA_EMAIL, addresses)
+                putExtra(Intent.EXTRA_SUBJECT, subject)
+                putExtra(Intent.EXTRA_TEXT, text)
+            }
         }
     }
 

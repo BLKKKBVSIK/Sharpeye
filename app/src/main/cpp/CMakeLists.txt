@@ -5,7 +5,8 @@ set(CMAKE_VERBOSE_MAKEFILE on)
 set(SOURCES
         src/native-lib.cpp
         src/centroidtracker.cpp
-        src/Tracker.cpp)
+        src/Tracker.cpp
+        src/collisionpredictor.cpp)
 
 set(OPENCV_PATH ${PROJECT_SOURCE_DIR}/../../../../openCVLibrary410)
 

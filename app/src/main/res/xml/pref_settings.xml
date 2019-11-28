@@ -1,0 +1,15 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference
+            android:key="battery_popup_on"
+            android:title="@string/battery_popup_on_title"
+            android:summary="@string/battery_popup_on_summary"
+            android:defaultValue="true"/>
+
+    <SwitchPreference
+        android:key="dark_theme_on"
+        android:title="@string/active_dark_theme"
+        android:summary="@string/dark_theme_summary"
+        android:defaultValue="false"/>
+
+</PreferenceScreen>

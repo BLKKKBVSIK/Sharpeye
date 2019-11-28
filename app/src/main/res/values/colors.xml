@@ -4,4 +4,9 @@
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
     <color name="control_background">#cc4285f4</color>
+    <color name="colorBackgroundDark">#121212</color>
+    <color name="colorText">#000000</color>
+    <color name="colorTextDark">#FFFFFF</color>
+    <color name="colorSecondaryTextDark">#C8C8C8</color>
+    <color name="colorBackground">#FFFFFF</color>
 </resources>

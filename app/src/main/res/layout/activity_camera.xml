@@ -6,13 +6,14 @@
         android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fitsSystemWindows="true"
+        android:fitsSystemWindows="false"
         tools:openDrawer="start">
 
     <include
             layout="@layout/app_bar_camera"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
+
 
     <android.support.design.widget.NavigationView
             android:id="@+id/nav_view"
@@ -22,5 +23,6 @@
             android:fitsSystemWindows="true"
             app:headerLayout="@layout/nav_header_camera"
             app:menu="@menu/activity_camera_drawer"/>
+
 
 </android.support.v4.widget.DrawerLayout>

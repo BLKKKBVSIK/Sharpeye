@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/chat_head_root"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+    <!--Profile image for the chat head.-->
+    <!--Close button-->
+    <RelativeLayout
+        android:id="@+id/speed_limit_sign"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="5dp">
+
+        <ImageView
+            android:id="@+id/chat_head_profile_iv"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:src="@drawable/ic_empty_speed_sign"
+            android:visibility="visible"
+            tools:ignore="ContentDescription"
+            tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/chat_head_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text=""
+            android:textStyle="bold|normal"
+            android:textSize="23sp"
+            android:visibility="visible"
+            tools:visibility="visible" />
+
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/close_btn"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:src="@drawable/ic_close"
+        tools:ignore="ContentDescription"
+        android:layout_alignTop="@+id/speed_limit_sign"
+        android:layout_alignEnd="@+id/speed_limit_sign"
+        android:layout_marginTop="-5dp"
+        android:layout_marginEnd="-5dp" />
+
+</RelativeLayout>

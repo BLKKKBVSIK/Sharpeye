@@ -74,10 +74,16 @@ Java_sharpeye_sharpeye_tracking_Tracker_addBoxes(JNIEnv *env, jobject obj,
 
 extern "C" JNIEXPORT jobject JNICALL
 Java_sharpeye_sharpeye_tracking_Tracker_updateBoxes(JNIEnv *env, jobject obj,
-        jlong trackerAddr, jlong frameAddr) {
+        jlong trackerAddr, jlong frameAddr, jdouble speed) {
     auto *tracker = reinterpret_cast<Tracker*>(trackerAddr);
     auto *frame = reinterpret_cast<cv::Mat*>(frameAddr);
-    std::map<int, cv::Rect2f> boxes = tracker->updateBoxes(*frame);
+    std::map<int, cv::Rect2f> boxes = tracker->updateBoxes(*frame, speed);
     jobject hashMap = rectMapToHashMap(env, boxes);
     return hashMap;
+}
+
+extern "C" JNIEXPORT jboolean JNICALL
+Java_sharpeye_sharpeye_tracking_Tracker_isDangerous(JNIEnv *env, jobject obj, jlong trackerAddr) {
+    auto *tracker = reinterpret_cast<Tracker*>(trackerAddr);
+    return static_cast<jboolean>(tracker->isDangerous());
 }
