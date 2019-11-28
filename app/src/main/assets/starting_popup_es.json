@@ -1,0 +1,53 @@
+{
+  "starting_popup_en": [
+    {
+      "label": "beta1",
+      "title": "bienvenido",
+      "message": "Bienvenido y gracias por descargar Sharp'Eye.\n",
+      "positive": "Siguiente",
+      "negative": ""
+    },
+    {
+      "label": "beta2",
+      "title": "bienvenido",
+      "message": "Nuestro objetivo es ayudarlo durante sus viajes diarios por carretera para que el camino sea un lugar más seguro.",
+      "positive": "Siguiente",
+      "negative": ""
+    },
+    {
+      "label": "beta3",
+      "title": "Beta",
+      "message": "Tenga en cuenta que la aplicación se encuentra actualmente en versión beta, si encuentra algún problema, haga un informe utilizando la sección \"comentarios\".",
+      "positive": "Siguiente",
+      "negative": ""
+    },
+    {
+      "label": "beta3",
+      "title": "Responsabilidad",
+      "message": "We remind you that using Sharp'Eye do not exempt you from your duties as a driver.",
+      "positive": "Siguiente",
+      "negative": ""
+    },
+    {
+      "label": "beta4",
+      "title": "GDPR",
+      "message": "No recopilamos ningún dato personal, sin embargo, si se produce un problema en su aplicación, se nos enviará un informe de error para mejorar Sharp'eye.",
+      "positive": "Siguiente",
+      "negative": ""
+    },
+    {
+      "label": "beta5",
+      "title": "Tips",
+      "message": "En cualquier momento, puede habilitar o deshabilitar las funciones de Sharp'Eye desde el menú.",
+      "positive": "Siguiente",
+      "negative": ""
+    },
+    {
+      "label": "beta6",
+      "title": "Red",
+      "message": "Siéntase libre de unirse a nuestras redes sociales desde la pestaña \"acerca de\".",
+      "positive": "Sí",
+      "negative": "No gracias"
+    }
+  ]
+}
