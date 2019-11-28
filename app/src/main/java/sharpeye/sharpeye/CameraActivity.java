@@ -1,19 +1,3 @@
-/*
- * Copyright 2016 The TensorFlow Authors. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package sharpeye.sharpeye;
 
 import android.Manifest;
@@ -22,7 +6,6 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Point;
 import android.hardware.Camera;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
@@ -41,7 +24,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.Size;
@@ -49,7 +31,6 @@ import android.view.*;
 import android.widget.*;
 import com.crashlytics.android.Crashlytics;
 import io.fabric.sdk.android.Fabric;
-import sharpeye.sharpeye.customview.OverlayView;
 import sharpeye.sharpeye.utils.ImageUtils;
 import sharpeye.sharpeye.utils.Logger;
 import sharpeye.sharpeye.tflite.FrameBuffer;
@@ -57,7 +38,7 @@ import sharpeye.sharpeye.tflite.FrameBuffer;
 import java.nio.ByteBuffer;
 
 public abstract class CameraActivity extends AppCompatActivity
-    implements OnImageAvailableListener, Camera.PreviewCallback, NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
+    implements OnImageAvailableListener, NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
   private static final Logger LOGGER = new Logger();
 
   private static final int PERMISSIONS_REQUEST = 1;
@@ -69,7 +50,6 @@ public abstract class CameraActivity extends AppCompatActivity
 
   private Handler handler;
   private HandlerThread handlerThread;
-  private boolean useCamera2API;
   private boolean isProcessingFrame = false;
   private byte[][] yuvBytes = new byte[3][];
   private int[] rgbBytes = null;
@@ -90,22 +70,9 @@ public abstract class CameraActivity extends AppCompatActivity
 
   protected TextView frameValueTextView, cropValueTextView, inferenceTimeTextView;
   protected ImageView bottomSheetArrowImageView;
-  private ImageView plusImageView, minusImageView;
   private TextView threadsTextView;
 
   protected FrameBuffer frameBuffer;
-
-    public static void setWindowFlag(Activity activity, final int bits, boolean on) {
-
-        Window win = activity.getWindow();
-        WindowManager.LayoutParams winParams = win.getAttributes();
-        if (on) {
-            winParams.flags |= bits;
-        } else {
-            winParams.flags &= ~bits;
-        }
-        win.setAttributes(winParams);
-    }
 
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
@@ -116,15 +83,15 @@ public abstract class CameraActivity extends AppCompatActivity
 
     setContentView(R.layout.activity_camera);
 
-    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+    Toolbar toolbar = findViewById(R.id.toolbar);
 
-    DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+    DrawerLayout drawer = findViewById(R.id.drawer_layout);
     ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
             this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
     drawer.addDrawerListener(toggle);
     toggle.syncState();
 
-    NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+    NavigationView navigationView = findViewById(R.id.nav_view);
     navigationView.setNavigationItemSelectedListener(this);
     navigationView.setItemIconTintList(null);
 
@@ -136,8 +103,8 @@ public abstract class CameraActivity extends AppCompatActivity
       requestPermission();
     }
     threadsTextView = findViewById(R.id.threads);
-    plusImageView = findViewById(R.id.plus);
-    minusImageView = findViewById(R.id.minus);
+    ImageView plusImageView = findViewById(R.id.plus);
+    ImageView minusImageView = findViewById(R.id.minus);
     bottomSheetLayout = findViewById(R.id.bottom_sheet_layout);
     gestureLayout = findViewById(R.id.gesture_layout);
     sheetBehavior = BottomSheetBehavior.from(bottomSheetLayout);
@@ -167,18 +134,18 @@ public abstract class CameraActivity extends AppCompatActivity
                 break;
               case BottomSheetBehavior.STATE_EXPANDED:
                 {
-                  bottomSheetArrowImageView.setImageResource(R.drawable.icn_chevron_down);
+                  bottomSheetArrowImageView.setImageResource(R.drawable.ic_chevron_down);
                 }
                 break;
               case BottomSheetBehavior.STATE_COLLAPSED:
                 {
-                  bottomSheetArrowImageView.setImageResource(R.drawable.icn_chevron_up);
+                  bottomSheetArrowImageView.setImageResource(R.drawable.ic_chevron_up);
                 }
                 break;
               case BottomSheetBehavior.STATE_DRAGGING:
                 break;
               case BottomSheetBehavior.STATE_SETTLING:
-                bottomSheetArrowImageView.setImageResource(R.drawable.icn_chevron_up);
+                bottomSheetArrowImageView.setImageResource(R.drawable.ic_chevron_up);
                 break;
             }
           }
@@ -196,72 +163,9 @@ public abstract class CameraActivity extends AppCompatActivity
     bottomSheetLayout.setVisibility(((debug) ? View.VISIBLE : View.INVISIBLE));
   }
 
-
-  private byte[] lastPreviewFrame;
-
   protected int[] getRgbBytes() {
     imageConverter.run();
     return rgbBytes;
-  }
-
-  protected int getLuminanceStride() {
-    return yRowStride;
-  }
-
-  protected byte[] getLuminance() {
-    return yuvBytes[0];
-  }
-
-  /**
-   * Callback for android.hardware.Camera API
-   */
-  @Override
-  public void onPreviewFrame(final byte[] bytes, final Camera camera) {
-    if (isProcessingFrame) {
-      LOGGER.w("Dropping frame!");
-      return;
-    }
-
-    try {
-      // Initialize the storage bitmaps once when the resolution is known.
-      if (rgbBytes == null) {
-        Camera.Size previewSize = camera.getParameters().getPreviewSize();
-        previewHeight = previewSize.height;
-        previewWidth = previewSize.width;
-        rgbBytes = new int[previewWidth * previewHeight];
-        onPreviewSizeChosen(new Size(previewSize.width, previewSize.height), 90);
-      }
-    } catch (final Exception e) {
-      LOGGER.e(e, "Exception!");
-      return;
-    }
-
-    isProcessingFrame = true;
-    lastPreviewFrame = bytes;
-    yuvBytes[0] = bytes;
-    yRowStride = previewWidth;
-
-    runInBackground(new Runnable() {
-      @Override
-      public void run() {
-        imageConverter =
-                new Runnable() {
-                  @Override
-                  public void run() {
-                    ImageUtils.convertYUV420SPToARGB8888(bytes, previewWidth, previewHeight, rgbBytes);
-                  }
-                };
-
-        postInferenceCallback =
-                new Runnable() {
-                  @Override
-                  public void run() {
-                    camera.addCallbackBuffer(bytes);
-                    isProcessingFrame = false;
-                  }
-                };
-        processImage();
-      }});
   }
 
   public boolean imageAvailableProcess(final Image image) {
@@ -291,18 +195,10 @@ public abstract class CameraActivity extends AppCompatActivity
     frameBuffer.addFrame(rgbBytesBuffer.clone(), frameTime);
 
     if (isProcessingFrame) {
-      //image.close();
       return false;
     }
     isProcessingFrame = true;
     Trace.beginSection("imageAvailable");
-    /*final Plane[] planes = image.getPlanes();
-    fillBytes(planes, yuvBytes);
-    yRowStride = planes[0].getRowStride();
-    final int uvRowStride = planes[1].getRowStride();
-    final int uvPixelStride = planes[1].getPixelStride();*/
-
-    //image.close();
     runInBackground(new Runnable() {
       @Override
       public void run() {
@@ -328,7 +224,6 @@ public abstract class CameraActivity extends AppCompatActivity
                 new Runnable() {
                   @Override
                   public void run() {
-                    //image.close();
                     isProcessingFrame = false;
                   }
                 };
@@ -455,17 +350,6 @@ public abstract class CameraActivity extends AppCompatActivity
     }
   }
 
-  // Returns true if the device supports the required hardware level, or better.
-  private boolean isHardwareLevelSupported(
-          CameraCharacteristics characteristics, int requiredLevel) {
-    int deviceLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
-    if (deviceLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY) {
-      return requiredLevel == deviceLevel;
-    }
-    // deviceLevel is not LEGACY, can use numerical sort
-    return requiredLevel <= deviceLevel;
-  }
-
   private String chooseCamera() {
     final CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
     try {
@@ -474,7 +358,7 @@ public abstract class CameraActivity extends AppCompatActivity
 
         // We don't use a front facing camera in this sample.
         final Integer facing = characteristics.get(CameraCharacteristics.LENS_FACING);
-        if (facing != null && facing == CameraCharacteristics.LENS_FACING_FRONT) {
+        if (facing != null && facing != CameraCharacteristics.LENS_FACING_BACK) {
           continue;
         }
 
@@ -485,13 +369,6 @@ public abstract class CameraActivity extends AppCompatActivity
           continue;
         }
 
-        // Fallback to camera1 API for internal cameras that don't have full support.
-        // This should help with legacy situations where using the camera2 API causes
-        // distorted or otherwise broken previews.
-        useCamera2API = (facing == CameraCharacteristics.LENS_FACING_EXTERNAL)
-            || isHardwareLevelSupported(characteristics, 
-                                        CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL);
-        LOGGER.i("Camera API lv2?: %s", useCamera2API);
         return cameraId;
       }
     } catch (CameraAccessException e) {
@@ -508,33 +385,26 @@ public abstract class CameraActivity extends AppCompatActivity
       finish();
     }
 
-    Fragment fragment;
-    if (useCamera2API) {
-      CameraConnectionFragment camera2Fragment =
-          CameraConnectionFragment.newInstance(
-              new CameraConnectionFragment.ConnectionCallback() {
-                @Override
-                public void onPreviewSizeChosen(final Size size, final int rotation) {
-                  previewHeight = size.getHeight();
-                  previewWidth = size.getWidth();
-                  Log.e("CameraActivity", "PreviewTextureSize="+String.valueOf(size.getWidth())+"x"+String.valueOf(size.getHeight()));
-                  CameraActivity.this.onPreviewSizeChosen(size, rotation);
-                }
-              },
-              this,
-              getLayoutId(),
-              getDesiredPreviewFrameSize());
+    CameraConnectionFragment camera2Fragment =
+        CameraConnectionFragment.newInstance(
+            new CameraConnectionFragment.ConnectionCallback() {
+              @Override
+              public void onPreviewSizeChosen(final Size size, final int rotation) {
+                previewHeight = size.getHeight();
+                previewWidth = size.getWidth();
+                Log.e("CameraActivity", "PreviewTextureSize="+ size.getWidth() +"x"+ size.getHeight());
+                CameraActivity.this.onPreviewSizeChosen(size, rotation);
+              }
+            },
+            this,
+            getLayoutId(),
+            getDesiredPreviewFrameSize());
 
-      camera2Fragment.setCamera(cameraId);
-      fragment = camera2Fragment;
-    } else {
-      fragment =
-          new LegacyCameraConnectionFragment(this, getLayoutId(), getDesiredPreviewFrameSize());
-    }
+    camera2Fragment.setCamera(cameraId);
 
     getFragmentManager()
         .beginTransaction()
-        .replace(R.id.container, fragment)
+        .replace(R.id.container, camera2Fragment)
         .commit();
     Log.e("CameraActivity", "PreviewTexturePlaced");
   }
@@ -563,15 +433,12 @@ public abstract class CameraActivity extends AppCompatActivity
     }
   }
 
-  public void onSetDebug(final boolean debug) {}
-
   @Override
   public boolean onKeyDown(final int keyCode, final KeyEvent event) {
     if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP
             || keyCode == KeyEvent.KEYCODE_BUTTON_L1 || keyCode == KeyEvent.KEYCODE_DPAD_CENTER) {
       debug = !debug;
       requestRender();
-      onSetDebug(debug);
       return true;
     }
     return super.onKeyDown(keyCode, event);
@@ -631,7 +498,7 @@ public abstract class CameraActivity extends AppCompatActivity
 
   @Override
   public void onBackPressed() {
-    DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+    DrawerLayout drawer = findViewById(R.id.drawer_layout);
     if (drawer.isDrawerOpen(GravityCompat.START)) {
       drawer.closeDrawer(GravityCompat.START);
     } else {
@@ -714,6 +581,4 @@ public abstract class CameraActivity extends AppCompatActivity
   protected abstract Size getDesiredPreviewFrameSize();
 
   protected abstract void setNumThreads(int numThreads);
-
-  protected abstract void setUseNNAPI(boolean isChecked);
 }

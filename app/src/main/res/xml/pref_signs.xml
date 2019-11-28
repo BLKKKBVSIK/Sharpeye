@@ -28,6 +28,12 @@
             android:summary="@string/sign_display_summary"
             android:defaultValue="true"
             android:visibility="invisible"/>
+        <SwitchPreference
+            android:key="sign_bubble"
+            android:title="@string/active_sign_bubble"
+            android:summary="@string/sign_bubble_summary"
+            android:defaultValue="false"
+            android:visibility="invisible"/>
     </PreferenceCategory>
     <PreferenceCategory
         android:key="speed_alert_features"

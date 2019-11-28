@@ -4,10 +4,13 @@ import android.graphics.Bitmap;
 import android.graphics.RectF;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.os.SystemClock;
 import android.util.Log;
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
+
+import sharpeye.sharpeye.signs.BipGenerator;
 import sharpeye.sharpeye.tflite.Classifier;
 
 import java.util.ArrayList;
@@ -24,11 +27,15 @@ public class Tracker implements Parcelable {
     private long trackerAddress;
     private HashMap<Integer, Classifier.Recognition> trackedObjects;
     private boolean alertCollision;
+    private BipGenerator bipGenerator;
+    private long lastBip;
 
     public Tracker() {
         trackerAddress = -1;
         trackedObjects = new HashMap<>();
         alertCollision = false;
+        bipGenerator = new BipGenerator();
+        lastBip = SystemClock.uptimeMillis();
     }
 
     public  boolean needInit() {
@@ -134,10 +141,10 @@ public class Tracker implements Parcelable {
         trackedObjects = newTrackedObjects;
     }
 
-    public List<Classifier.Recognition> update(Bitmap frame) {
+    public List<Classifier.Recognition> update(Bitmap frame, double speed) {
         Mat matFrame = bitmapToMat(frame);
         long frameAddress = matFrame.nativeObj;
-        HashMap<Integer, Rect2f> objectIDs = updateBoxes(trackerAddress, frameAddress);
+        HashMap<Integer, Rect2f> objectIDs = updateBoxes(trackerAddress, frameAddress, speed);
         alertCollision = isDangerous(trackerAddress);
         HashMap<Integer, Classifier.Recognition> newTrackedObjects = new HashMap<>();
         List<Classifier.Recognition> recognitionList = new ArrayList<>();
@@ -162,6 +169,19 @@ public class Tracker implements Parcelable {
         return alertCollision;
     }
 
+    public void alertIfDangerous(double speed) {
+        if (speed > 10 && alertCollision) {
+            if (bipGenerator == null) {
+                bipGenerator = new BipGenerator();
+            }
+            if (SystemClock.uptimeMillis() - lastBip > 300) {
+                bipGenerator.bip(150, 100);
+                lastBip = SystemClock.uptimeMillis();
+            }
+            Log.i("Collision", "Situation is dangerous");
+        }
+    }
+
     public static class Rect2f {
         public float x;
         public float y;
@@ -179,7 +199,7 @@ public class Tracker implements Parcelable {
     private native long createTracker();
     private native void deleteTracker(long ptr);
     private native HashMap<Integer, Rect2f> addBoxes(long trackerAddress, long frameAddress, ArrayList<Rect2f> boxes);
-    private native HashMap<Integer, Rect2f> updateBoxes(long trackerAddress, long frameAddress);
+    private native HashMap<Integer, Rect2f> updateBoxes(long trackerAddress, long frameAddress, double speed);
     private native boolean isDangerous(long trackerAddress);
 
 }

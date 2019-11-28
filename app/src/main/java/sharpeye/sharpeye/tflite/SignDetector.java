@@ -4,17 +4,13 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Environment;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.lang.reflect.GenericArrayType;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -22,9 +18,6 @@ import java.util.List;
 
 import sharpeye.sharpeye.BuildConfig;
 import sharpeye.sharpeye.objects_logic.Speech;
-import sharpeye.sharpeye.tflite.Classifier;
-import sharpeye.sharpeye.tflite.TFLiteObjectDetectionAPIModel;
-
 
 public class SignDetector {
 
@@ -54,18 +47,15 @@ public class SignDetector {
     private int previewHeight;
     Speech speech;
 
-    List<Classifier.Recognition> lastResults;
 
     private Classifier generalDetector;
     private Classifier signDifferentiator;
     private CropTracker cropTracker = null;
-    private boolean signVerification = false;
     private boolean debugMode = false;
     private boolean voiceDebug = false;
 
     private static final int CONFIRMATION_NBR = 2;
     private static final int MAXIMUM_VERIFICATION_QUEUE = 4;
-    private int currentVerificationNbr = 0;
 
     private List<Detection> detections;
 
@@ -98,17 +88,10 @@ public class SignDetector {
             frameBuffer = _frameBuffer;
             speech = new Speech(context);
             if (BuildConfig.DEBUG) {
-                setDebugMode(false, false);
+                setDebugMode(true, true);
             }
     }
 
-    public boolean isExternalStorageWritable() {
-        String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
-            return true;
-        }
-        return false;
-    }
 
     public void setBitmapProcessVariables(Bitmap _rgbFrameBitmap, Bitmap _rgbOrientedBitmap, Matrix _rotationTransform, int _previewWidth, int _previewHeight) {
         rgbOrientedBitmap = _rgbOrientedBitmap;
@@ -116,14 +99,6 @@ public class SignDetector {
         rotationTransform = _rotationTransform;
         previewWidth = _previewWidth;
         previewHeight = _previewHeight;
-    }
-
-    public void saveTempBitmap(Bitmap bitmap) {
-        if (isExternalStorageWritable()) {
-            saveImage(bitmap);
-        }else{
-            //prompt the user or do something
-        }
     }
 
     public void setDebugMode(boolean value, boolean voiceValue) {
@@ -181,7 +156,6 @@ public class SignDetector {
         Bitmap processedImage;
 
         RectF crop = cropTracker.getCropRect();
-        System.out.println("crop debug " + crop);
         processedImage = cropBitmap(original, crop.left, crop.right, crop.top, crop.bottom);
 
         return (processedImage);
@@ -245,7 +219,7 @@ public class SignDetector {
                             }
                         } else {
                             diffResult.setLocation(originalRect);
-                            Log.e("SignDetect", "Original: " + cropTracker.getTarget() + " - Verification: " + diffResult.getTitle());
+                            Log.d("SignDetect", "Original: " + cropTracker.getTarget() + " - Verification: " + diffResult.getTitle());
                             if (cropTracker.getTarget() != null && diffResult.getTitle().equals(cropTracker.getTarget())) {
                                 detections.get(0).confirmations++;
                                 break;
@@ -268,16 +242,6 @@ public class SignDetector {
         return (signs);
     }
 
-    private boolean signDetected(List<Classifier.Recognition> signs) {
-        for (Classifier.Recognition sign : signs) {
-            if (!sign.getTitle().startsWith("Debug")) {
-                signVerification = true;
-                return (true);
-            }
-        }
-        return (false);
-    }
-
     public boolean isDetectingSign() {
         return (detections.size() >= 1);
     }
@@ -289,7 +253,7 @@ public class SignDetector {
     }
 
     public List<Classifier.Recognition> verifySign(Bitmap original, float confidence) {
-        Log.e("SignDetect", "Sign verification: " + detections.get(0).current_step + "/" + 2);
+        Log.d("SignDetect", "Sign verification: " + detections.get(0).current_step + "/" + 2);
         FrameBuffer.Frame bufferedFrame;
         List<Classifier.Recognition> signs = new ArrayList<>();
 
@@ -320,15 +284,14 @@ public class SignDetector {
         cropTracker.updateTarget(detections.get(0).title, detections.get(0).pos);
         cropTracker.trackTarget();
         cropTracker.updateTrack();
-        signVerification = false;
         detectOnCrop(confidence, rgbOrientedBitmap, true);
         if (++detections.get(0).current_step >= 3) {
             if (detections.get(0).confirmations >= CONFIRMATION_NBR) {
-                Log.e("SignDetect", "Sign confirmation: " + detections.get(0).title);
+                Log.d("SignDetect", "Sign confirmation: " + detections.get(0).title);
                 adaptLocationsToCropSize(300, 300, detections.get(0).pos, original.getHeight(), original.getWidth());
                 signs.add(new Classifier.Recognition(detections.get(0).id, detections.get(0).title, detections.get(0).confidence, detections.get(0).pos));
             } else {
-                Log.e("SignDetect", "False positive: Dismissing");
+                Log.d("SignDetect", "False positive: Dismissing");
                 if (voiceDebug) {
                     speech.speak("Faux positif.");
                 }
@@ -364,7 +327,7 @@ public class SignDetector {
 
         for (int i = 0; i < signs.size(); ++i) {
             if (!signs.get(i).getTitle().startsWith("Debug") && detections.size() < MAXIMUM_VERIFICATION_QUEUE && !inVerification(signs.get(i).getTitle())) {
-                Log.e("SignDetect", "Potential sign detected");
+                Log.d("SignDetect", "Potential sign detected");
                 detections.add(new Detection(signs.get(i).getTitle(), new RectF(signs.get(i).getLocation()), frameBuffer.getDetectionFrame().timestamp, signs.get(i).getConfidence(), signs.get(i).getId()));
                 if (voiceDebug) {
                     speech.speak("Panneau potentiel détecté " + signs.get(i).getTitle());

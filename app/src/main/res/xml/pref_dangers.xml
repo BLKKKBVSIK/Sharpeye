@@ -6,4 +6,10 @@
             android:summary="@string/danger_detection_summary"
             android:defaultValue="true"/>
 
+    <SwitchPreference
+        android:key="collision_on"
+        android:title="@string/active_collision_prediction"
+        android:summary="@string/collision_prevention_summary"
+        android:defaultValue="true"/>
+
 </PreferenceScreen>

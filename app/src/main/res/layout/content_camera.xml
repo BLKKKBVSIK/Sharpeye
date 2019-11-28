@@ -69,7 +69,7 @@
                 android:textStyle="bold|normal"
                 android:textSize="23sp"
                 android:visibility="invisible"
-                tools:visibility="invisible" />
+                tools:visibility="invisible"/>
         </RelativeLayout>
     </RelativeLayout>
 

@@ -1,15 +1,13 @@
 package sharpeye.sharpeye.tflite;
 
-import android.graphics.Rect;
 import android.graphics.RectF;
-import android.util.Log;
 
 public class CropTracker {
 
     public enum Direction {
         Horizontal,
         Vertical
-    };
+    }
 
     public class Target {
         String name;
@@ -129,10 +127,7 @@ public class CropTracker {
         float nextOffset;
 
         nextOffset = offset;
-        if ((nextOffset + cropSize >= limit && idleDirection == Direction.Horizontal) || (nextOffset + cropSize >= limit && idleDirection == Direction.Vertical)) {
-            return (false);
-        }
-        return (true);
+        return (!(nextOffset + cropSize >= limit) || idleDirection != Direction.Horizontal) && (!(nextOffset + cropSize >= limit) || idleDirection != Direction.Vertical);
     }
 
     public void resetOffset() {

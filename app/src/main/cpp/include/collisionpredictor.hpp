@@ -11,18 +11,18 @@ public:
 	CollisionPredictor();
 	~CollisionPredictor();
 
-	bool alert(const std::map<int, cv::Rect2f> &objects, cv::Mat frame);
+	bool alert(const std::map<int, cv::Rect2f> &objects, cv::Mat frame, double speed);
 
 private:
 	void add_size_to_history(const int id, const double size);
-	bool is_faster_than(const int id, cv::Rect2f box, cv::Mat frame);
+	double minimum_distance(double speed) const;
 
 	std::map<int, std::vector<double>>	objects_size_history;
-	const int 							SAMPLE_SIZE = 30;
-	const int 							APX_THRESHOLD = 18;
-	const int 							GROWTH_THRESHOLD = 1;
-	const int 							MIN_X = 20;
-	const int 							MAX_X = 80;
+	const int 							APX_THRESHOLD = 15;
+	const int                           MAX_DELTA = 25;
+	const int                           APX_SPEED = 130;
+	const int 							MIN_X = 21;
+	const int 							MAX_X = 82;
 };
 
 #endif // COLLISIONPREDICTOR_HPP

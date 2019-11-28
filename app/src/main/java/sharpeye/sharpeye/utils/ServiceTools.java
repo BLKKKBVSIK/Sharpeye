@@ -2,6 +2,7 @@ package sharpeye.sharpeye.utils;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.util.Log;
 
 import java.util.List;
 
@@ -21,6 +22,7 @@ public class ServiceTools {
         final List<ActivityManager.RunningServiceInfo> services = activityManager.getRunningServices(Integer.MAX_VALUE);
 
         for (ActivityManager.RunningServiceInfo runningServiceInfo : services) {
+            Log.d("isServiceRunning", runningServiceInfo.service.getClassName());
             if (runningServiceInfo.service.getClassName().equals(serviceClassName)){
                 return true;
             }

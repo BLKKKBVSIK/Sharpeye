@@ -1,7 +1,3 @@
-//
-// Created by Midori on 29/04/2019.
-//
-
 #include <Tracker.hpp>
 
 #include "Tracker.hpp"
@@ -31,12 +27,12 @@ std::map<int, cv::Rect2f> Tracker::addBoxes(cv::Mat const &frame, std::vector<cv
     return ct.update(boxes);
 }
 
-std::map<int, cv::Rect2f> Tracker::updateBoxes(cv::Mat const &frame) {
+std::map<int, cv::Rect2f> Tracker::updateBoxes(cv::Mat const &frame, double speed) {
     std::vector<cv::Rect2f> boxes;
     boxes = getBoxesFromTracker(frame);
     std::string str = "boxes="+std::to_string(boxes.size());
     std::map<int, cv::Rect2f> objects =  ct.update(boxes);
-    this->dangerous = this->cp.alert(objects, frame);
+    this->dangerous = this->cp.alert(objects, frame, speed);
     return objects;
 }
 
