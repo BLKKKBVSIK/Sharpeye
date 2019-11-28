@@ -22,13 +22,14 @@ public class CropTracker {
     int cropSize;
     int interval;
     int limit;
+    int start;
 
     boolean tracking = false;
     boolean idle = true;
     Target target = null;
     String lastDetected;
 
-    private int offset = 1;
+    private int offset;
     private int offDirPos = 1;
     private int offsetSaved = 0;
 
@@ -36,7 +37,7 @@ public class CropTracker {
 
     private RectF cropRect;
 
-    public CropTracker(Direction idleDir, int _width, int _height, int _cropSize, int _interval, boolean targetable, int _limit) {
+    public CropTracker(Direction idleDir, int _width, int _height, int _cropSize, int _interval, boolean targetable, int _limit, int _start) {
         idleDirection = idleDir;
         width = _width;
         height = _height;
@@ -45,6 +46,8 @@ public class CropTracker {
         tracking = targetable;
         cropRect = new RectF();
         limit = _limit;
+        start = _start;
+        offset = start;
 
         if ((limit == -1 || limit > width) && idleDirection == Direction.Horizontal) {
             limit = width;
@@ -128,7 +131,7 @@ public class CropTracker {
     }
 
     public void resetOffset() {
-        offset = 1;
+        offset = start;
     }
 
     public void updateTrack() {

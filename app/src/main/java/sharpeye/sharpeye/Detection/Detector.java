@@ -27,6 +27,7 @@ import sharpeye.sharpeye.processors.ProcessorsManager;
 import sharpeye.sharpeye.signs.Sign;
 import sharpeye.sharpeye.signs.SignList;
 import sharpeye.sharpeye.tflite.Classifier;
+import sharpeye.sharpeye.tflite.FrameBuffer;
 import sharpeye.sharpeye.tflite.SignDetector;
 import sharpeye.sharpeye.tflite.TFLiteObjectDetectionAPIModel;
 import sharpeye.sharpeye.tracking.Tracker;
@@ -72,12 +73,14 @@ public class Detector {
     private CurrentState currentState;
 
     private ProcessorsManager processorsManager;
+    private FrameBuffer frameBuffer;
 
 
     private Size previewSize;
 
-    public Detector(Context context) {
+    public Detector(Context context, FrameBuffer _frameBuffer) {
         currentState = new CurrentState();
+        frameBuffer = _frameBuffer;
         processorsManager = new ProcessorsManager(new Logger(ProcessorsManager.class));
         processorsManager
                 .add(new GPSProcessor(context, (Activity)context, new Logger(GPSProcessor.class)))
@@ -136,7 +139,7 @@ public class Detector {
         signList = new SignList(context);
         int cropSize = TF_OD_API_INPUT_SIZE;
         try {
-            signClassifier = new SignDetector(context);
+            signClassifier = new SignDetector(context, frameBuffer);
             dangerDetector = TFLiteObjectDetectionAPIModel.create(
                     context.getAssets(),
                     TF_OD_API_MODEL_FILE_DANGER,
@@ -176,6 +179,7 @@ public class Detector {
 
         cropToFrameTransform = new Matrix();
         frameToCropTransform.invert(cropToFrameTransform);
+        signClassifier.setBitmapProcessVariables(rgbFrameBitmap, rgbOrientedBitmap, rotationTransform, size.getWidth(), size.getHeight());
     }
 
     public void detect(Context context, int[] rgbBytes, DetectorListener detectorListener) {
@@ -197,8 +201,9 @@ public class Detector {
         List<Classifier.Recognition> dangerResults = null;
         final List<Classifier.Recognition> fullResults = new ArrayList<>();
         boolean tracking = false;
+        boolean signConfirmation = false;
+        results = new ArrayList<>();
         if (signClassifier.isDetectingSign()) {
-            results = new ArrayList<>();
             List<Classifier.Recognition> tmp = signClassifier.verifySign(rgbOrientedBitmap, MINIMUM_CONFIDENCE_TF_OD_API);
             for (Classifier.Recognition val: tmp) {
                 if (val.getLocation().right >= 0 &&
@@ -206,10 +211,11 @@ public class Detector {
                         val.getLocation().right < 5000 && val.getLocation().left < 5000 && val.getLocation().bottom < 5000 &&
                         val.getLocation().top < 5000) {
                     results.add(val);
+                    signConfirmation = true;
                 }
             }
-        } else if (!initializedTracking || (startTime - lastRecognition) >= 300) {
-            results = new ArrayList<>();
+        }
+        if (!initializedTracking || (startTime - lastRecognition) >= 200) {
             List<Classifier.Recognition> tmp;
             if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(context,"signs_on",false)) {
                 tmp = signClassifier.detectSign(rgbOrientedBitmap, MINIMUM_CONFIDENCE_TF_OD_API);
@@ -238,12 +244,12 @@ public class Detector {
 
             fullResults.addAll(results);
             fullResults.addAll(dangerResults);
-            tracker.track(croppedBitmap, fullResults);
+            tracker.track(croppedBitmap, dangerResults);
             initializedTracking = true;
             lastRecognition = SystemClock.uptimeMillis();
         } else {
             double speed = currentState.isSpeed() ? currentState.getSpeed() : 0;
-            results = tracker.update(croppedBitmap, speed);
+            results.addAll(tracker.update(croppedBitmap, speed));
             if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(context,"collision_on",false)) {
                 tracker.alertIfDangerous(speed);
             }
@@ -272,7 +278,7 @@ public class Detector {
                 result.setLocation(location);
                 mappedRecognitions.add(result);
                 try {
-                    if (objectsProcessing != null && !tracking) {
+                    if (objectsProcessing != null && (!tracking || signConfirmation)) {
                         objectsProcessing.processDetectedObject(result);
                         Sign sign = signList.get(result.getTitle());
                         if (sign != null) currentState.addSign(sign);

@@ -36,6 +36,13 @@ public class GPSService extends Service implements GPSCallback {
     private BipGenerator bipGenerator;
     private GPSManager gpsManager;
     private LocationManager locationManager;
+    private long warningStopTime;
+    private long warningDurationMS = 3500;
+    private long nextTrigger;
+    private long warningTriggerIntervalMS = 20000;
+    private boolean canTriggerWarning = true;
+    private float currSpeedLimit = 0;
+    private boolean warnBip = false;
 
     @Override
     public int onStartCommand (Intent intent, int flags, int startId)
@@ -85,6 +92,18 @@ public class GPSService extends Service implements GPSCallback {
         initializeGPS();
     }
 
+    public void onSpeedTooBig() {
+        if (canTriggerWarning) {
+            warningStopTime = System.currentTimeMillis() + warningDurationMS;
+            nextTrigger = System.currentTimeMillis() + warningTriggerIntervalMS;
+            canTriggerWarning = false;
+        }
+    }
+
+    public void onSpeedChange() {
+        canTriggerWarning = true;
+    }
+
     @Override
     public void onDestroy ()
     {
@@ -99,12 +118,30 @@ public class GPSService extends Service implements GPSCallback {
         double speed = location.getSpeed() * 3.6f;
         currentState.setSpeed(round(speed, 3, BigDecimal.ROUND_HALF_UP));
         currentState.setSpeed(true);
+        currentState.setSpeed(56);
+
+        if (warnBip && bipGenerator != null) {
+            bipGenerator.bip(150, 100);
+        }
+
         if (currentState != null && currentState.getSpeedLimit() != 0) {
+            if (currentState.getSpeedLimit() != currSpeedLimit) {
+                currSpeedLimit = currentState.getSpeedLimit();
+                onSpeedChange();
+            }
             if (currentState.getSpeed() > currentState.getSpeedLimit())
             {
-                if (bipGenerator != null) {
-                    bipGenerator.bip(150, 100);
+                onSpeedTooBig();
+                if (System.currentTimeMillis() < warningStopTime) {
+                    warnBip = true;
+                } else if (System.currentTimeMillis() > nextTrigger) {
+                    warningStopTime = System.currentTimeMillis() + warningDurationMS;
+                    nextTrigger = System.currentTimeMillis() + warningTriggerIntervalMS;
+                } else {
+                    warnBip = false;
                 }
+            } else {
+                warnBip = false;
             }
         }
         Log.d("GPS Service", "onGPSUpdate: " + speed);

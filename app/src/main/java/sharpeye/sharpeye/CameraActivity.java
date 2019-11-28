@@ -33,6 +33,7 @@ import com.crashlytics.android.Crashlytics;
 import io.fabric.sdk.android.Fabric;
 import sharpeye.sharpeye.utils.ImageUtils;
 import sharpeye.sharpeye.utils.Logger;
+import sharpeye.sharpeye.tflite.FrameBuffer;
 
 import java.nio.ByteBuffer;
 
@@ -52,6 +53,7 @@ public abstract class CameraActivity extends AppCompatActivity
   private boolean isProcessingFrame = false;
   private byte[][] yuvBytes = new byte[3][];
   private int[] rgbBytes = null;
+  private int[] rgbBytesBuffer = null;
   private int yRowStride;
 
   protected int previewWidth = 0;
@@ -69,6 +71,8 @@ public abstract class CameraActivity extends AppCompatActivity
   protected TextView frameValueTextView, cropValueTextView, inferenceTimeTextView;
   protected ImageView bottomSheetArrowImageView;
   private TextView threadsTextView;
+
+  protected FrameBuffer frameBuffer;
 
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
@@ -90,6 +94,8 @@ public abstract class CameraActivity extends AppCompatActivity
     NavigationView navigationView = findViewById(R.id.nav_view);
     navigationView.setNavigationItemSelectedListener(this);
     navigationView.setItemIconTintList(null);
+
+    frameBuffer = new FrameBuffer();
 
     if (hasPermission()) {
       setFragment();
@@ -166,19 +172,33 @@ public abstract class CameraActivity extends AppCompatActivity
     if (image == null) {
       return false;
     }
-    if (isProcessingFrame) {
-      image.close();
-      return false;
-    }
-    isProcessingFrame = true;
-    Trace.beginSection("imageAvailable");
+
     final Plane[] planes = image.getPlanes();
     fillBytes(planes, yuvBytes);
     yRowStride = planes[0].getRowStride();
     final int uvRowStride = planes[1].getRowStride();
     final int uvPixelStride = planes[1].getPixelStride();
-
     image.close();
+
+    ImageUtils.convertYUV420ToARGB8888(
+            yuvBytes[0],
+            yuvBytes[1],
+            yuvBytes[2],
+            previewWidth,
+            previewHeight,
+            yRowStride,
+            uvRowStride,
+            uvPixelStride,
+            rgbBytesBuffer);
+
+    long frameTime = System.currentTimeMillis();
+    frameBuffer.addFrame(rgbBytesBuffer.clone(), frameTime);
+
+    if (isProcessingFrame) {
+      return false;
+    }
+    isProcessingFrame = true;
+    Trace.beginSection("imageAvailable");
     runInBackground(new Runnable() {
       @Override
       public void run() {
@@ -196,6 +216,7 @@ public abstract class CameraActivity extends AppCompatActivity
                             uvRowStride,
                             uvPixelStride,
                             rgbBytes);
+                            frameBuffer.setDetectionFrame(rgbBytes.clone(), System.currentTimeMillis());
                   }
                 };
 
@@ -203,11 +224,9 @@ public abstract class CameraActivity extends AppCompatActivity
                 new Runnable() {
                   @Override
                   public void run() {
-                    //image.close();
                     isProcessingFrame = false;
                   }
                 };
-
         processImage();
       }
     });
@@ -226,6 +245,10 @@ public abstract class CameraActivity extends AppCompatActivity
     }
     if (rgbBytes == null) {
       rgbBytes = new int[previewWidth * previewHeight];
+    }
+
+    if (rgbBytesBuffer == null) {
+      rgbBytesBuffer = new int[previewWidth * previewHeight];
     }
     try {
       final Image image = reader.acquireLatestImage();

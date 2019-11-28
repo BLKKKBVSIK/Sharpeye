@@ -4,6 +4,8 @@ import android.content.Context;
 import android.graphics.Color;
 import android.util.TypedValue;
 
+import java.text.DecimalFormat;
+
 import sharpeye.sharpeye.R;
 import sharpeye.sharpeye.data.SharedPreferencesHelper;
 import sharpeye.sharpeye.signs.frontViews.IFrontViews;
@@ -46,7 +48,7 @@ public class SpeedViewManager extends FrontElementManager {
         }
         if (isVisible && currentState.getGPSenabled() && currentState.getGPSPermission() && currentState.isSpeed()) {
             frontViews.setFontSize(TypedValue.COMPLEX_UNIT_SP, 25);
-            frontViews.setText(currentState.getSpeed() + "Km/H");
+            frontViews.setText(((float)Math.round(currentState.getSpeed() * 10.0f) / 10.0f) + "Km/H");
             if (currentState.getSpeed() > currentState.getSpeedLimit()) {
                 frontViews.setTextColor(Color.rgb(255, 0, 0));
             } else if (currentState.getSpeed() >= (currentState.getSpeedLimit() * 0.95)) {

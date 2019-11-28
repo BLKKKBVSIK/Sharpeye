@@ -52,7 +52,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         PopupHandler starting = new PopupHandler(this,
                 getApplicationContext().getString(R.string.starting_popup), kvDatabase);
         starting.NextPopup(0);
-        detector = new Detector(this);
+        detector = new Detector(this, frameBuffer);
         detector.restore(savedInstanceState);
 
     }
@@ -119,6 +119,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                         multiBoxTracker.drawDebug(canvas);
                     }
                 });
+
         int sensorOrientation = rotation - getScreenOrientation();
         multiBoxTracker.setFrameConfiguration(previewWidth, previewHeight, sensorOrientation);
     }

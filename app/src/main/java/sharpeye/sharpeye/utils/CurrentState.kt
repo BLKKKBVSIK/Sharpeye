@@ -24,11 +24,10 @@ class CurrentState {
 
         if (sign.kind == SignKind.SPEEDLIMIT)
         {
-            if (previousSigns.any() && previousSigns[previousSigns.lastIndex] == sign)
-            {
+           // if (previousSigns.any() && previousSigns[previousSigns.lastIndex] == sign) {
                 speedLimit = sign.speed
                 isSpeedLimit = true
-            }
+           // }
             previousSigns.add(sign)
             Log.d("current state",
                 "speedlimit: $speedLimit / currentSpeed: $speed + $previousSigns"
@@ -40,4 +39,6 @@ class CurrentState {
             previousSigns.removeAt(0)
         }
     }
+
+
 }
