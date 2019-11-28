@@ -6,6 +6,8 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.hardware.Camera;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
@@ -31,6 +33,7 @@ import android.view.*;
 import android.widget.*;
 import com.crashlytics.android.Crashlytics;
 import io.fabric.sdk.android.Fabric;
+import sharpeye.sharpeye.data.SharedPreferencesHelper;
 import sharpeye.sharpeye.utils.ImageUtils;
 import sharpeye.sharpeye.utils.Logger;
 import sharpeye.sharpeye.tflite.FrameBuffer;
@@ -89,11 +92,22 @@ public abstract class CameraActivity extends AppCompatActivity
     ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
             this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
     drawer.addDrawerListener(toggle);
+
     toggle.syncState();
 
     NavigationView navigationView = findViewById(R.id.nav_view);
     navigationView.setNavigationItemSelectedListener(this);
     navigationView.setItemIconTintList(null);
+    if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(this,"dark_theme_on",false))
+    {
+      navigationView.setBackgroundColor(getColor(R.color.colorBackgroundDark));
+      navigationView.setItemTextColor(getColorStateList(R.color.colorTextDark));
+    }
+    else
+    {
+      navigationView.setBackgroundColor(getColor(R.color.colorBackground));
+      navigationView.setItemTextColor(getColorStateList(R.color.colorText));
+    }
 
     frameBuffer = new FrameBuffer();
 
@@ -271,6 +285,17 @@ public abstract class CameraActivity extends AppCompatActivity
   @Override
   public synchronized void onResume() {
     LOGGER.d("onResume " + this);
+      NavigationView navigationView = findViewById(R.id.nav_view);
+    if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(this,"dark_theme_on",false))
+    {
+      navigationView.setBackgroundColor(getColor(R.color.colorBackgroundDark));
+      navigationView.setItemTextColor(getColorStateList(R.color.colorTextDark));
+    }
+    else
+    {
+      navigationView.setBackgroundColor(getColor(R.color.colorBackground));
+      navigationView.setItemTextColor(getColorStateList(R.color.colorText));
+    }
     super.onResume();
 
     handlerThread = new HandlerThread("inference");

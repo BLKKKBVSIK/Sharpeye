@@ -137,4 +137,7 @@
     <string name="camera_error">This device doesn\'t support Camera2 API.</string>
     <string name="camera_permission">This application needs the camera to work.</string>
     <string name="request_permission">This sample needs camera permission.</string>
+	<string name="active_dark_theme">Dark theme</string>
+    <string name="dark_theme_summary">Applies on the next menu change</string>
+
 </resources>
