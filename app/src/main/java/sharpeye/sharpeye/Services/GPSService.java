@@ -118,7 +118,6 @@ public class GPSService extends Service implements GPSCallback {
         double speed = location.getSpeed() * 3.6f;
         currentState.setSpeed(round(speed, 3, BigDecimal.ROUND_HALF_UP));
         currentState.setSpeed(true);
-        currentState.setSpeed(56);
 
         if (warnBip && bipGenerator != null) {
             bipGenerator.bip(150, 100);
