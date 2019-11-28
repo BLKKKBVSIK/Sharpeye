@@ -243,11 +243,11 @@ public class Detector {
             lastRecognition = SystemClock.uptimeMillis();
         } else {
             double speed = currentState.isSpeed() ? currentState.getSpeed() : 0;
-            tracker.alertIfDangerous(currentState.getSpeed());
             results = tracker.update(croppedBitmap, speed);
             if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(context,"collision_on",false)) {
                 tracker.alertIfDangerous(speed);
             }
+            tracking = true;
         }
         final long lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime;
 
