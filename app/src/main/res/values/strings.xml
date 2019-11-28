@@ -103,7 +103,6 @@
 
     <string name="nav_header_desc" translatable="false">Navigation header</string>
     <string name="action_settings" translatable="false">Settings</string>
-    <string name="camera_permission" translatable="false">This application needs the camera to work.</string>
     <string name="title_activity_settings" translatable="false">Settings</string>
 
     <string-array name="multi_select_list_preference_default_value"/>
@@ -121,8 +120,6 @@
     <string name="pref_title_vibrate" translatable="false">Vibrate</string>
 
     <string name="description_info" translatable="false">Info</string>
-    <string name="request_permission" translatable="false">This sample needs camera permission.</string>
-    <string name="camera_error" translatable="false">This device doesn\'t support Camera2 API.</string>
 
     <string name="nav_danger">Détection de danger</string>
     <string name="nav_signs">Détection de panneaux</string>
@@ -161,4 +158,10 @@
     <string name="sign_popout_negative_toast">Fonctionnalité désactivée</string>
     <string name="sign_popout_positive">Aller dans les paramètres</string>
     <string name="sign_bubble_toast">Afficher au premier plan n\'est pas autorisé par le téléphone.</string>
+    <string name="battery_popup_on_summary">Une fenêtre apparaitra quand votre batterie sera faible pour vous rappeler de mettre en charge votre téléphone</string>
+    <string name="battery_popup_on_title">Rappel de batterie</string>
+    <string name="camera_error">Cet appareil ne supporte pas l\'API Camera2.</string>
+    <string name="camera_permission">Cette application nécessite la caméra pour fonctionner</string>
+    <string name="request_permission">Cette fonctionnalité à besoin de la permission caméra</string>
+
 </resources>

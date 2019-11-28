@@ -15,7 +15,7 @@
     <string name="app_version">应用版本</string>
     <string name="about_us">关于我们</string>
     <string name="terms_of_services">服务条款</string>
-    <string name="tos" translatable="false">TOS</string>
+    <string name="tos">TOS</string>
     <string name="active_danger_detection">启用危险警告</string>
     <string name="active_collision_prediction">启用碰撞警告</string>
     <string name="active_dashcam">启用行车记录仪</string>
@@ -93,4 +93,9 @@
     <string name="sign_popout_positive">前往“设置”</string>
     <string name="sign_popout_title">显示权限</string>
     <string name="sign_bubble_toast">无法显示其他应用程序的权限。 关闭首选项</string>
+    <string name="battery_popup_on_summary">手机电量不足时会显示一个窗口，提醒您充电</string>
+    <string name="battery_popup_on_title">电池提醒</string>
+    <string name="camera_error">此设备不支持Camera2 API.</string>
+    <string name="camera_permission">此应用程序需要相机才能工作.</string>
+    <string name="request_permission">此功能需要相机许可。</string>
 </resources>

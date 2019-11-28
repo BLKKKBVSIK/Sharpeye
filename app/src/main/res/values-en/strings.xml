@@ -132,4 +132,9 @@
     <string name="sign_popout_positive">Go to settings</string>
     <string name="sign_popout_title">Display permissions</string>
     <string name="sign_bubble_toast">Display over other app permission not available. Switching off preferences</string>
+    <string name="battery_popup_on_summary">A window will be displayed when your phone is low on battery to remind you to charge it</string>
+    <string name="battery_popup_on_title">Battery reminder</string>
+    <string name="camera_error">This device doesn\'t support Camera2 API.</string>
+    <string name="camera_permission">This application needs the camera to work.</string>
+    <string name="request_permission">This sample needs camera permission.</string>
 </resources>
