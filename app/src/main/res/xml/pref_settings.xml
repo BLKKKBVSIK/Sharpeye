@@ -2,8 +2,8 @@
 
     <SwitchPreference
             android:key="battery_popup_on"
-            android:title="Rappel de batterie"
-            android:summary="Une fenêtre apparaitra quand votre batterie sera faible pour vous rappeler de mettre en charge votre téléphone"
+            android:title="@string/battery_popup_on_title"
+            android:summary="@string/battery_popup_on_summary"
             android:defaultValue="true"/>
 
 </PreferenceScreen>

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nav_danger">危险检测</string>
+    <string name="nav_signs">标志检测</string>
+    <string name="nav_assist">语音助手</string>
+    <string name="nav_dashcam">行车记录仪</string>
+    <string name="nav_about">关于</string>
+    <string name="nav_feedback">反馈</string>
+    <string name="about_social">社交平台</string>
+    <string name="follow_twitter">在Twitter上关注我们</string>
+    <string name="follow_facebook">在Facebook上关注我们</string>
+    <string name="follow_instagram">在Instagram上关注我们</string>
+    <string name="contact_us">联系我们</string>
+    <string name="about">关于</string>
+    <string name="app_version">应用版本</string>
+    <string name="about_us">关于我们</string>
+    <string name="terms_of_services">服务条款</string>
+    <string name="tos">TOS</string>
+    <string name="active_danger_detection">启用危险警告</string>
+    <string name="active_collision_prediction">启用碰撞警告</string>
+    <string name="active_dashcam">启用行车记录仪</string>
+    <string name="dashcam_summary">驾驶时将自动创建驾驶记录</string>
+    <string name="record_on_impact">自动冲击记录</string>
+    <string name="danger_detection">危险检测</string>
+    <string name="sign_detection">路标检测</string>
+    <string name="vocal_assist">语音助手</string>
+    <string name="dashcam">行车记录仪</string>
+    <string name="active_sign_recognition">启用路标检测</string>
+    <string name="sign_recognition_summary">检测重要路标</string>
+    <string name="active_speed_reminder">启用速度控制器</string>
+    <string name="speed_reminder_summary">超速驾驶时警告驾驶员</string>
+    <string name="active_vocal_recognition">启用语音检测</string>
+    <string name="vocal_recognition_summary">启用SharpEye语音助手</string>
+    <string name="tos_body">
+        “下载或使用该应用程序，意味着您同意在使用我方平台服务过程中，遵守以下服务条款。请确保在使用该应用程序之前仔细阅读这些条款。
+        您不得以任何方式复制或修改应用程序，包括应用商标。
+        您不得提取该应用程序的源代码，也不应尝试将该应用翻译为其他语言，或生成派生版本。
+        该应用程序自带的所有版本、商标、版权、数据库权利和其他知识产权归SharpEye所有。
+        SharpEye致力于确保应用程序的有用和高效。因此，我们保留对应用程序进行更改或对其部分服务收费的权利。
+        如果不向您明确说明您要支付的费用，我们不会向您收取应用程序或其服务的费用。
+		SharpEye收集和使用您提供给我们的个人信息，以便更好地为您提供服务。
+        请确保手机和应用程序的安全访问。因此，我们建议您不要越狱或刷机，这将会删除设备上官方操作系统默认的软件限制。它可能会使您的手机易受恶意程序的攻击，损害安全功能，SharpEye可能无法正常工作。
+        SharpEye的某些功能要求手机具有可用的网络连接，包括Wi-Fi，移动网络，当您没有可用网络连接时，SharpEye不会为应用程序无法完全正常工作承担责任。
+		当您使用数据连接时，您与移动网络运营商的协议条款仍然适用。移动网络运营商可能会向您收取连接期间的数据费用或其他第三方费用。
+		在您所在的国家或地区之外使用该应用程序，您可能会承担漫游数据费用。
+		请确保手机电量充足，如果电量不足导致无法打开应用程序以使用服务，SharpEye将不会为应用程序无法完全正常工作承担责任。
+		SharpEye可能会使用第三方向我们提供的信息，以便更好地为您提供服务。
+		SharpEye对您因完全依赖该应用程序的功能而导致的直接或间接损失不承担任何责任。
+        SharpEye当前在Android系统可用，对于可能的更新，如果要继续使用该应用程序，您需要下载更新。
+		SharpEye不保证会根据您的设备版本进行更新。
+		我们也可能停止提供该应用程序，而无需向您发出终止通知。除非另有说明，在任何终止时，
+		（a） 条款授予您的权限和许可证将终止；
+		（b） 您必须停止使用该应用程序，并将其从您的设备中删除（如果需要的话）。
+        我们会不时更新该服务条款。建议您定期查看此页以了解任何更改。我们将通过在本页上发布新的条款来通知您任何更改。
+		这些更改在发布到此页后立即生效。
+        如果您对我们的条款有任何疑问或建议，请联系我们，邮箱：sharpeye.common@gmail.com。 "
+    </string>
+    <string name="report_bug">问题反馈</string>
+    <string name="bug_description">问题描述:</string>
+    <string name="error_report">问题反馈</string>
+    <string name="satisfaction_form">满意度表格</string>
+    <string name="danger_detection_summary">警告驾驶员检测到的危险</string>
+    <string name="collision_prevention_summary">警告驾驶员可能发生碰撞</string>
+    <string name="record_impact_summary">检测到错误操作时，将视频存档</string>
+    <string name="app_about">关于此应用</string>
+    <string name="app_build">创建编号</string>
+    <string name="speed_counter">等待GPS信号</string>
+    <string name="starting_popup">starting_popup_zh</string>
+    <string name="active_speed_display">显示速度</string>
+    <string name="gps_settings">GPS设置</string>
+    <string name="speed_display_summary">使用GPS信号显示当前车辆的速度</string>
+    <string name="settings">设置</string>
+    <string name="gps_go_settings">定位未开启。要转到“设置”菜单吗？</string>
+    <string name="cancel">取消</string>
+    <string name="disable_speed_features">禁用速度功能</string>
+    <string name="battery_title">电量不足</string>
+    <string name="battery_message">电量不足，请注意充电.</string>
+    <string name="active_api_speed_limit_retrieving">精确速度限制</string>
+    <string name="active_sign_display">显示速度限制</string>
+    <string name="api_speed_limit_retrieving_summary">使用OpenStreetMap（使用手机移动数据）收集速度限制</string>
+    <string name="nav_speed_display_features">显示</string>
+    <string name="nav_speed_alert_features">警告</string>
+    <string name="nav_speed_features">速度、路标</string>
+    <string name="sign_display_summary">显示当前速度限制</string>
+    <string name="nav_parameters">参数</string>
+    <string name="battery_popup_dont_show_again">不再提示</string>
+    <string name="battery_popup_ok">好 （但使用英语）</string>
+    <string name="active_sign_bubble">启用弹出标志</string>
+    <string name="sign_bubble_summary">退出应用您仍可查看速度限制</string>
+    <string name="sign_popout_message">若要激活此功能，请允许Sharpeye在其他应用上显示</string>
+    <string name="sign_popout_negative">返回</string>
+    <string name="sign_popout_negative_toast">功能已禁用</string>
+    <string name="sign_popout_positive">前往“设置”</string>
+    <string name="sign_popout_title">显示权限</string>
+    <string name="sign_bubble_toast">无法显示其他应用程序的权限。 关闭首选项</string>
+    <string name="battery_popup_on_summary">手机电量不足时会显示一个窗口，提醒您充电</string>
+    <string name="battery_popup_on_title">电池提醒</string>
+    <string name="camera_error">此设备不支持Camera2 API.</string>
+    <string name="camera_permission">此应用程序需要相机才能工作.</string>
+    <string name="request_permission">此功能需要相机许可。</string>
+</resources>
