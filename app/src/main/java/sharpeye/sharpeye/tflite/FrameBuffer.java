@@ -9,7 +9,7 @@ public class FrameBuffer {
 
     private final static int BUFFERING_INTERVAL_MS = 100;
 
-    long lastBufferedImageTime = 0;
+    private long lastBufferedImageTime = 0;
 
     public class Frame {
         public int[] bytes;
