@@ -1,6 +1,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory
             android:key="social"
+
             android:title="@string/about_social">
         <Preference
                 android:key="twitter"
