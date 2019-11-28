@@ -33,6 +33,12 @@ public class GPSService extends Service implements GPSCallback {
     private BipGenerator bipGenerator;
     private GPSManager gpsManager;
     private LocationManager locationManager;
+    private long warningStopTime;
+    private long warningDurationMS = 2500;
+    private long nextTrigger;
+    private long warningTriggerIntervalMS = 20000;
+    private boolean canTriggerWarning = true;
+    private float currSpeedLimit = 0;
 
     @Override
     public int onStartCommand (Intent intent, int flags, int startId)
@@ -82,6 +88,17 @@ public class GPSService extends Service implements GPSCallback {
         initializeGPS();
     }
 
+    public void onSpeedTooBig() {
+        if (canTriggerWarning) {
+            warningStopTime = System.currentTimeMillis() + warningDurationMS;
+            nextTrigger = System.currentTimeMillis() + warningTriggerIntervalMS;
+        }
+    }
+
+    public void onSpeedChange() {
+        canTriggerWarning = true;
+    }
+
     @Override
     public void onDestroy ()
     {
@@ -97,10 +114,18 @@ public class GPSService extends Service implements GPSCallback {
         currentState.setSpeed(round(speed, 3, BigDecimal.ROUND_HALF_UP));
         currentState.setSpeed(true);
         if (currentState != null && currentState.getSpeedLimit() != 0) {
+            if (currentState.getSpeedLimit() != currSpeedLimit) {
+                currSpeedLimit = currentState.getSpeedLimit();
+                onSpeedChange();
+            }
             if (currentState.getSpeed() > currentState.getSpeedLimit())
             {
-                if (bipGenerator != null) {
+                onSpeedTooBig();
+                if (bipGenerator != null && System.currentTimeMillis() < warningStopTime) {
                     bipGenerator.bip(150, 100);
+                } else if (bipGenerator != null && System.currentTimeMillis() > nextTrigger) {
+                    warningStopTime = System.currentTimeMillis() + warningDurationMS;
+                    nextTrigger = System.currentTimeMillis() + warningTriggerIntervalMS;
                 }
             }
         }

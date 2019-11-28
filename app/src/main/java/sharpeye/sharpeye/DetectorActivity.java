@@ -212,7 +212,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         multiBoxTracker = new MultiBoxTracker(this);
 
         try {
-            signClassifier = new SignDetector(getApplicationContext());
+            signClassifier = new SignDetector(getApplicationContext(), frameBuffer);
         } catch (final IOException e) {
             LOGGER.e("Exception initializing classifier!", e);
             Toast toast =
@@ -294,6 +294,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                     }
                 });
 	    multiBoxTracker.setFrameConfiguration(previewWidth, previewHeight, sensorOrientation);
+	    signClassifier.setBitmapProcessVariables(rgbFrameBitmap, rgbOrientedBitmap, rotationTransform, previewWidth, previewHeight);
     }
 
     OverlayView trackingOverlay;
@@ -336,22 +337,28 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         List<Classifier.Recognition> dangerResults = null;
         final List<Classifier.Recognition> fullResults = new ArrayList<>();
         boolean tracking = false;
+        boolean signConfirmation = false;
+        results = new ArrayList<>();
         if (signClassifier.isDetectingSign()) {
-            results = new ArrayList<>();
+            signConfirmation = true;
             List<Classifier.Recognition> tmp = signClassifier.verifySign(rgbOrientedBitmap, MINIMUM_CONFIDENCE_TF_OD_API);
-            for (Classifier.Recognition val: tmp) {
+            if (tmp.size() > 0) {
+                Log.e("Debug", "retrieved " + tmp.get(0).getTitle());
+            }
+            for (Classifier.Recognition val : tmp) {
                 if (val.getLocation().right >= 0 &&
                         val.getLocation().left >= 0 && val.getLocation().bottom >= 0 && val.getLocation().top >= 0 &&
                         val.getLocation().right < 5000 && val.getLocation().left < 5000 && val.getLocation().bottom < 5000 &&
                         val.getLocation().top < 5000) {
                     results.add(val);
+                    Log.e("Debug", "Added to results: " + results.get(0).getTitle());
                 }
             }
             for (Classifier.Recognition recog : results) {
-                Log.d("DETECTORACTIVITY", "OID="+recog.getOpencvID()+ " | ID="+recog.getId()+" | title="+recog.getTitle()+" | bottom="+recog.getLocation().bottom+" | top="+ recog.getLocation().top+" | left="+recog.getLocation().left+" | right="+recog.getLocation().right);
+                Log.d("DETECTORACTIVITY", "OID=" + recog.getOpencvID() + " | ID=" + recog.getId() + " | title=" + recog.getTitle() + " | bottom=" + recog.getLocation().bottom + " | top=" + recog.getLocation().top + " | left=" + recog.getLocation().left + " | right=" + recog.getLocation().right);
             }
-        } else if (!initializedTracking || (startTime - lastRecognition) >= 300) {
-            results = new ArrayList<>();
+        }
+        if (!initializedTracking || (startTime - lastRecognition) >= 200) {
             List<Classifier.Recognition> tmp = null;
             if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(getApplicationContext(),"signs_on",false)) {
                 tmp = signClassifier.detectSign(rgbOrientedBitmap, MINIMUM_CONFIDENCE_TF_OD_API);
@@ -387,11 +394,11 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
             fullResults.addAll(results);
             fullResults.addAll(dangerResults);
-            tracker.track(croppedBitmap, fullResults);
+            tracker.track(croppedBitmap, dangerResults);
             initializedTracking = true;
             lastRecognition = SystemClock.uptimeMillis();
         } else {
-            results = tracker.update(croppedBitmap);
+            results.addAll(tracker.update(croppedBitmap));
 //            alertCollision = tracker.isAlertCollision();
             tracking = true;
         }
@@ -431,10 +438,14 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                 result.setLocation(location);
                 mappedRecognitions.add(result);
                 try {
-                    if (objectsProcessing != null && !tracking) {
+                    if (objectsProcessing != null && (!tracking || signConfirmation)) {
+                        Log.e("Debug", "Sign: " + result.getTitle());
                         objectsProcessing.processDetectedObject(result);
                         Sign sign = signList.get(result.getTitle());
-                        if (sign != null) currentState.addSign(sign);
+                        if (sign != null) {
+                            Log.e("Debug", "Sign passed: " + result.getTitle());
+                            currentState.addSign(sign);
+                        }
                     }
                 } catch (NullPointerException ex) {
                     Log.e("Detector", "WarningEvent already released");
