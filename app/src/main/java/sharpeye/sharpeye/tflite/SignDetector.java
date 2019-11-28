@@ -88,7 +88,7 @@ public class SignDetector {
             frameBuffer = _frameBuffer;
             speech = new Speech(context);
             if (BuildConfig.DEBUG) {
-                setDebugMode(true, true);
+                setDebugMode(false, false);
             }
     }
 
