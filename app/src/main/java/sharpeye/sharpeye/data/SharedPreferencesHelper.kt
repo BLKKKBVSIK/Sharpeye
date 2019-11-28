@@ -12,7 +12,7 @@ object SharedPreferencesHelper {
      * @param key - Key to set shared preference
      * @param value - Value for the key
      */
-    fun setSharedPreferencesString(context: Context, key: String, value: String) {
+    fun setSharedPreferenceString(context: Context, key: String, value: String) {
         //val settings = context.getSharedPreferences(PREF_FILE, 0)
         val settings = PreferenceManager.getDefaultSharedPreferences(context)
         val editor = settings.edit()
@@ -25,7 +25,7 @@ object SharedPreferencesHelper {
      * @param key - Key to set shared preference
      * @param value - Value for the key
      */
-    fun setSharedPreferencesInt(context: Context, key: String, value: Int) {
+    fun setSharedPreferenceInt(context: Context, key: String, value: Int) {
         //val settings = context.getSharedPreferences(PREF_FILE, 0)
         val settings = PreferenceManager.getDefaultSharedPreferences(context)
         val editor = settings.edit()
@@ -64,7 +64,7 @@ object SharedPreferencesHelper {
      * @param defValue - Default value to be returned if shared preference isn't found.
      * @return value - String containing value of the shared preference if found.
      */
-    fun getSharedPreferencesInt(context: Context, key: String, defValue: Int): Int {
+    fun getSharedPreferenceInt(context: Context, key: String, defValue: Int): Int {
         //val settings = context.getSharedPreferences(PREF_FILE, 0)
         val settings = PreferenceManager.getDefaultSharedPreferences(context)
         return settings.getInt(key, defValue)
