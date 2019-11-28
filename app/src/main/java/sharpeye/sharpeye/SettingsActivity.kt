@@ -13,6 +13,7 @@ import android.support.annotation.RequiresApi
 import android.text.TextUtils
 import android.view.MenuItem
 import android.support.v4.app.NavUtils
+import sharpeye.sharpeye.data.SharedPreferencesHelper
 import sharpeye.sharpeye.utils.Android
 import sharpeye.sharpeye.utils.App
 import sharpeye.sharpeye.utils.Phone
@@ -31,6 +32,10 @@ import sharpeye.sharpeye.utils.Phone
 class SettingsActivity : AppCompatPreferenceActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        if (SharedPreferencesHelper.getSharedPreferencesBoolean(this, "dark_theme_on", false))
+            setTheme(R.style.SettingThemeDark)
+        else
+            setTheme(R.style.SettingTheme)
         super.onCreate(savedInstanceState)
         setupActionBar()
     }
@@ -163,7 +168,6 @@ class SettingsActivity : AppCompatPreferenceActivity() {
             val id = item.itemId
             if (id == android.R.id.home) {
                 startActivity(Intent(activity, SettingsActivity::class.java))
-
                 return true
             }
             return super.onOptionsItemSelected(item)
@@ -176,13 +180,21 @@ class SettingsActivity : AppCompatPreferenceActivity() {
             addPreferencesFromResource(R.xml.pref_settings)
             setHasOptionsMenu(true)
             activity.title = resources.getString(R.string.nav_parameters)
+            val switchPreference = findPreference("dark_theme_on")
+            switchPreference.setOnPreferenceChangeListener { preference, newValue ->
+                if (newValue == true)
+                    context.setTheme(R.style.SettingThemeDark)
+                else
+                    context.setTheme(R.style.SettingTheme)
+                activity.recreate()
+                true
+            }
         }
 
         override fun onOptionsItemSelected(item: MenuItem): Boolean {
             val id = item.itemId
             if (id == android.R.id.home) {
                 startActivity(Intent(activity, SettingsActivity::class.java))
-
                 return true
             }
             return super.onOptionsItemSelected(item)
