@@ -139,5 +139,4 @@
     <string name="request_permission">This sample needs camera permission.</string>
 	<string name="active_dark_theme">Dark theme</string>
     <string name="dark_theme_summary">Applies on the next menu change</string>
-
 </resources>
