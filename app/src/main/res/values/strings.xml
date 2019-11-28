@@ -163,5 +163,6 @@
     <string name="camera_error">Cet appareil ne supporte pas l\'API Camera2.</string>
     <string name="camera_permission">Cette application nécessite la caméra pour fonctionner</string>
     <string name="request_permission">Cette fonctionnalité à besoin de la permission caméra</string>
-
+	<string name="active_dark_theme">Thème sombre</string>
+    <string name="dark_theme_summary">Effectif au prochain changement de menu</string>
 </resources>
