@@ -17,12 +17,12 @@ public class CropTracker {
 
     private final static long TIME_LIMIT = 2000;
 
-    int width;
-    int height;
-    int cropSize;
-    int interval;
-    int limit;
-    int start;
+    private int width;
+    private int height;
+    private int cropSize;
+    private int interval;
+    private int limit;
+    private int start;
 
     boolean tracking = false;
     boolean idle = true;
