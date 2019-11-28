@@ -2,7 +2,6 @@ package sharpeye.sharpeye.Detection;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -244,11 +243,11 @@ public class Detector {
             lastRecognition = SystemClock.uptimeMillis();
         } else {
             double speed = currentState.isSpeed() ? currentState.getSpeed() : 0;
-            tracker.alertIfDangerous(currentState.getSpeed());
             results = tracker.update(croppedBitmap, speed);
             if (SharedPreferencesHelper.INSTANCE.getSharedPreferencesBoolean(context,"collision_on",false)) {
                 tracker.alertIfDangerous(speed);
             }
+            tracking = true;
         }
         final long lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime;
 

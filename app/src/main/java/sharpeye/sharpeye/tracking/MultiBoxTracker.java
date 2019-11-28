@@ -8,6 +8,8 @@ import android.graphics.Paint.Style;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.util.TypedValue;
+
+import sharpeye.sharpeye.BuildConfig;
 import sharpeye.sharpeye.tflite.Classifier.Recognition;
 import sharpeye.sharpeye.utils.BorderedText;
 import sharpeye.sharpeye.utils.ImageUtils;
@@ -18,11 +20,13 @@ import java.util.List;
 import java.util.Queue;
 
 /**
- * A tracker wrapping ObjectTracker that also handles non-max suppression and matching existing
- * objects to new detections.
+ * A tracker that handles the display of the detected objects boxes
  */
 public class MultiBoxTracker {
     private final Logger logger = new Logger();
+
+    private static final boolean DEBUG = BuildConfig.DEBUG;
+
 
     private static final float TEXT_SIZE_DIP = 18;
 
@@ -95,20 +99,22 @@ public class MultiBoxTracker {
     }
 
     public synchronized void drawDebug(final Canvas canvas) {
-        final Paint textPaint = new Paint();
-        textPaint.setColor(Color.WHITE);
-        textPaint.setTextSize(60.0f);
+        if (DEBUG) {
+            final Paint textPaint = new Paint();
+            textPaint.setColor(Color.WHITE);
+            textPaint.setTextSize(60.0f);
 
-        final Paint boxPaint = new Paint();
-        boxPaint.setColor(Color.RED);
-        boxPaint.setAlpha(200);
-        boxPaint.setStyle(Style.STROKE);
+            final Paint boxPaint = new Paint();
+            boxPaint.setColor(Color.RED);
+            boxPaint.setAlpha(200);
+            boxPaint.setStyle(Style.STROKE);
 
-        for (final Pair<Float, RectF> detection : screenRects) {
-            final RectF rect = detection.second;
-            canvas.drawRect(rect, boxPaint);
-            canvas.drawText("" + detection.first, rect.left, rect.top, textPaint);
-            borderedText.drawText(canvas, rect.centerX(), rect.centerY(), "" + detection.first);
+            for (final Pair<Float, RectF> detection : screenRects) {
+                final RectF rect = detection.second;
+                canvas.drawRect(rect, boxPaint);
+                canvas.drawText("" + detection.first, rect.left, rect.top, textPaint);
+                borderedText.drawText(canvas, rect.centerX(), rect.centerY(), "" + detection.first);
+            }
         }
     }
 
@@ -118,35 +124,37 @@ public class MultiBoxTracker {
     }
 
     public synchronized void draw(final Canvas canvas) {
-        final boolean rotated = sensorOrientation % 180 == 90;
-        final float multiplier =
-                Math.min(canvas.getHeight() / (float) (rotated ? frameWidth : frameHeight),
-                        canvas.getWidth() / (float) (rotated ? frameHeight : frameWidth));
-        frameToCanvasMatrix =
-                ImageUtils.getTransformationMatrix(
-                        frameWidth,
-                        frameHeight,
-                        (int) (multiplier * (rotated ? frameHeight : frameWidth)),
-                        (int) (multiplier * (rotated ? frameWidth : frameHeight)),
-                        sensorOrientation,
-                        false);
-        for (final TrackedRecognition recognition : trackedObjects) {
-            final RectF trackedPos = new RectF(recognition.location);
+        if (DEBUG) {
+            final boolean rotated = sensorOrientation % 180 == 90;
+            final float multiplier =
+                    Math.min(canvas.getHeight() / (float) (rotated ? frameWidth : frameHeight),
+                            canvas.getWidth() / (float) (rotated ? frameHeight : frameWidth));
+            frameToCanvasMatrix =
+                    ImageUtils.getTransformationMatrix(
+                            frameWidth,
+                            frameHeight,
+                            (int) (multiplier * (rotated ? frameHeight : frameWidth)),
+                            (int) (multiplier * (rotated ? frameWidth : frameHeight)),
+                            sensorOrientation,
+                            false);
+            for (final TrackedRecognition recognition : trackedObjects) {
+                final RectF trackedPos = new RectF(recognition.location);
 
-            getFrameToCanvasMatrix().mapRect(trackedPos);
-            boxPaint.setColor(recognition.color);
+                getFrameToCanvasMatrix().mapRect(trackedPos);
+                boxPaint.setColor(recognition.color);
 
-            final float cornerSize = Math.min(trackedPos.width(), trackedPos.height()) / 8.0f;
-            canvas.drawRoundRect(trackedPos, cornerSize, cornerSize, boxPaint);
+                final float cornerSize = Math.min(trackedPos.width(), trackedPos.height()) / 8.0f;
+                canvas.drawRoundRect(trackedPos, cornerSize, cornerSize, boxPaint);
 
-            // ID of the tracked object
-            final String idString = String.format(" | ID %d", recognition.opencvID);
-            final String labelString =
-                    !TextUtils.isEmpty(recognition.title)
-                            ? String.format("%s %.2f", recognition.title, (100 * recognition.detectionConfidence))
-                            : String.format("%.2f", (100 * recognition.detectionConfidence));
-            borderedText.drawText(
-                    canvas, trackedPos.left + cornerSize, trackedPos.top, labelString + "%" + idString, boxPaint);
+                // ID of the tracked object
+                final String idString = String.format(" | ID %d", recognition.opencvID);
+                final String labelString =
+                        !TextUtils.isEmpty(recognition.title)
+                                ? String.format("%s %.2f", recognition.title, (100 * recognition.detectionConfidence))
+                                : String.format("%.2f", (100 * recognition.detectionConfidence));
+                borderedText.drawText(
+                        canvas, trackedPos.left + cornerSize, trackedPos.top, labelString + "%" + idString, boxPaint);
+            }
         }
     }
 

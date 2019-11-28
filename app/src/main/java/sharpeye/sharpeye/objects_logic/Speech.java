@@ -2,6 +2,7 @@ package sharpeye.sharpeye.objects_logic;
 
 import android.content.Context;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.TextToSpeechService;
 import android.util.Log;
 
 import java.util.Locale;
@@ -18,16 +19,18 @@ public class Speech {
     }
 
     private void setLanguage() {
-        Set<Locale> availableLanguages = textToSpeech.getAvailableLanguages();
-        if (availableLanguages != null) {
-            for (Locale language: availableLanguages) {
-                if (language.toString().equals("fr_FR")) {
-                    int result = textToSpeech.setLanguage(language);
-                    if (result != TextToSpeech.LANG_MISSING_DATA &&
-                            result != TextToSpeech.LANG_NOT_SUPPORTED) {
-                        break;
+        if (textToSpeech != null) {
+            Set<Locale> availableLanguages = textToSpeech.getAvailableLanguages();
+            if (availableLanguages != null) {
+                for (Locale language : availableLanguages) {
+                    if (language.toString().equals("fr_FR")) {
+                        int result = textToSpeech.setLanguage(language);
+                        if (result != TextToSpeech.LANG_MISSING_DATA &&
+                                result != TextToSpeech.LANG_NOT_SUPPORTED) {
+                            break;
+                        }
+                        Log.e("TextToSpeech", "fr_FR is not supported or data are missing");
                     }
-                    Log.e("TextToSpeech", "fr_FR is not supported or data are missing");
                 }
             }
         }
