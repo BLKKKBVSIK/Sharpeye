@@ -44,6 +44,8 @@ public abstract class CameraActivity extends AppCompatActivity
     implements OnImageAvailableListener, NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
   private static final Logger LOGGER = new Logger();
 
+  private static final boolean RELEASE = !BuildConfig.DEBUG;
+
   private static final int PERMISSIONS_REQUEST = 1;
 
   private static final String PERMISSION_CAMERA = Manifest.permission.CAMERA;
@@ -460,11 +462,13 @@ public abstract class CameraActivity extends AppCompatActivity
 
   @Override
   public boolean onKeyDown(final int keyCode, final KeyEvent event) {
-    if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP
-            || keyCode == KeyEvent.KEYCODE_BUTTON_L1 || keyCode == KeyEvent.KEYCODE_DPAD_CENTER) {
-      debug = !debug;
-      requestRender();
-      return true;
+    if (!RELEASE) {
+      if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP
+              || keyCode == KeyEvent.KEYCODE_BUTTON_L1 || keyCode == KeyEvent.KEYCODE_DPAD_CENTER) {
+        debug = !debug;
+        requestRender();
+        return super.onKeyDown(keyCode, event);
+      }
     }
     return super.onKeyDown(keyCode, event);
   }
